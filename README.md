@@ -96,7 +96,7 @@
 运行该项目需要以下环境支持
 - Mysql
 - Redis
-- Jeager
+- Jaeger
 
 目前该项目已经集成 Docker 环境，按以下步骤可以自动配置以上依赖。[docker-compose](https://docs.docker.com/compose/compose-file/compose-file-v3/) 相关文档请查看这里
 
