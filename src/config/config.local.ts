@@ -33,7 +33,9 @@ export const jwtAuth: JwtAuthMiddlewareConfig = {
 };
 
 export const security = {
-  csrf: false,
+  csrf: {
+    enable: false
+  },
 };
 
 // 数据库配置
