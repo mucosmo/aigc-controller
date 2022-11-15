@@ -13,14 +13,23 @@
     "noUnusedLocals": true,
     "outDir": "dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "pretty": true,
     "skipLibCheck": true,
     "stripInternal": true,
     "target": "ES2020",
-    "typeRoots": ["./typings", "./node_modules/@types"],
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ],
     // "types" : ["jest", "node"]
   },
-  "exclude": ["dist", "node_modules", "test"]
+  "exclude": [
+    "dist",
+    "node_modules",
+    "test"
+  ]
 }

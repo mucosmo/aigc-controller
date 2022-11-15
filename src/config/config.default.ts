@@ -52,14 +52,12 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
 
   // swagger文档配置，默认地址 http://127.0.0.1:7001/swagger-ui/index.html
   config.swagger = {
-    title: 'service-mw2',
-    description: 'service-mw2 模版工程的接口定义',
-    version: '1.1.0',
-    termsOfService: 'https://github.com/fsd-nodejs/service-mw2',
+    title: 'streamPipeline',
+    description: 'streamPipeline工程的接口定义',
+    version: '0.0.1',
     contact: {
-      name: 'tkvern',
-      url: 'https://github.com/tkvern',
-      email: 'verncake@gmail.com',
+      name: 'huanyu.yang',
+      email: 'mfuture@qq.com',
     },
     license: {
       name: 'MIT',
