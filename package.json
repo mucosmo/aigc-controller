@@ -69,7 +69,7 @@
     "online": "egg-scripts start --title=midway-server-my_midway_project --framework=midway",
     "stop": "egg-scripts stop --title=midway-server-my_midway_project",
     "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev",
-    "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts",
+    "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts --port=60123",
     "debug": "cross-env NODE_ENV=local midway-bin dev --debug --ts",
     "test": "midway-bin test --ts --forceExit",
     "test:mocha": "cross-env MIDWAY_SERVER_ENV=unittest mocha --parallel=false",
