@@ -6,9 +6,11 @@ import {
   Post,
   Validate,
   Body,
+  App
 } from '@midwayjs/decorator';
 
-import { Context } from '@/interface';
+import { Application, Context } from '@/interface';
+
 
 import { AdminUserService } from '../../service/admin/user';
 import {
@@ -27,6 +29,9 @@ export class StreamPushController {
   @Inject('adminUserService')
   service: AdminUserService;
 
+  @App()
+  private _app!: Application;
+
   @Inject('adminRoleService')
   roleService: AdminRoleService;
 
@@ -39,8 +44,19 @@ export class StreamPushController {
   })
   @Validate()
   async query(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    const { stream } = params;
-    ctx.helper.success(stream);
+
+    // 发送给 mediasoup 服务器，控制其音视频流
+    const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push"
+    const result = await this._app.curl(serverHttp, {
+      method: 'POST',
+      data: params,
+      dataType:'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+
+    ctx.helper.success(result.data);
   }
 
 }
