@@ -8,12 +8,14 @@ export class StreamPushDTO {
   @CreateApiPropertyDoc('控制流的参数')
   @Rule(
     RuleType.object({
-      mode: RuleType.string().trim().valid('sync', 'async').required(),
-      format: RuleType.string().trim().valid('opus', 'pcm', 'mp3').required(),
-      room: RuleType.string().trim().valid('room1', 'room2').required(),
-      user: RuleType.string().trim().valid('user1', 'user2').required(),
+      type: RuleType.string().trim().required(),
+      file: RuleType.object().required(),
     }))
   stream: object;
+
+  @CreateApiPropertyDoc('腾讯 AsrSDK 配置')
+  @Rule(RuleType.string().valid('sync', 'async').required())
+  mode: string;
 
   @CreateApiPropertyDoc('腾讯 AsrSDK 配置')
   @Rule(RuleType.object().optional())

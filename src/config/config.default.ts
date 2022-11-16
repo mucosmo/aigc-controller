@@ -59,10 +59,6 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
       name: 'huanyu.yang',
       email: 'mfuture@qq.com',
     },
-    license: {
-      name: 'MIT',
-      url: 'https://github.com/midwayjs/midway/blob/serverless/LICENSE',
-    },
   };
 
   // snowflake id generator config
