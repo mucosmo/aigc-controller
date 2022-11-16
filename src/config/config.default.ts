@@ -61,6 +61,12 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
     },
   };
 
+  config.cors= {
+    credentials: true,
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
+    origin:"*"
+  };
+
   // snowflake id generator config
   // '2020-01-01T00:00:00Z'
   const epoch = 1577836800000;

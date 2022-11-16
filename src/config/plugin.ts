@@ -9,4 +9,8 @@ export const redis = {
 export default {
   static: true, // default is true
   redis,
+  cors: {
+    enable: true,
+    package: 'egg-cors',
+  },
 } as EggPlugin;

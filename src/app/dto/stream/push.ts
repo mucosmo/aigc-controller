@@ -9,7 +9,8 @@ export class StreamPushDTO {
   @Rule(
     RuleType.object({
       type: RuleType.string().trim().required(),
-      file: RuleType.object().required(),
+      file: RuleType.object().optional(),
+      mediasoup: RuleType.object().optional(),
     }))
   stream: object;
 
@@ -18,7 +19,16 @@ export class StreamPushDTO {
   mode: string;
 
   @CreateApiPropertyDoc('腾讯 AsrSDK 配置')
-  @Rule(RuleType.object().optional())
-  asrConfig?: object;
+  @Rule(RuleType.object().required())
+  config: object;
+}
+
+/**
+ * 获取单个管理员参数
+ */
+ export class ShowDTO {
+  @CreateApiPropertyDoc('管理员的id')
+  @Rule(RuleType.string().trim().max(10).required())
+  id: string;
 }
 
