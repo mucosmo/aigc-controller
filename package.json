@@ -1,7 +1,7 @@
 {
-  "name": "service-mw2",
+  "name": "tx_streamPipeline",
   "version": "1.3.0",
-  "description": "Best practices of Midway.js",
+  "description": "甜新科技RTC流控制服务器",
   "private": true,
   "dependencies": {
     "@midwayjs/bootstrap": "^2.12.0",
@@ -67,10 +67,10 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=midway-server-my_midway_project --framework=midway",
+    "start": "egg-scripts start --daemon --title=midway-server-my_midway_project --framework=midway --port=60123",
     "online": "egg-scripts start --title=midway-server-my_midway_project --framework=midway",
     "stop": "egg-scripts stop --title=midway-server-my_midway_project",
-    "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev",
+    "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev --port=60123",
     "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts --port=60123",
     "debug": "cross-env NODE_ENV=local midway-bin dev --debug --ts",
     "test": "midway-bin test --ts --forceExit",
