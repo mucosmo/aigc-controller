@@ -5,6 +5,10 @@ import { CreateApiPropertyDoc } from '@midwayjs/swagger';
  * 流推送列表参数
  */
 export class StreamPushDTO {
+  @CreateApiPropertyDoc('推送模式')
+  @Rule(RuleType.string().valid('sync', 'async').required())
+  mode: string;
+
   @CreateApiPropertyDoc('控制流的参数')
   @Rule(
     RuleType.object({
@@ -25,11 +29,11 @@ export class StreamPushDTO {
   stream: object;
 
   @CreateApiPropertyDoc('腾讯 AsrSDK 配置')
-  @Rule(RuleType.string().valid('sync', 'async').required())
-  mode: string;
-
-  @CreateApiPropertyDoc('腾讯 AsrSDK 配置')
-  @Rule(RuleType.object().required())
+  @Rule(RuleType.object({
+    token: RuleType.optional(),
+    config: RuleType.required(),
+  }
+  ).required())
   config: object;
 }
 

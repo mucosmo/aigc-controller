@@ -22,8 +22,8 @@ import { AdminPermissionService } from '../../service/admin/permission';
 
 @Provide()
 @Controller('/stream', {
-  tagName: '管理员管理',
-  description: '包含管理员的增、删、改、查',
+  tagName: 'RTC 数据流管理',
+  description: '包含 RTC 数据流的推送和拉取',
 })
 export class StreamPushController {
   @Inject('adminUserService')
