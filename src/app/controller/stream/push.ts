@@ -6,9 +6,7 @@ import {
   Post,
   Validate,
   Body,
-  App,
-  Get,
-  Query
+  App
 } from '@midwayjs/decorator';
 
 import { Application, Context } from '@/interface';
@@ -16,7 +14,7 @@ import { Application, Context } from '@/interface';
 
 import { AdminUserService } from '../../service/admin/user';
 import {
-  StreamPushDTO, ShowDTO
+  StreamPushDTO
 } from '../../dto/stream/push';
 
 import { AdminRoleService } from '../../service/admin/role';
@@ -46,9 +44,7 @@ export class StreamPushController {
   })
   @Validate()
   async query(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-
-console.log('--------------- stream/push ---------')
-console.log(params)
+    console.log(params);
     try {
       // 发送给 mediasoup 服务器，控制其音视频流
       const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push"
@@ -62,23 +58,7 @@ console.log(params)
       });
       ctx.helper.success(result.data);
     } catch (error) {
-      ctx.helper.success(params);
-
+      ctx.helper.success(error, '服务器内部错误', 500);
     }
-
-
-
-
   }
-
-  @Get('/show', {
-    summary: '获取单个管理员详情',
-    description: '获取管理员的详细信息，包括其关联的对象',
-  })
-  @Validate()
-  async show(ctx: Context, @Query(ALL) query: ShowDTO) {
- 
-    ctx.helper.success(query);
-  }
-
 }
