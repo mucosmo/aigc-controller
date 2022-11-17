@@ -24,8 +24,7 @@
     "typeRoots": [
       "./typings",
       "./node_modules/@types"
-    ],
-    // "types" : ["jest", "node"]
+    ]
   },
   "exclude": [
     "dist",
