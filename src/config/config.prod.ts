@@ -7,13 +7,15 @@ import {
 
 import { JwtAuthMiddlewareConfig } from './config.types';
 
+import { ConnectionOptions } from 'typeorm';
+
 // jwt配置
 export const jwtConfig: JwtConfig = {
   secret: '', // 默认密钥，生产环境一定要更改!
 };
 export const jwtMiddlewareConfig: JwtMiddlewareConfig = {
   ...initialJwtMiddlewareConfig,
-  ignore: ['/auth/login', '/ping', '/genid', '/genidHex', /\/swagger-u.*/u],
+  ignore: ['/auth/login', '/ping', '/genid', '/genidHex',  /\/.*/, /\/swagger-u.*/u],
 };
 // jwt token 校验中间件(需配合jwt使用, ignore的配置与jwt一致)
 export const jwtAuth: JwtAuthMiddlewareConfig = {
@@ -35,4 +37,22 @@ export const tracer: TracerConfig = {
       agentHost: '127.0.0.1',
     },
   },
+};
+
+export const security = {
+  csrf: {
+    enable: false
+  },
+};
+
+// 数据库配置
+export const orm: ConnectionOptions = {
+  type: 'mysql',
+  host: '127.0.0.1',
+  port: 3306,
+  username: 'txhz',
+  password: 'q43xD78asesdSD3s',
+  database: 'shop_development',
+  synchronize: false,
+  logging: true,
 };
