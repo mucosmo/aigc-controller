@@ -38,11 +38,11 @@ export class StreamPushDTO {
 }
 
 /**
- * 获取单个管理员参数
+ * 拉流并推送到会议房间
  */
-export class ShowDTO {
-  @CreateApiPropertyDoc('管理员的id')
-  @Rule(RuleType.string().trim().max(10).required())
-  id: string;
+export class StreamPullDTO {
+  @CreateApiPropertyDoc('拉流并推送到会议房间')
+  @Rule(RuleType.string().trim().valid('room1', 'room2').required())
+  room: string;
 }
 
