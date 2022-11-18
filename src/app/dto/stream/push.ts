@@ -50,3 +50,16 @@ export class StreamPullDTO {
   text: string;
 }
 
+/**
+ * 流的直播地址
+ */
+ export class StreamLiveDTO {
+  @CreateApiPropertyDoc('目标房间')
+  @Rule(RuleType.string().trim().valid('room1', 'room2').required())
+  room: string;
+
+  @CreateApiPropertyDoc('目标人员')
+  @Rule(RuleType.string().trim().valid('user1', 'user2').required())
+  user: string;
+}
+

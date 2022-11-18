@@ -14,7 +14,7 @@ import { Application, Context } from '@/interface';
 
 import { AdminUserService } from '../../service/admin/user';
 import {
-  StreamPushDTO, StreamPullDTO
+  StreamPushDTO, StreamPullDTO, StreamLiveDTO
 } from '../../dto/stream/push';
 
 import { AdminRoleService } from '../../service/admin/role';
@@ -44,7 +44,6 @@ export class StreamPushController {
   })
   @Validate()
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    console.log(params);
     try {
       // 发送给 mediasoup 服务器，控制其音视频流
       const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push"
@@ -119,6 +118,30 @@ export class StreamPushController {
       result3.data["sessionId"] = sessionId
 
       ctx.helper.success(result3.data);
+    } catch (error) {
+      ctx.helper.success(error, '服务器内部错误', 500);
+    }
+  }
+
+
+  @Post('/push/live', {
+    summary: '拉流并推送到房间',
+    description: '',
+  })
+  @Validate()
+  async liveStreamUrl(ctx: Context, @Body(ALL) params: StreamLiveDTO) {
+    try {
+      // 发送给 mediasoup 服务器，生成某用户的直播流地址
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push/live"
+      const result = await this._app.curl(serverHttp, {
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      ctx.helper.success(result.data);
     } catch (error) {
       ctx.helper.success(error, '服务器内部错误', 500);
     }
