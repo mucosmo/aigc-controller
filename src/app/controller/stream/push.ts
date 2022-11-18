@@ -70,30 +70,30 @@ export class StreamPushController {
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
-      // 获取数字人流
-      const body = {
-        sessionId: `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`,
+      // 生成数字人形象
+      const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
+      const body1 = {
+        sessionId: sessionId,
         templateId: 5,
+        protocol: "rtmp" // valid('rtsp','rtmp','flv')
       }
-
-      console.log(body.sessionId)
-      let serverHttp = "http://hz-test.ikandy.cn:60004/init/resource"
-      let result = await this._app.curl(serverHttp, {
+      const serverHttp1 = "http://hz-test.ikandy.cn:60004/init/resource"
+      const result1 = await this._app.curl(serverHttp1, {
         method: 'POST',
-        data: body,
+        data: body1,
         dataType: 'json',
         headers: {
           'content-type': 'application/json',
         },
       });
 
-      // 将流地址和要播放的房间号传给 mediasoup 服务器
+      // 为数字人添加朗读文本
       const body2 = {
-        room: params.room,
-        streamAddr: result.data.data.addr
+        sessionId: sessionId,
+        text: params.text,
       }
-      serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull"
-      result = await this._app.curl(serverHttp, {
+      const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
+      await this._app.curl(serverHttp2, {
         method: 'POST',
         data: body2,
         dataType: 'json',
@@ -102,7 +102,23 @@ export class StreamPushController {
         },
       });
 
-      ctx.helper.success(result.data);
+      // 将流地址和要播放的房间号传给 mediasoup 服务器
+      const body3 = {
+        room: params.room,
+        streamAddr: result1.data.data.addr
+      }
+      const serverHttp3 = "https://hz-test.ikandy.cn:4443/stream/pull"
+      const result3 = await this._app.curl(serverHttp3, {
+        method: 'POST',
+        data: body3,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      result3.data["sessionId"] = sessionId
+
+      ctx.helper.success(result3.data);
     } catch (error) {
       ctx.helper.success(error, '服务器内部错误', 500);
     }

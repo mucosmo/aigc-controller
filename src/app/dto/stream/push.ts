@@ -41,8 +41,12 @@ export class StreamPushDTO {
  * 拉流并推送到会议房间
  */
 export class StreamPullDTO {
-  @CreateApiPropertyDoc('拉流并推送到会议房间')
+  @CreateApiPropertyDoc('数字人要加入的房间')
   @Rule(RuleType.string().trim().valid('room1', 'room2').required())
   room: string;
+
+  @CreateApiPropertyDoc('数字人朗读的文本')
+  @Rule(RuleType.string().trim().required())
+  text: string;
 }
 
