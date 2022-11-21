@@ -46,8 +46,12 @@ export class StreamPushDTO {
   room: string;
 
   @CreateApiPropertyDoc('源流类型')
-  @Rule(RuleType.string().trim().valid('file', 'live','demand').required())
+  @Rule(RuleType.string().trim().valid('file', 'live','demand','rtc').required())
   stream: string;
+
+  @CreateApiPropertyDoc('源流地址')
+  @Rule(RuleType.string().trim().required())
+  path: string;
 
   @CreateApiPropertyDoc('数字人朗读的文本')
   @Rule(RuleType.string().trim().required())

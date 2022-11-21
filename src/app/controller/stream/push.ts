@@ -91,7 +91,7 @@ export class StreamPushController {
   }
 
   @Post('/push', {
-    summary: '将外部流（数字人、文件等）推送到到房间',
+    summary: '将外部流推送到到房间',
     description: '',
   })
   @Validate()
