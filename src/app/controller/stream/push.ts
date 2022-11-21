@@ -38,12 +38,12 @@ export class StreamPushController {
   @Inject('adminPermissionService')
   permissionService: AdminPermissionService;
 
-  @Post('/pull', {
+  @Post('/pull/asr', {
     summary: '拉取音频流并进行 ASR',
     description: '房间，用户，文件和音频格式',
   })
   @Validate()
-  async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPushDTO) {
+  async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
       // 发送给 mediasoup 服务器，控制其音视频流
       const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull"
@@ -62,12 +62,40 @@ export class StreamPushController {
   }
 
 
+  @Post('/pull/live', {
+    summary: '从房间拉流并生成直播地址',
+    description: '',
+  })
+  @Validate()
+  async liveStreamUrl(ctx: Context, @Body(ALL) params: StreamLiveDTO) {
+    try {
+      // 发送给 mediasoup 服务器，生成某用户的直播流地址
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull/live"
+      const result = await this._app.curl(serverHttp, {
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+
+      ctx.helper.success(result.data);
+
+    } catch (error) {
+      ctx.helper.success({ liveUrl: 'http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8' });
+
+      // ctx.helper.success(error, '服务器内部错误', 500);
+    }
+  }
+
   @Post('/push', {
     summary: '将外部流（数字人）推送到到房间',
     description: '',
   })
   @Validate()
-  async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPullDTO) {
+  async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
     try {
       // 生成数字人形象
       const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
@@ -124,26 +152,5 @@ export class StreamPushController {
   }
 
 
-  @Post('/pull/live', {
-    summary: '从房间拉流并生成 live url',
-    description: '',
-  })
-  @Validate()
-  async liveStreamUrl(ctx: Context, @Body(ALL) params: StreamLiveDTO) {
-    try {
-      // 发送给 mediasoup 服务器，生成某用户的直播流地址
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull/live"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: params,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      ctx.helper.success(result.data);
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
-    }
-  }
+
 }

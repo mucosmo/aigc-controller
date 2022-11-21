@@ -2,9 +2,9 @@ import { Rule, RuleType } from '@midwayjs/decorator';
 import { CreateApiPropertyDoc } from '@midwayjs/swagger';
 
 /**
- * 流推送列表参数
+ * 从房间拉流列表参数
  */
-export class StreamPushDTO {
+export class StreamPullDTO {
   @CreateApiPropertyDoc('推送模式')
   @Rule(RuleType.string().valid('sync', 'async').required())
   mode: string;
@@ -40,10 +40,14 @@ export class StreamPushDTO {
 /**
  * 拉流并推送到会议房间
  */
-export class StreamPullDTO {
+export class StreamPushDTO {
   @CreateApiPropertyDoc('数字人要加入的房间')
   @Rule(RuleType.string().trim().valid('room1', 'room2').required())
   room: string;
+
+  @CreateApiPropertyDoc('源流类型')
+  @Rule(RuleType.string().trim().valid('file', 'live','demand').required())
+  stream: string;
 
   @CreateApiPropertyDoc('数字人朗读的文本')
   @Rule(RuleType.string().trim().required())
@@ -51,7 +55,7 @@ export class StreamPullDTO {
 }
 
 /**
- * 流的直播地址
+ * 拉流并生成直播地址
  */
  export class StreamLiveDTO {
   @CreateApiPropertyDoc('目标房间')
@@ -61,5 +65,10 @@ export class StreamPullDTO {
   @CreateApiPropertyDoc('目标人员')
   @Rule(RuleType.string().trim().valid('user1', 'user2').required())
   user: string;
+
+
+  @CreateApiPropertyDoc('流类型')
+  @Rule(RuleType.string().trim().valid('audio', 'video', 'both').required())
+  stream: string;
 }
 
