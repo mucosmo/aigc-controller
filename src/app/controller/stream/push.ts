@@ -38,9 +38,9 @@ export class StreamPushController {
   @Inject('adminPermissionService')
   permissionService: AdminPermissionService;
 
-  @Post('/pull/asr', {
-    summary: '拉取音频流并进行 ASR',
-    description: '房间，用户，文件和音频格式',
+  @Post('/pull/dm', {
+    summary: '拉取音频流用于会话管理',
+    description: '',
   })
   @Validate()
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
@@ -91,7 +91,7 @@ export class StreamPushController {
   }
 
   @Post('/push', {
-    summary: '将外部流（数字人）推送到到房间',
+    summary: '将外部流（数字人、文件等）推送到到房间',
     description: '',
   })
   @Validate()
