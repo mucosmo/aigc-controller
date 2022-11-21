@@ -38,8 +38,8 @@ export class StreamPushController {
   @Inject('adminPermissionService')
   permissionService: AdminPermissionService;
 
-  @Post('/push', {
-    summary: '推送音频流到 ASR',
+  @Post('/pull', {
+    summary: '拉取音频流并进行 ASR',
     description: '房间，用户，文件和音频格式',
   })
   @Validate()
@@ -62,8 +62,8 @@ export class StreamPushController {
   }
 
 
-  @Post('/pull', {
-    summary: '拉流并推送到房间',
+  @Post('/push', {
+    summary: '将外部流（数字人）推送到到房间',
     description: '',
   })
   @Validate()
@@ -124,8 +124,8 @@ export class StreamPushController {
   }
 
 
-  @Post('/push/live', {
-    summary: '拉流并推送到房间',
+  @Post('/pull/live', {
+    summary: '从房间拉流并生成 live url',
     description: '',
   })
   @Validate()
