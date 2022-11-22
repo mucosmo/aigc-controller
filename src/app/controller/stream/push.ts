@@ -14,7 +14,7 @@ import { Application, Context } from '@/interface';
 
 import { AdminUserService } from '../../service/admin/user';
 import {
-  StreamPushDTO, StreamPullDTO, StreamLiveDTO
+  StreamPushDTO, StreamPullDTO, StreamLiveDTO, StreamPusStopDTO
 } from '../../dto/stream/push';
 
 import { AdminRoleService } from '../../service/admin/role';
@@ -152,5 +152,27 @@ export class StreamPushController {
   }
 
 
+  @Post('/push/stop', {
+    summary: '停止外部流推送',
+    description: '',
+  })
+  @Validate()
+  async stopStreamPush(ctx: Context, @Body(ALL) params: StreamPusStopDTO) {
+    try {
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push/stop"
+      const result = await this._app.curl(serverHttp, {
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      ctx.helper.success(result.data);
+    } catch (error) {
+      ctx.helper.success(error, '服务器内部错误', 500);
+    }
+  }
 
 }

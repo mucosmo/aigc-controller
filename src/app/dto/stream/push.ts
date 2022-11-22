@@ -58,6 +58,13 @@ export class StreamPushDTO {
   text: string;
 }
 
+export class StreamPusStopDTO {
+  
+  @CreateApiPropertyDoc('在哪个房间停止数字人')
+  @Rule(RuleType.string().trim().required())
+  roomId: string;
+}
+
 /**
  * 拉流并生成直播地址
  */
