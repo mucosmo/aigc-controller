@@ -63,7 +63,7 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
 
   config.cors= {
     credentials: true,
-    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTION',
     origin:"*"
   };
 
