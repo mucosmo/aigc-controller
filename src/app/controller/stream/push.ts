@@ -90,6 +90,23 @@ export class StreamPushController {
     }
   }
 
+  @Post('/pull', {
+    summary: '从房间拉流并生成直播地址',
+    description: '',
+  })
+  // @Validate()
+  async pullStream(ctx: Context, @Body(ALL) params: StreamPullDTO) {
+    try {
+    
+      ctx.helper.success(params);
+
+    } catch (error) {
+      ctx.helper.success({ liveUrl: 'http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8' });
+
+      // ctx.helper.success(error, '服务器内部错误', 500);
+    }
+  }
+
   @Post('/push', {
     summary: '将外部流推送到到房间',
     description: '',
