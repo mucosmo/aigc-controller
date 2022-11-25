@@ -1,6 +1,6 @@
 import { EggRedisOptions } from 'egg-redis';
 import { TracerConfig, defaultTracerConfig } from '@mw-components/jaeger';
-import { ConnectionOptions } from 'typeorm';
+// import { ConnectionOptions } from 'typeorm';
 import {
   JwtConfig,
   JwtMiddlewareConfig,
@@ -38,17 +38,17 @@ export const security = {
   },
 };
 
-// 数据库配置
-export const orm: ConnectionOptions = {
-  type: 'mysql',
-  host: '127.0.0.1',
-  port: 3306,
-  username: 'txhz',
-  password: 'q43xD78asesdSD3s',
-  database: 'shop_development',
-  synchronize: false,
-  logging: true,
-};
+// // 数据库配置
+// export const orm: ConnectionOptions = {
+//   type: 'mysql',
+//   host: '127.0.0.1',
+//   port: 3306,
+//   username: 'txhz',
+//   password: 'q43xD78asesdSD3s',
+//   database: 'shop_development',
+//   synchronize: false,
+//   logging: true,
+// };
 
 // redis 配置
 export const redis: EggRedisOptions = {
