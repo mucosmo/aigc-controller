@@ -14,7 +14,7 @@ import { Application, Context } from '@/interface';
 
 import { AdminUserService } from '../../service/admin/user';
 import {
-  StreamPushDTO, StreamPullDTO, StreamLiveDTO, StreamPusStopDTO
+  StreamPushDTO, StreamPullDTO, StreamLiveDTO, SessionStopDTO
 } from '../../dto/stream/push';
 
 import { AdminRoleService } from '../../service/admin/role';
@@ -46,7 +46,7 @@ export class StreamPushController {
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
       // 发送给 mediasoup 服务器，控制其音视频流
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull"
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull/dm"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
@@ -97,13 +97,24 @@ export class StreamPushController {
   // @Validate()
   async pullStream(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
+
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull"
+      const result = await this._app.curl(serverHttp, {
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+      
     
-      ctx.helper.success(params);
+      ctx.helper.success(result.data);
 
     } catch (error) {
-      ctx.helper.success({ liveUrl: 'http://devimages.apple.com/iphone/samples/bipbop/gear4/prog_index.m3u8' });
+ 
 
-      // ctx.helper.success(error, '服务器内部错误', 500);
+      ctx.helper.success(error, '服务器内部错误', 500);
     }
   }
 
@@ -169,14 +180,14 @@ export class StreamPushController {
   }
 
 
-  @Post('/push/stop', {
-    summary: '停止外部流推送',
+  @Post('/session/stop', {
+    summary: '停止会话',
     description: '',
   })
   @Validate()
-  async stopStreamPush(ctx: Context, @Body(ALL) params: StreamPusStopDTO) {
+  async stopStreamPush(ctx: Context, @Body(ALL) params: SessionStopDTO) {
     try {
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/push/stop"
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/session/stop"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,

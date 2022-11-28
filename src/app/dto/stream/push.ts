@@ -58,11 +58,11 @@ export class StreamPushDTO {
   text: string;
 }
 
-export class StreamPusStopDTO {
+export class SessionStopDTO {
   
   @CreateApiPropertyDoc('在哪个房间停止数字人')
   @Rule(RuleType.string().trim().required())
-  roomId: string;
+  sessionId: string;
 }
 
 /**
