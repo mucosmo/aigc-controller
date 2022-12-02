@@ -107,12 +107,12 @@ export class StreamPushController {
           'content-type': 'application/json',
         },
       });
-      
-    
+
+
       ctx.helper.success(result.data);
 
     } catch (error) {
- 
+
 
       ctx.helper.success(error, '服务器内部错误', 500);
     }
@@ -179,6 +179,29 @@ export class StreamPushController {
     }
   }
 
+
+  @Post('/render', {
+    summary: '流合成渲染',
+    description: '',
+  })
+  // @Validate()
+  async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
+    try {
+      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/render"
+      const result = await this._app.curl(serverHttp, {
+        method: 'POST',
+        data: params,
+        dataType: 'json',
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+
+      ctx.helper.success(result.data);
+    } catch (error) {
+      ctx.helper.success(error, '服务器内部错误', 500);
+    }
+  }
 
   @Post('/session/stop', {
     summary: '停止会话',
