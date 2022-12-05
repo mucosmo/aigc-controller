@@ -46,7 +46,7 @@ export class StreamPushController {
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
       // 发送给 mediasoup 服务器，控制其音视频流
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull/dm"
+      const serverHttp = "https://cosmoserver.tk:4443/stream/pull/dm"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
@@ -70,7 +70,7 @@ export class StreamPushController {
   async liveStreamUrl(ctx: Context, @Body(ALL) params: StreamLiveDTO) {
     try {
       // 发送给 mediasoup 服务器，生成某用户的直播流地址
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull/live"
+      const serverHttp = "https://cosmoserver.tk:4443/stream/pull/live"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
@@ -98,7 +98,7 @@ export class StreamPushController {
   async pullStream(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     try {
 
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/pull"
+      const serverHttp = "https://cosmoserver.tk:4443/stream/pull"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
@@ -162,7 +162,7 @@ export class StreamPushController {
         room: params.room,
         streamAddr: result1.data.data.addr
       }
-      const serverHttp3 = "https://hz-test.ikandy.cn:4443/stream/push"
+      const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
       const result3 = await this._app.curl(serverHttp3, {
         method: 'POST',
         data: body3,
@@ -187,7 +187,7 @@ export class StreamPushController {
   // @Validate()
   async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
     try {
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/render"
+      const serverHttp = "https://cosmoserver.tk:4443/stream/render"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
