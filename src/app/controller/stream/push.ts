@@ -210,7 +210,7 @@ export class StreamPushController {
   @Validate()
   async stopStreamPush(ctx: Context, @Body(ALL) params: SessionStopDTO) {
     try {
-      const serverHttp = "https://hz-test.ikandy.cn:4443/stream/session/stop"
+      const serverHttp = "https://cosmoserver.tk:4443/stream/session/stop"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
         data: params,
