@@ -12,7 +12,7 @@ import {
 import { Application, Context } from '@/interface';
 
 
-import { AdminUserService } from '../../service/admin/user';
+import { StreamPushService } from '../../service/stream/push';
 import {
   StreamPushDTO, StreamPullDTO, StreamLiveDTO, SessionStopDTO
 } from '../../dto/stream/push';
@@ -26,8 +26,8 @@ import { AdminPermissionService } from '../../service/admin/permission';
   description: '包含 RTC 数据流的推送和拉取',
 })
 export class StreamPushController {
-  @Inject('adminUserService')
-  service: AdminUserService;
+  @Inject('streamPushService')
+  service: StreamPushService;
 
   @App()
   private _app!: Application;
@@ -160,7 +160,9 @@ export class StreamPushController {
       // 将流地址和要播放的房间号传给 mediasoup 服务器
       const body3 = {
         room: params.room,
-        streamAddr: result1.data.data.addr
+        streamAddr: `rtmp://121.5.133.154:1935/myapp/12345`,
+        trueAddr: result1.data.data.addr,
+
       }
       const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
       const result3 = await this._app.curl(serverHttp3, {
@@ -187,17 +189,19 @@ export class StreamPushController {
   // @Validate()
   async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
     try {
+
+      const filterStr = this.service.avFilterGraph(params);
       const serverHttp = "https://cosmoserver.tk:4443/stream/render"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
-        data: params,
+        data: {text: filterStr},
         dataType: 'json',
         headers: {
           'content-type': 'application/json',
         },
       });
 
-      ctx.helper.success(result.data);
+      ctx.helper.success({result:result.data, filter:filterStr});
     } catch (error) {
       ctx.helper.success(error, '服务器内部错误', 500);
     }
