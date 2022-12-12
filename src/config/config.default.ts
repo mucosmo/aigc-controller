@@ -40,15 +40,15 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
   //   timezone: '+08:00',
   // } as ConnectionOptions;
 
-  // // redis配置
-  // config.redis = {
-  //   client: {
-  //     port: +process.env.REDIS_PORT || 6379, // Redis port
-  //     host: process.env.REDIS_HOST || '127.0.0.1', // Redis host
-  //     password: process.env.REDIS_PASSWORD || '',
-  //     db: +process.env.REDIS_DB || 0,
-  //   },
-  // };
+  // redis配置
+  config.redis = {
+    client: {
+      port: +process.env.REDIS_PORT || 6379, // Redis port
+      host: process.env.REDIS_HOST || '127.0.0.1', // Redis host
+      password: process.env.REDIS_PASSWORD || '',
+      db: +process.env.REDIS_DB || 0,
+    },
+  };
 
   // swagger文档配置，默认地址 http://127.0.0.1:7001/swagger-ui/index.html
   config.swagger = {

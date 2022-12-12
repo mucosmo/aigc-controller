@@ -1,4 +1,4 @@
-// import { EggRedisOptions } from 'egg-redis';
+import { EggRedisOptions } from 'egg-redis';
 import { TracerConfig, defaultTracerConfig } from '@mw-components/jaeger';
 // import { ConnectionOptions } from 'typeorm';
 import {
@@ -50,15 +50,15 @@ export const security = {
 //   logging: true,
 // };
 
-// // redis 配置
-// export const redis: EggRedisOptions = {
-//   client: {
-//     port: 6379, // Redis port
-//     host: '127.0.0.1', // Redis host
-//     password: '',
-//     db: 0,
-//   },
-// };
+// redis 配置
+export const redis: EggRedisOptions = {
+  client: {
+    port: 6379, // Redis port
+    host: '127.0.0.1', // Redis host
+    password: '',
+    db: 0,
+  },
+};
 
 // jaeger 配置 默认访问地址http://localhost:16686/
 export const tracer: TracerConfig = {
