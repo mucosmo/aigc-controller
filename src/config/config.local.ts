@@ -55,7 +55,7 @@ export const redis: EggRedisOptions = {
   client: {
     port: 6379, // Redis port
     host: '127.0.0.1', // Redis host
-    password: '',
+    password: 'fa#125512#$%@',
     db: 0,
   },
 };
