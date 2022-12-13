@@ -5,15 +5,10 @@ import {
   ALL,
   Post,
   Body,
-  App
 } from '@midwayjs/decorator';
 
-import { Application, Context } from '@/interface';
-
-
+import { Context } from '@/interface';
 import { RenderService } from '../../service/render/render';
-
-
 import { AdminRoleService } from '../../service/admin/role';
 import { AdminPermissionService } from '../../service/admin/permission';
 
@@ -23,11 +18,8 @@ import { AdminPermissionService } from '../../service/admin/permission';
   description: '',
 })
 export class RenderController {
-  @Inject('streamPushService')
+  @Inject('renderService')
   service: RenderService;
-
-  @App()
-  private _app!: Application;
 
   @Inject('adminRoleService')
   roleService: AdminRoleService;
@@ -44,21 +36,10 @@ export class RenderController {
   // @Validate()
   async initTemplate(ctx: Context, @Body(ALL) params: any) {
     try {
-
-      const filterStr = this.service.avFilterGraph(params);
-      const serverHttp = "https://cosmoserver.tk:4443/stream/render"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: { text: filterStr },
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      ctx.helper.success({ result: result.data, filter: filterStr });
+      const result = await this.service.initTemplate(params);
+      ctx.helper.success(result);
     } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
+      ctx.helper.success(error.toString(), 'failed to init template', 500);
     }
   }
 
@@ -66,46 +47,58 @@ export class RenderController {
     summary: '初始化数据源',
     description: '',
   })
-  initSrc(params: any) {
-
+  async initSrc(ctx: Context, @Body(ALL) params: any) {
   }
 
 
-  @Post('/template/src', {
+  @Post('/region/src', {
     summary: '数据源映射到模板区域',
     description: '',
   })
-  srcMap2Template(params: any) {
-
+  async srcMap2Region(ctx: Context, @Body(ALL) params: any) {
+    try {
+      const result = await this.service.src2Region(params);
+      ctx.helper.success(result);
+    } catch (error) {
+      ctx.helper.success(error.toString(), 'failed to map src to region', 500);
+    }
   }
 
   //模板区域的空间控制
-  @Post('/template/space', {
+  @Post('/region/space', {
     summary: '模板区域的空间控制',
     description: '',
   })
-  templateSpaceChange(params: any) {
-
+  async regionSpaceChange(ctx: Context, @Body(ALL) params: any) {
+    try {
+      const result = await this.service.regionSpaceChange(params);
+      ctx.helper.success(result);
+    } catch (error) {
+      console.log(error);
+      ctx.helper.success(error, error, 500);
+    }
   }
 
 
-  @Post('/template/filter', {
+  @Post('/region/filter', {
     summary: '给模板区域初始化滤波器',
     description: '',
   })
-  initFilters(params: any) {
+  initFilters(ctx: Context, @Body(ALL) params: any) {
 
   }
 
   //更新模板区域的滤波器
-  @Post('/template/filter/update', {
-    summary: '给模板区域初始化滤波器',
+  @Post('/filter/update', {
+    summary: '更新滤波器参数',
     description: '',
   })
-  updateRegionFilter(params: any) {
-
+  async updateRegionFilter(ctx: Context, @Body(ALL) params: any) {
+    try {
+      const result = await this.service.updateRegionFilterParams(params);
+      ctx.helper.success(result);
+    } catch (error) {
+      ctx.helper.success(error.toString(), "failed to update filter", 500);
+    }
   }
-
-
-
 }

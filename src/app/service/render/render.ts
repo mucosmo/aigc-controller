@@ -7,6 +7,9 @@ import { Context } from '@/interface';
 
 import { AdminUserModel } from '../../model/admin-user';
 
+/** 24小时的秒数，用于 redis 缓存 */
+const TWENTYFOURHOURS = 24 * 60 * 60;
+
 
 @Provide()
 export class RenderService {
@@ -23,36 +26,97 @@ export class RenderService {
     return filter;
   }
 
-  //创建模板
-  initTemplate(params: any) {
+  //初始化模板
+  async initTemplate(params: any) {
+    const regions = params.template.regions;
+    const filters = params.filters;
+    const srcs = params.srcs;
+    const src2Regions = params.src2Regions;
 
+    //初始化滤波器
+    filters.forEach(filter2Region => {
+      const theRegion = regions.find(region => region.id === filter2Region.regionId);
+      theRegion.filters = filter2Region.filters;
+    });
 
+    //初始化数据源
+    src2Regions.forEach(src2Region => {
+      const theRegion = regions.find(region => region.id === src2Region.regionId);
+      const theSrc = srcs.find(src => src.id === src2Region.srcId)
+      theRegion.src = theSrc;
+    });
+
+    //存储初始化后的模板
+    const key = params.template.id;
+    await this.ctx.app.redis.set(key, JSON.stringify(params.template), 'EX', TWENTYFOURHOURS); // EX 秒，PX 毫秒
+    const result = await this.ctx.app.redis.get(key);
+
+    //存储数据源，和 template 匹配
+    await this.ctx.app.redis.set(key + "_srcs", JSON.stringify(params.srcs), 'EX', TWENTYFOURHOURS);
+
+    return JSON.parse(result);
   }
 
-  //数据源
-  initSrc(params: any) {
+  //数据源到模板区域的映射
+  async src2Region(params: any) {
+    const templateId = params.templateId;
+    const template = JSON.parse(await this.ctx.app.redis.get(templateId));
+    const srcs = await this.ctx.app.redis.get(templateId + "_srcs");
 
-  }
+    params.regions.forEach(item => {
+      const theRegion = template.regions.find(region => region.id === item.regionId);
+      const theSrc = JSON.parse(srcs).find(src => src.id === item.srcId)
+      theRegion.src = theSrc;
+    });
 
-  //数据源映射到模板区域
-  srcMap2Template(params: any) {
-
+    await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
+    return template;
   }
 
   //模板区域的空间控制
-  templateSpaceChange(params: any) {
+  async regionSpaceChange(params: any) {
+    const templateId = params.templateId;
+    const template = JSON.parse(await this.ctx.app.redis.get(templateId));
 
+    params.regions.forEach(item => {
+      const theRegion = template.regions.find(region => region.id === item.regionId);
+      for (let [key0, value0] of Object.entries(item.update)) {
+        for (let [key1, value1] of Object.entries(value0)) {
+          theRegion[key0][key1] = value1;
+        }
+      }
+    });
+
+    await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
+    return template;
   }
 
-  //给模板区域初始化滤波器
-  initFilters(params: any) {
+  //给模板区域增减滤波器
+  async addDeleteRegionFilters(params: any) {
 
   }
 
   //更新模板区域的滤波器
-  updateRegionFilter(params: any) {
+  async updateRegionFilterParams(params: any) {
+    const templateId = params.templateId;
+    const template = JSON.parse(await this.ctx.app.redis.get(templateId));
 
+    params.filters.forEach(item => {
+      template.regions.forEach(itemRegion => {
+        const findFilter = itemRegion.filters.find(itemFilter => itemFilter.id === item.filterId);
+        if (findFilter) {
+          for (let [key0, value0] of Object.entries(item.update)) {
+            findFilter['options'][key0] = value0;
+          }
+          return false; // 并不能中断外层的 forEach， 暂不修复
+        };
+      });
+    });
+
+    await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
+    return template;
   }
+
 
 
 }
