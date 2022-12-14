@@ -42,11 +42,10 @@ export class RenderService {
     //存储数据源，和 template 匹配
     await this.ctx.app.redis.set(key + "_srcs", JSON.stringify(params.srcs), 'EX', TWENTYFOURHOURS);
 
-    const t1 = Date.now();
+
 
     const filterDesc = await this.__initFilterGraph(template); // 耗时小于 10 ms
 
-    console.log(`--- init filter graph: ${Date.now() - t1} ms`);
 
     return filterDesc;
   }
@@ -64,7 +63,9 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    return template;
+    const filterDesc = await this.__initFilterGraph(template);
+
+    return filterDesc;
   }
 
   //模板区域的空间控制
@@ -82,12 +83,26 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    return template;
+    const filterDesc = await this.__initFilterGraph(template);
+
+    return filterDesc;
   }
 
   //给模板区域增减滤波器
   async addDeleteRegionFilters(params: any) {
+    const templateId = params.templateId;
+    const template = JSON.parse(await this.ctx.app.redis.get(templateId));
 
+    params.regions.forEach(itemRegion => {
+      const theRegion = template.regions.find(region => region.id === itemRegion.regionId);
+      theRegion.filters = theRegion.filters.concat(...itemRegion.filters.add);
+      const deleteFilters = itemRegion.filters.delete;
+      theRegion.filters = theRegion.filters.filter(item => deleteFilters.indexOf(item.id) === -1);
+    });!
+    await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
+    const filterDesc = await this.__initFilterGraph(template);
+
+    return filterDesc;
   }
 
   //更新模板区域的滤波器
@@ -97,24 +112,30 @@ export class RenderService {
 
     params.filters.forEach(item => {
       template.regions.forEach(itemRegion => {
-        const findFilter = itemRegion.filters.find(itemFilter => itemFilter.id === item.filterId);
-        if (findFilter) {
-          for (let [key0, value0] of Object.entries(item.update)) {
-            findFilter['options'][key0] = value0;
-          }
-          return false; // 并不能中断外层的 forEach， 暂不修复
-        };
+
+        if (itemRegion.filters) {
+
+          const findFilter = itemRegion.filters.find(itemFilter => itemFilter.id === item.filterId);
+          if (findFilter) {
+            for (let [key0, value0] of Object.entries(item.update)) {
+              findFilter['options'][key0] = value0;
+            }
+          };
+        }
       });
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    return template;
+    const filterDesc = await this.__initFilterGraph(template);
+
+    return filterDesc;
   }
 
 
   /**通过模板及其参数构造滤波器图 */
   private async __initFilterGraph(template: any) {
     console.log('============= start to init filter graph ============');
+    const t1 = Date.now();
 
     this.__checkTemplate(template);
 
@@ -180,7 +201,7 @@ export class RenderService {
       //增加蒙版处理后的输出
       regionsNameAfterFilter.push(regionId + '_maskmerge');
 
-      const scaleOptions = region.filters.find(item=>item.name === 'scale').options;
+      const scaleOptions = region.filters.find(item => item.name === 'scale').options;
 
       return `movie=/opt/application/tx-rtcStream/files/resources/mask.png[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}:[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
     });
@@ -275,7 +296,12 @@ export class RenderService {
     //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
     filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
 
+    //正则处理，
+    filterGraphDesc = this.__filterGraphRegHandle(filterGraphDesc);
+
     await this.__writeFilterGraphIntoFile(filterGraphDesc)
+    console.log(`--- init filter graph: ${Date.now() - t1} ms`);
+
 
     console.log('------- end of  filter graph init --------');
 
@@ -308,5 +334,16 @@ export class RenderService {
     });
 
     return result;
+  }
+
+  /**
+   * 正则处理
+   * 
+   * 使得 '%{pts\\:hms} 时间戳, 文件路径 http:// 等符号能正常显示
+   */
+  private __filterGraphRegHandle(filterGraph: string) {
+    // postman 中参数输入时要用 \\ 转义 \, 但是写入 txt 文件时只能保留一个 \
+    filterGraph = filterGraph.replace(/\\\\/g, '\\');
+    return filterGraph;
   }
 }

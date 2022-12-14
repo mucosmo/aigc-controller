@@ -81,11 +81,16 @@ export class RenderController {
 
 
   @Post('/region/filter', {
-    summary: '给模板区域初始化滤波器',
+    summary: '给模板区域增减滤波器',
     description: '',
   })
-  initFilters(ctx: Context, @Body(ALL) params: any) {
-
+  async addDeleteFilters(ctx: Context, @Body(ALL) params: any) {
+    try {
+      const result = await this.service.addDeleteRegionFilters(params);
+      ctx.helper.success(result);
+    } catch (error) {
+      ctx.helper.success(error.toString(), "failed to add/delete region filter", 500);
+    }
   }
 
   //更新模板区域的滤波器
