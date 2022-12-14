@@ -22,17 +22,9 @@ export class RenderService {
   @InjectEntityModel(AdminUserModel)
   adminUserModel: Repository<AdminUserModel>;
 
-
-  avFilterGraph(params: any) {
-    const filter = `movie=/opt/application/tx-rtcStream/files/resources/${params.img0}[m0];movie=/opt/application/tx-rtcStream/files/resources/mask.png[m1];movie=/opt/application/tx-rtcStream/files/resources/${params.video2}[m2];movie=/opt/application/tx-rtcStream/files/resources/${params.img3}[m3];movie=/opt/application/tx-rtcStream/files/resources/${params.video4}[m4];[m0]crop=200:200:200:200[cropped1];[m1]alphaextract[amask];[amask]scale=150:150[vmask];[m2]scale=150:150[cropped3];[cropped3][vmask]alphamerge[avatar];[in][cropped1]overlay=W-w-10:10[ov1];[ov1][avatar]overlay=100:10[ov2];[m3]scale=50:50[gif];[ov2][gif]overlay=W-w-10:H/2[ov3];[m4]scale=200:300,chromakey=0x00ff00:0.3:0.05[ov4];[ov3][ov4]overlay=${params.dh.x}:${params.dh.y}[ov5];[ov5]subtitles=/opt/application/tx-rtcStream/files/resources/subtitles.srt[final];[final]drawtext=text=${params.drawtext.text}:fontfile=/usr/share/fonts/chinese/SIMKAI.TTF:x=${params.drawtext.x}:y=${params.drawtext.y}:fontcolor=${params.drawtext.color}:fontsize=${params.drawtext.fontsize}:shadowx=2:shadowy=2`
-
-    return filter;
-  }
-
   //初始化模板
   async initTemplate(params: any) {
-
-    //区域不包含 drawtext 和 硬字幕 subtitles
+    //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
     const regions = params.template.regions.filter(item => ['video', 'audio', 'picture'].indexOf(item.type) > -1);
     const srcs = params.srcs;
 
@@ -126,8 +118,6 @@ export class RenderService {
 
     this.__checkTemplate(template);
 
-    // const filter = `movie=/opt/application/tx-rtcStream/files/resources/fileimage.png[m0];movie=/opt/application/tx-rtcStream/files/resources/mask.png[m1];movie=/opt/application/tx-rtcStream/files/resources/dh.mp4[m2];movie=/opt/application/tx-rtcStream/files/resources/fileimage.png[m3];movie=/opt/application/tx-rtcStream/files/resources/dh.mp4[m4];[m0]crop=100:50:200:200[cropped1];[m1]alphaextract[amask];[amask]scale=150:150[vmask];[m2]scale=150:150[cropped3];[cropped3][vmask]alphamerge[avatar];[in][cropped1]overlay=W-w-10:10[ov1];[ov1][avatar]overlay=100:10[ov2];[m3]scale=50:50[gif];[ov2][gif]overlay=W-w-10:H/2[ov3];[m4]scale=200:300,chromakey=0x00ff00:0.3:0.05[ov4];[ov3][ov4]overlay=-20+5*n:H*0.2[ov5];[ov5]subtitles=/opt/application/tx-rtcStream/files/resources/subtitles.srt[final];[final]drawtext=textfile=/opt/application/tx-rtcStream/files/resources/drawtext.txt:reload=1:fontfile=/usr/share/fonts/chinese/SIMKAI.TTF:x=(w-text_w)/2:y=h-80*t:fontcolor=white:fontsize=40:shadowx=2:shadowy=2`
-
     // const regions = template.regions as Array<any>;
 
     const regions = template.regions.filter(item => ['video', 'audio', 'picture'].indexOf(item.type) > -1) as Array<any>;
@@ -148,7 +138,7 @@ export class RenderService {
       }
 
       //排序后的filter
-      const filtersSorted = region.filters.sort((a, b) => a.seq - b.seq);
+      const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => a.seq - b.seq);
 
       const filterDesc = filtersSorted.map(itemFilter => {
         if (!itemFilter.options) {
@@ -167,6 +157,34 @@ export class RenderService {
       return `[${region.id}]` + filterDesc.join(",") + `[${region.id}_prepro]`;
     });
 
+
+    //第二步（2）：如果有形状要求（蒙版），则需要先合成中间形态
+
+    const maskFilterChains = regions.map(region => {
+
+      if (!region.filters || region.filters.length === 0) {
+        return '';
+      }
+
+      //排序后的蒙版滤波器
+      const maskFilter = region.filters.filter(item => item.name === "shapemask");
+      if (maskFilter.length === 0) {
+        return '';
+      }
+
+      const regionId = region.id;
+      //移除没有添加蒙版的输出
+      const index = regionsNameAfterFilter.indexOf(regionId + '_prepro');
+      regionsNameAfterFilter.splice(index, 1);
+
+      //增加蒙版处理后的输出
+      regionsNameAfterFilter.push(regionId + '_maskmerge');
+
+      const scaleOptions = region.filters.find(item=>item.name === 'scale').options;
+
+      return `movie=/opt/application/tx-rtcStream/files/resources/mask.png[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}:[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
+    });
+
     //第三步：按照 layer(regionId 中的 z 数据) 关系进行 overlay
     const regionsSorted = regionsNameAfterFilter.sort((a, b) => {
       const layerA = a.split('_')[1].split('.')[0];
@@ -175,10 +193,11 @@ export class RenderService {
     })
 
     const regionsToOverlay = regionsSorted.filter(regionId => {
-      const index = regionId.indexOf('_prepro');
       let regionIdTrue = '';
-      if (index > -1) {
-        regionIdTrue = regionId.slice(0, index);
+      if (regionId.indexOf('_prepro') > -1) {
+        regionIdTrue = regionId.slice(0, regionId.indexOf('_prepro'));
+      } else if (regionId.indexOf('_maskmerge') > -1) {
+        regionIdTrue = regionId.slice(0, regionId.indexOf('_maskmerge'));
       } else {
         regionIdTrue = regionId;
       }
@@ -192,10 +211,11 @@ export class RenderService {
     let lastFilterTag = '';// 标记最后一个输出 
     for (let i = 0; i < regionsToOverlay.length; i++) {
       const regionLabel = regionsToOverlay[i];
-      const index = regionLabel.indexOf('_prepro');
       let regionId = '';
-      if (index > -1) {
-        regionId = regionLabel.slice(0, index);
+      if (regionLabel.indexOf('_prepro') > -1) {
+        regionId = regionLabel.slice(0, regionLabel.indexOf('_prepro'));
+      } else if (regionLabel.indexOf('_maskmerge') > -1) {
+        regionId = regionLabel.slice(0, regionLabel.indexOf('_maskmerge'));
       } else {
         regionId = regionLabel;
       }
@@ -248,7 +268,7 @@ export class RenderService {
 
 
     //组合所有 filter-chain
-    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...overlays, ...textFiltersSorted).filter(item => item !== '').join(';');
+    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...maskFilterChains, ...overlays, ...textFiltersSorted).filter(item => item !== '').join(';');
 
     const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
 
