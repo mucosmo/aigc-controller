@@ -52,7 +52,7 @@ export class RenderService {
 
     const t1 = Date.now();
 
-    const filterDesc = this.__initFilterGraph(template); // 耗时小于 10 ms
+    const filterDesc = await this.__initFilterGraph(template); // 耗时小于 10 ms
 
     console.log(`--- init filter graph: ${Date.now() - t1} ms`);
 
@@ -163,8 +163,8 @@ export class RenderService {
         return filterStr + (propertys.join(':'));
       })
 
-      regionsNameAfterFilter.push(region.id + '_filt');
-      return `[${region.id}]` + filterDesc.join(",") + `[${region.id}_filt]`;
+      regionsNameAfterFilter.push(region.id + '_prepro');
+      return `[${region.id}]` + filterDesc.join(",") + `[${region.id}_prepro]`;
     });
 
     //第三步：按照 layer(regionId 中的 z 数据) 关系进行 overlay
@@ -175,7 +175,7 @@ export class RenderService {
     })
 
     const regionsToOverlay = regionsSorted.filter(regionId => {
-      const index = regionId.indexOf('_filt');
+      const index = regionId.indexOf('_prepro');
       let regionIdTrue = '';
       if (index > -1) {
         regionIdTrue = regionId.slice(0, index);
@@ -192,7 +192,7 @@ export class RenderService {
     let lastFilterTag = '';// 标记最后一个输出 
     for (let i = 0; i < regionsToOverlay.length; i++) {
       const regionLabel = regionsToOverlay[i];
-      const index = regionLabel.indexOf('_filt');
+      const index = regionLabel.indexOf('_prepro');
       let regionId = '';
       if (index > -1) {
         regionId = regionLabel.slice(0, index);
@@ -212,7 +212,7 @@ export class RenderService {
       if (i === 0) {
         desc = `[in][${regionLabel}]overlay=${x}:${y}[out0]`; //对应于 c 代码中添加的 [in] 标记
       } else {
-        desc = `[out${i - 1}][${regionLabel}]overlay=${x}:${y}[out${i}]`;
+        desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}[out${i}]`;
       }
       lastFilterTag = `out${i}`;
       overlays.push(desc);
@@ -248,14 +248,19 @@ export class RenderService {
 
 
     //组合所有 filter-chain
-    const filterGraph = [].concat(...inputs, ...filterChains, ...overlays, ...textFiltersSorted).filter(item => item !== '').join(';');
+    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...overlays, ...textFiltersSorted).filter(item => item !== '').join(';');
 
-    await this.__writeFilterGraphIntoFile(filterGraph)
+    const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
+
+    //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
+    filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
+
+    await this.__writeFilterGraphIntoFile(filterGraphDesc)
 
     console.log('------- end of  filter graph init --------');
 
 
-    return filterGraph;
+    return filterGraphDesc;
   }
 
   /**模板有效性检验 */
