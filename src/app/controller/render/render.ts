@@ -43,6 +43,20 @@ export class RenderController {
     }
   }
 
+  @Post('/template/update', {
+    summary: '合成器实例的更新',
+    description: '',
+  })
+  // @Validate()
+  async updateTemplate(ctx: Context, @Body(ALL) params: any) {
+    try {
+      const result = await this.service.updateTemplate(params);
+      ctx.helper.success(result);
+    } catch (error) {
+      ctx.helper.success(error.toString(), 'failed to init template', 500);
+    }
+  }
+
   @Post('/src', {
     summary: '初始化数据源',
     description: '',

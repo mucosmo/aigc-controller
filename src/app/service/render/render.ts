@@ -68,6 +68,8 @@ export class RenderService {
     return filterDesc;
   }
 
+
+
   //模板区域的空间控制
   async regionSpaceChange(params: any) {
     const templateId = params.templateId;
@@ -98,7 +100,7 @@ export class RenderService {
       theRegion.filters = theRegion.filters.concat(...itemRegion.filters.add);
       const deleteFilters = itemRegion.filters.delete;
       theRegion.filters = theRegion.filters.filter(item => deleteFilters.indexOf(item.id) === -1);
-    });!
+    });
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
     const filterDesc = await this.__initFilterGraph(template);
 
@@ -132,6 +134,44 @@ export class RenderService {
   }
 
 
+
+  /**更新合成器实例 */
+  async updateTemplate(params) {
+    const templateId = params.templateId;
+    const template = JSON.parse(await this.ctx.app.redis.get(templateId));
+
+    //循环中有 await 时不能使用 forEach
+    for (let itemRegion of params.regions) {
+      let theRegion = template.regions.find(item => item.id === itemRegion.id);//查找模板实例中相应的 region
+
+      //数据源映射
+      const srcs = await this.ctx.app.redis.get(templateId + "_srcs");
+      const srcId = itemRegion.srcId;
+      if (srcId) {
+        theRegion = await this.__src2Region(theRegion, JSON.parse(srcs), srcId);
+      }
+
+      //空间控制
+      const area = itemRegion.area;
+      if (area) {
+        theRegion = await this.__regionSpaceChange(theRegion, area);
+      }
+
+      //滤波器更新（增减更）
+      const filters = itemRegion.filters;
+      if (filters) {
+        theRegion = await this.__updateRegionFilterParams(theRegion, filters.update);
+        theRegion = await this.__addDeleteRegionFilters(theRegion, filters.add, filters.delete);
+      }
+    }
+
+    await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
+    const filterDesc = await this.__initFilterGraph(template);
+
+    return filterDesc;
+  }
+
+
   /**通过模板及其参数构造滤波器图 */
   private async __initFilterGraph(template: any) {
     console.log('============= start to init filter graph ============');
@@ -146,7 +186,7 @@ export class RenderService {
 
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
     const inputs = regions.map(region => {
-      return `movie='${region.src.path.replace(':','\\:')}'[${region.id}]`
+      return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`
     });
 
     //第二步：对不同的区域数据源使用 filter-chain
@@ -346,4 +386,41 @@ export class RenderService {
   //   filterGraph = filterGraph.replace(/\\\\/g, '\\');
   //   return filterGraph;
   // }
+
+  //数据源到模板区域的映射
+  async __src2Region(region: any, srcs: any, srcId: any) {
+    const theSrc = srcs.find(src => src.id === srcId);
+    region.src = theSrc;
+
+    return region;
+  }
+
+  //更新模板区域的滤波器
+  async __updateRegionFilterParams(region: any, filters: any) {
+    filters.forEach(itemFilter => {
+      const theFilter = region.filters.find(filter => filter.id === itemFilter.id);
+      if (theFilter) {
+        for (let [key, val] of Object.entries(itemFilter.options)) {
+          theFilter['options'][key] = val;
+        }
+      };
+    });
+
+    return region;
+  }
+
+  //给模板区域增减滤波器
+  async __addDeleteRegionFilters(region: any, addFilter: any[], deleteFilter: any[]) {
+    region.filters = region.filters.concat(...addFilter);
+    region.filters = region.filters.filter(item => deleteFilter.indexOf(item.id) === -1);
+    return region;
+  }
+
+  //模板区域的空间控制
+  async __regionSpaceChange(region: any, area: any) {
+    for (let [key1, value1] of Object.entries(area)) {
+      region['area'][key1] = value1;
+    }
+    return region;
+  }
 }
