@@ -146,7 +146,7 @@ export class RenderService {
 
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
     const inputs = regions.map(region => {
-      return `movie=${region.src.path}[${region.id}]`
+      return `movie='${region.src.path.replace(':','\\:')}'[${region.id}]`
     });
 
     //第二步：对不同的区域数据源使用 filter-chain
@@ -203,7 +203,7 @@ export class RenderService {
 
       const scaleOptions = region.filters.find(item => item.name === 'scale').options;
 
-      return `movie=/opt/application/tx-rtcStream/files/resources/mask.png[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}:[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
+      return `movie='/opt/application/tx-rtcStream/files/resources/mask.png'[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}:[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
     });
 
     //第三步：按照 layer(regionId 中的 z 数据) 关系进行 overlay
@@ -296,8 +296,8 @@ export class RenderService {
     //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
     filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
 
-    //正则处理，
-    filterGraphDesc = this.__filterGraphRegHandle(filterGraphDesc);
+    // //正则处理，
+    // filterGraphDesc = this.__filterGraphRegHandle(filterGraphDesc);
 
     await this.__writeFilterGraphIntoFile(filterGraphDesc)
     console.log(`--- init filter graph: ${Date.now() - t1} ms`);
@@ -336,14 +336,14 @@ export class RenderService {
     return result;
   }
 
-  /**
-   * 正则处理
-   * 
-   * 使得 '%{pts\\:hms} 时间戳, 文件路径 http:// 等符号能正常显示
-   */
-  private __filterGraphRegHandle(filterGraph: string) {
-    // postman 中参数输入时要用 \\ 转义 \, 但是写入 txt 文件时只能保留一个 \
-    filterGraph = filterGraph.replace(/\\\\/g, '\\');
-    return filterGraph;
-  }
+  // /**
+  //  * 正则处理
+  //  * 
+  //  * 使得 '%{pts\\:hms} 时间戳, 文件路径 http:// 等符号能正常显示
+  //  */
+  // private __filterGraphRegHandle(filterGraph: string) {
+  //   // postman 中参数输入时要用 \\ 转义 \, 但是写入 txt 文件时只能保留一个 \
+  //   filterGraph = filterGraph.replace(/\\\\/g, '\\');
+  //   return filterGraph;
+  // }
 }
