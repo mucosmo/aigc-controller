@@ -266,8 +266,6 @@ export class RenderService {
       return theRegion;
     })
 
-    // [in][region0.0.0]overlay=0:0[out0];
-
     let overlays = [];
     let lastFilterTag = '';// 标记最后一个输出 
     for (let i = 0; i < regionsToOverlay.length; i++) {
