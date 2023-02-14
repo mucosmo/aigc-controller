@@ -35,12 +35,8 @@ export class RenderController {
   })
   // @Validate()
   async initTemplate(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.initTemplate(params);
       ctx.helper.success(result);
-    } catch (error) {
-      ctx.helper.success(error.toString(), 'failed to init template', 500);
-    }
   }
 
   @Post('/template/update', {
@@ -49,12 +45,8 @@ export class RenderController {
   })
   // @Validate()
   async updateTemplate(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.updateTemplate(params);
       ctx.helper.success(result);
-    } catch (error) {
-      ctx.helper.success(error.toString(), 'failed to init template', 500);
-    }
   }
 
   @Post('/src', {
@@ -70,12 +62,8 @@ export class RenderController {
     description: '',
   })
   async srcMap2Region(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.src2Region(params);
       ctx.helper.success(result);
-    } catch (error) {
-      ctx.helper.success(error.toString(), 'failed to map src to region', 500);
-    }
   }
 
   //模板区域的空间控制
@@ -84,13 +72,8 @@ export class RenderController {
     description: '',
   })
   async regionSpaceChange(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.regionSpaceChange(params);
       ctx.helper.success(result);
-    } catch (error) {
-      console.log(error);
-      ctx.helper.success(error, error, 500);
-    }
   }
 
 
@@ -99,12 +82,8 @@ export class RenderController {
     description: '',
   })
   async addDeleteFilters(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.addDeleteRegionFilters(params);
       ctx.helper.success(result);
-    } catch (error) {
-      ctx.helper.success(error.toString(), "failed to add/delete region filter", 500);
-    }
   }
 
   //更新模板区域的滤波器
@@ -113,11 +92,7 @@ export class RenderController {
     description: '',
   })
   async updateRegionFilter(ctx: Context, @Body(ALL) params: any) {
-    try {
       const result = await this.service.updateRegionFilterParams(params);
       ctx.helper.success(result);
-    } catch (error) {
-      ctx.helper.success(error.toString(), "failed to update filter", 500);
-    }
   }
 }

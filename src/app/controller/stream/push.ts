@@ -44,21 +44,17 @@ export class StreamPushController {
   })
   @Validate()
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
-    try {
-      // 发送给 mediasoup 服务器，控制其音视频流
-      const serverHttp = "https://cosmoserver.tk:4443/stream/pull/dm"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: params,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      ctx.helper.success(result.data);
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
-    }
+    // 发送给 mediasoup 服务器，控制其音视频流
+    const serverHttp = "https://cosmoserver.tk:4443/stream/pull/dm"
+    const result = await this._app.curl(serverHttp, {
+      method: 'POST',
+      data: params,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    ctx.helper.success(result.data);
   }
 
 
@@ -96,26 +92,16 @@ export class StreamPushController {
   })
   // @Validate()
   async pullStream(ctx: Context, @Body(ALL) params: StreamPullDTO) {
-    try {
-
-      const serverHttp = "https://cosmoserver.tk:4443/stream/pull"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: params,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-
-      ctx.helper.success(result.data);
-
-    } catch (error) {
-
-
-      ctx.helper.success(error, '服务器内部错误', 500);
-    }
+    const serverHttp = "https://cosmoserver.tk:4443/stream/pull"
+    const result = await this._app.curl(serverHttp, {
+      method: 'POST',
+      data: params,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    ctx.helper.success(result.data);
   }
 
   @Post('/push', {
@@ -124,61 +110,56 @@ export class StreamPushController {
   })
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    try {
-      // 生成数字人形象
-      const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
-      const body1 = {
-        sessionId: sessionId,
-        templateId: 5,
-        protocol: "rtmp" // valid('rtsp','rtmp','flv')
-      }
-      const serverHttp1 = "http://hz-test.ikandy.cn:60004/init/resource"
-      const result1 = await this._app.curl(serverHttp1, {
-        method: 'POST',
-        data: body1,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      // 为数字人添加朗读文本
-      const body2 = {
-        sessionId: sessionId,
-        text: params.text,
-      }
-      const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
-      await this._app.curl(serverHttp2, {
-        method: 'POST',
-        data: body2,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      // 将流地址和要播放的房间号传给 mediasoup 服务器
-      const body3 = {
-        room: params.room,
-        streamAddr: `rtmp://121.5.133.154:1935/myapp/12345`,
-        trueAddr: result1.data.data.addr,
-
-      }
-      const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
-      const result3 = await this._app.curl(serverHttp3, {
-        method: 'POST',
-        data: body3,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      result3.data["sessionId"] = sessionId
-
-      ctx.helper.success(result3.data);
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
+    // 生成数字人形象
+    const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
+    const body1 = {
+      sessionId: sessionId,
+      templateId: 5,
+      protocol: "rtmp" // valid('rtsp','rtmp','flv')
     }
+    const serverHttp1 = "http://hz-test.ikandy.cn:60004/init/resource"
+    const result1 = await this._app.curl(serverHttp1, {
+      method: 'POST',
+      data: body1,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+
+    // 为数字人添加朗读文本
+    const body2 = {
+      sessionId: sessionId,
+      text: params.text,
+    }
+    const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
+    await this._app.curl(serverHttp2, {
+      method: 'POST',
+      data: body2,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+
+    // 将流地址和要播放的房间号传给 mediasoup 服务器
+    const body3 = {
+      room: params.room,
+      streamAddr: `rtmp://121.5.133.154:1935/myapp/12345`,
+      trueAddr: result1.data.data.addr,
+
+    }
+    const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
+    const result3 = await this._app.curl(serverHttp3, {
+      method: 'POST',
+      data: body3,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    result3.data["sessionId"] = sessionId
+    ctx.helper.success(result3.data);
   }
 
 
@@ -188,23 +169,18 @@ export class StreamPushController {
   })
   // @Validate()
   async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
-    try {
+    const filterStr = this.service.avFilterGraph(params);
+    const serverHttp = "https://cosmoserver.tk:4443/stream/render"
+    const result = await this._app.curl(serverHttp, {
+      method: 'POST',
+      data: { text: filterStr },
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
 
-      const filterStr = this.service.avFilterGraph(params);
-      const serverHttp = "https://cosmoserver.tk:4443/stream/render"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: {text: filterStr},
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      ctx.helper.success({result:result.data, filter:filterStr});
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
-    }
+    ctx.helper.success({ result: result.data, filter: filterStr });
   }
 
   @Post('/session/stop', {
@@ -213,21 +189,16 @@ export class StreamPushController {
   })
   @Validate()
   async stopStreamPush(ctx: Context, @Body(ALL) params: SessionStopDTO) {
-    try {
-      const serverHttp = "https://cosmoserver.tk:4443/stream/session/stop"
-      const result = await this._app.curl(serverHttp, {
-        method: 'POST',
-        data: params,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      ctx.helper.success(result.data);
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
-    }
+    const serverHttp = "https://cosmoserver.tk:4443/stream/session/stop"
+    const result = await this._app.curl(serverHttp, {
+      method: 'POST',
+      data: params,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    ctx.helper.success(result.data);
   }
 
 }
