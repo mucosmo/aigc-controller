@@ -124,61 +124,56 @@ export class StreamPushController {
   })
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    try {
-      // 生成数字人形象
-      const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
-      const body1 = {
-        sessionId: sessionId,
-        templateId: 5,
-        protocol: "rtmp" // valid('rtsp','rtmp','flv')
-      }
-      const serverHttp1 = "http://hz-test.ikandy.cn:60004/init/resource"
-      const result1 = await this._app.curl(serverHttp1, {
-        method: 'POST',
-        data: body1,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      // 为数字人添加朗读文本
-      const body2 = {
-        sessionId: sessionId,
-        text: params.text,
-      }
-      const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
-      await this._app.curl(serverHttp2, {
-        method: 'POST',
-        data: body2,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-
-      // 将流地址和要播放的房间号传给 mediasoup 服务器
-      const body3 = {
-        room: params.room,
-        streamAddr: `rtmp://121.5.133.154:1935/myapp/12345`,
-        trueAddr: result1.data.data.addr,
-
-      }
-      const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
-      const result3 = await this._app.curl(serverHttp3, {
-        method: 'POST',
-        data: body3,
-        dataType: 'json',
-        headers: {
-          'content-type': 'application/json',
-        },
-      });
-      result3.data["sessionId"] = sessionId
-
-      ctx.helper.success(result3.data);
-    } catch (error) {
-      ctx.helper.success(error, '服务器内部错误', 500);
+    // 生成数字人形象
+    const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
+    const body1 = {
+      sessionId: sessionId,
+      supplier: "tencentNew",
+      protocol: "rtmp" // valid('rtsp','rtmp','flv')
     }
+    const serverHttp1 = "https://hz-test.ikandy.cn:60106/ipaas-oauth/dh/init"
+    const result1 = await this._app.curl(serverHttp1, {
+      method: 'POST',
+      data: body1,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+
+    // // 为数字人添加朗读文本
+    // const body2 = {
+    //   sessionId: sessionId,
+    //   text: params.text,
+    // }
+    // const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
+    // await this._app.curl(serverHttp2, {
+    //   method: 'POST',
+    //   data: body2,
+    //   dataType: 'json',
+    //   headers: {
+    //     'content-type': 'application/json',
+    //   },
+    // });
+
+    // 将流地址和要播放的房间号传给 mediasoup 服务器
+    const body3 = {
+      room: params.room,
+      streamAddr: result1.data.data.addr, //`rtmp://121.5.133.154:1935/myapp/12345`,
+      trueAddr: result1.data.data.addr,
+
+    }
+    const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
+    const result3 = await this._app.curl(serverHttp3, {
+      method: 'POST',
+      data: body3,
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    result3.data["sessionId"] = sessionId
+    ctx.helper.success(result3.data);
   }
 
 
@@ -194,14 +189,14 @@ export class StreamPushController {
       const serverHttp = "https://cosmoserver.tk:4443/stream/render"
       const result = await this._app.curl(serverHttp, {
         method: 'POST',
-        data: {text: filterStr},
+        data: { text: filterStr },
         dataType: 'json',
         headers: {
           'content-type': 'application/json',
         },
       });
 
-      ctx.helper.success({result:result.data, filter:filterStr});
+      ctx.helper.success({ result: result.data, filter: filterStr });
     } catch (error) {
       ctx.helper.success(error, '服务器内部错误', 500);
     }
