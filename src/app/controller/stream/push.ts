@@ -27,7 +27,7 @@ import { AdminPermissionService } from '../../service/admin/permission';
 })
 export class StreamPushController {
   @Inject('streamPushService')
-  service: StreamPushService;
+  streamPushService: StreamPushService;
 
   @App()
   private _app!: Application;
@@ -110,55 +110,20 @@ export class StreamPushController {
   })
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    // 生成数字人形象
-    const sessionId = `DH_SESSIONID_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
-    const body1 = {
-      sessionId: sessionId,
-      supplier: "tencentNew",
-      protocol: "rtmp" // valid('rtsp','rtmp','flv')
-    }
-    const serverHttp1 = "https://hz-test.ikandy.cn:60106/ipaas-oauth/dh/init"
-    const result1 = await this._app.curl(serverHttp1, {
-      method: 'POST',
-      data: body1,
-      dataType: 'json',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
+    const streamSrc = await this.streamPushService.getDhStreamSrc();
+    const data = await this.streamPushService.startStreamPush({ ...params, streamSrc });
+    ctx.helper.success(data);
+  }
 
-    // // 为数字人添加朗读文本
-    // const body2 = {
-    //   sessionId: sessionId,
-    //   text: params.text,
-    // }
-    // const serverHttp2 = "http://hz-test.ikandy.cn:60004/text/render"
-    // await this._app.curl(serverHttp2, {
-    //   method: 'POST',
-    //   data: body2,
-    //   dataType: 'json',
-    //   headers: {
-    //     'content-type': 'application/json',
-    //   },
-    // });
-
-    // 将流地址和要播放的房间号传给 mediasoup 服务器
-    const body3 = {
-      room: params.room,
-      streamSrc: result1.data.data.addr, //`rtmp://121.5.133.154:1935/myapp/12345`,
-      trueAddr: result1.data.data.addr,
-
-    }
-    const serverHttp3 = "https://cosmoserver.tk:4443/stream/push"
-    const result3 = await this._app.curl(serverHttp3, {
-      method: 'POST',
-      data: body3,
-      dataType: 'json',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-    ctx.helper.success(result3.data);
+  @Post('/push/open', {
+    summary: 'Open the channel for stream push',
+    description: '',
+  })
+  @Validate()
+  async openStreamPushChannel(ctx: Context, @Body(ALL) params: StreamPushDTO) {
+    const streamSrc = await this.streamPushService.getDhStreamSrc();
+    const data = await this.streamPushService.openStreamPush({ ...params, streamSrc });
+    ctx.helper.success(data);
   }
 
 
@@ -168,7 +133,7 @@ export class StreamPushController {
   })
   // @Validate()
   async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
-    const filterStr = this.service.avFilterGraph(params);
+    const filterStr = this.streamPushService.avFilterGraph(params);
     const serverHttp = "https://cosmoserver.tk:4443/stream/render"
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
@@ -181,7 +146,7 @@ export class StreamPushController {
 
     ctx.helper.success({ result: result.data, filter: filterStr });
   }
-  
+
 
   @Post('/push/stop', {
     summary: '停止推送数字人',
