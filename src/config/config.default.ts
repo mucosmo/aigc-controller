@@ -1,30 +1,31 @@
-import { EggAppInfo } from 'egg';
+import { EggAppInfo } from "egg";
 // import { ConnectionOptions } from 'typeorm';
 
-import { DefaultConfig } from './config.types';
+import { DefaultConfig } from "./config.types";
 
 /**
  * 关于环境变量的配置，请查阅文档：https://www.yuque.com/midwayjs/midway_v2/eggjs#0JHun
  */
 export default (appInfo: EggAppInfo): DefaultConfig => {
+
   const config = {} as DefaultConfig;
 
   // use for cookie sign key, should change to your own and keep security
-  config.keys = appInfo.name + '_1602294995416_4568';
+  config.keys = appInfo.name + "_1602294995416_4568";
 
   // add your config here
-  config.middleware = ['jwtAuth'];
+  config.middleware = ["jwtAuth", "errorHandlerMiddleware"];
 
   config.midwayFeature = {
     // true 使用 midway-logger
     // false 或空代表使用 egg-logger
-    replaceEggLogger: true,
+    replaceEggLogger: true
   };
 
   // 默认管理员
   config.admin = {
-    username: 'admin',
-    password: 'admin',
+    username: "admin",
+    password: "admin"
   };
 
   // // 数据库配置
@@ -44,27 +45,27 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
   config.redis = {
     client: {
       port: +process.env.REDIS_PORT || 6379, // Redis port
-      host: process.env.REDIS_HOST || '127.0.0.1', // Redis host
-      password: process.env.REDIS_PASSWORD || '',
-      db: +process.env.REDIS_DB || 0,
-    },
+      host: process.env.REDIS_HOST || "127.0.0.1", // Redis host
+      password: process.env.REDIS_PASSWORD || "",
+      db: +process.env.REDIS_DB || 0
+    }
   };
 
   // swagger文档配置，默认地址 http://127.0.0.1:7001/swagger-ui/index.html
   config.swagger = {
-    title: 'streamPipeline',
-    description: 'streamPipeline工程的接口定义',
-    version: '0.0.1',
+    title: "streamPipeline",
+    description: "streamPipeline工程的接口定义",
+    version: "0.0.1",
     contact: {
-      name: 'huanyu.yang',
-      email: 'mfuture@qq.com',
-    },
+      name: "huanyu.yang",
+      email: "mfuture@qq.com"
+    }
   };
 
-  config.cors= {
+  config.cors = {
     credentials: true,
-    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTION',
-    origin:"*"
+    allowMethods: "GET,HEAD,PUT,POST,DELETE,PATCH,OPTION",
+    origin: "*"
   };
 
   // snowflake id generator config
@@ -73,12 +74,16 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
   config.koid = {
     dataCenter: 0,
     worker: 0,
-    epoch,
+    epoch
   };
 
   // rabbitmq 基本配置 默认管理界面 http://127.0.0.1:15672/ (这个项目只包含生产者的代码)
   config.rabbitmq = {
-    url: process.env.RABBITMQ_URL || 'amqp://localhost',
+    url: process.env.RABBITMQ_URL || "amqp://localhost"
+  };
+
+  config.egg = {
+    port: 60123
   };
 
   return config;
