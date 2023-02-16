@@ -14,7 +14,7 @@ import { Application, Context } from '@/interface';
 
 import { StreamPushService } from '../../service/stream/push';
 import {
-  StreamPushDTO, StreamPullDTO, StreamLiveDTO, SessionStopDTO
+  StreamPushDTO, StreamPullDTO, StreamLiveDTO, BroadcasterStopDTO
 } from '../../dto/stream/push';
 
 import { AdminRoleService } from '../../service/admin/role';
@@ -111,7 +111,7 @@ export class StreamPushController {
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
     // 生成数字人形象
-    const sessionId = `tx_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
+    const sessionId = `DH_SESSIONID_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`
     const body1 = {
       sessionId: sessionId,
       supplier: "tencentNew",
@@ -145,7 +145,7 @@ export class StreamPushController {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
     const body3 = {
       room: params.room,
-      streamAddr: result1.data.data.addr, //`rtmp://121.5.133.154:1935/myapp/12345`,
+      streamSrc: result1.data.data.addr, //`rtmp://121.5.133.154:1935/myapp/12345`,
       trueAddr: result1.data.data.addr,
 
     }
@@ -158,7 +158,6 @@ export class StreamPushController {
         'content-type': 'application/json',
       },
     });
-    result3.data["sessionId"] = sessionId
     ctx.helper.success(result3.data);
   }
 
@@ -182,14 +181,15 @@ export class StreamPushController {
 
     ctx.helper.success({ result: result.data, filter: filterStr });
   }
+  
 
-  @Post('/session/stop', {
-    summary: '停止会话',
+  @Post('/push/stop', {
+    summary: '停止推送数字人',
     description: '',
   })
   @Validate()
-  async stopStreamPush(ctx: Context, @Body(ALL) params: SessionStopDTO) {
-    const serverHttp = "https://cosmoserver.tk:4443/stream/session/stop"
+  async stopStreamPush(ctx: Context, @Body(ALL) params: BroadcasterStopDTO) {
+    const serverHttp = "https://cosmoserver.tk:4443/stream/push/stop"
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
       data: params,
