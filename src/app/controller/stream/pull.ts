@@ -75,24 +75,6 @@ export class StreamPullController {
     ctx.helper.success(result.data);
   }
 
-  @Post('/pull/live/stop', {
-    summary: 'stop the live stream',
-    description: '',
-  })
-  @Validate()
-  async stopLiveStream(ctx: Context, @Body(ALL) sessionId: string) {
-    const serverHttp = "https://cosmoserver.tk:4443/stream/pull/live/stop"
-    const result = await this._app.curl(serverHttp, {
-      method: 'POST',
-      data: sessionId,
-      dataType: 'json',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
-    ctx.helper.success(result.data);
-  }
-
   @Post('/pull', {
     summary: '从房间拉流并生成直播地址',
     description: '',
