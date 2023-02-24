@@ -289,7 +289,7 @@ export class RenderService {
       const y = theRegion.area.y;
       let desc = '';
       if (i === 0) {
-        desc = `[in][${regionLabel}]overlay=${x}:${y}[out0]`; //对应于 c 代码中添加的 [in] 标记
+        desc = `[0][${regionLabel}]overlay=${x}:${y}[out0]`; //对应于 c 代码中添加的 [0] 标记
       } else {
         desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}[out${i}]`;
       }
