@@ -20,6 +20,7 @@ export class RtpRoomDTO {
 
   @CreateApiPropertyDoc('命令参数')
   @Rule(RuleType.object({
+    background: RuleType.required(),
     template: RuleType.required(),
     srcs: RuleType.required(),
   }
