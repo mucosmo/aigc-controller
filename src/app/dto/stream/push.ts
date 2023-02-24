@@ -56,6 +56,14 @@ export class StreamPushDTO {
   @CreateApiPropertyDoc('数字人朗读的文本')
   @Rule(RuleType.string().trim().required())
   text: string;
+
+  @CreateApiPropertyDoc('实现方式')
+  @Rule(RuleType.string().trim().optional())
+  deviceName: string;
+
+  @CreateApiPropertyDoc('显示的名字')
+  @Rule(RuleType.string().trim().optional())
+  displayName: string;
 }
 
 export class BroadcasterStopDTO {

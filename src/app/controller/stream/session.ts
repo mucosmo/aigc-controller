@@ -39,4 +39,22 @@ export class StreamSessionController {
     ctx.helper.success(result.data);
   }
 
+  @Del('/end/all', {
+    summary: '结束所有外部第三方会话',
+    description: '停止直播流，停止数字人推送等',
+  })
+  @Validate()
+  async endAllExteStream(ctx: Context) {
+    const serverHttp = "https://cosmoserver.tk:4443/stream/session/end/all"
+    const result = await this._app.curl(serverHttp, {
+      method: 'DELETE',
+      data: {},
+
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+    ctx.helper.success(result.data);
+  }
+
 }

@@ -81,11 +81,12 @@ export class StreamPushService {
     return result.data;
   }
 
-  async openStreamPush(params: { room: string, streamSrc: string }) {
+  async openStreamPush(params: { room: string, deviceName?: string, displayName?: string }) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
     const data = {
       room: params.room,
-      streamSrc: params.streamSrc, //`rtmp://121.5.133.154:1935/myapp/12345`,
+      deviceName: params.deviceName,
+      displayName: params.displayName,
     }
     const url = "https://cosmoserver.tk:4443/stream/push/open"
     const result = await this._app.curl(url, {

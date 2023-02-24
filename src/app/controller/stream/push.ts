@@ -50,8 +50,8 @@ export class StreamPushController {
   })
   @Validate()
   async openStreamPushChannel(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    const streamSrc = await this.streamPushService.getDhStreamSrc();
-    const data = await this.streamPushService.openStreamPush({ ...params, streamSrc });
+    // const streamSrc = await this.streamPushService.getDhStreamSrc();
+    const data = await this.streamPushService.openStreamPush(params);
     ctx.helper.success(data);
   }
 
