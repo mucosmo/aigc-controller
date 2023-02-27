@@ -49,7 +49,7 @@ export class StreamSessionController {
     const result = await this._app.curl(serverHttp, {
       method: 'DELETE',
       data: {},
-
+      dataType: 'json',
       headers: {
         'content-type': 'application/json',
       },
