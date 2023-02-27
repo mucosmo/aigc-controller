@@ -22,11 +22,13 @@ export class FfmpegService {
   async rtpRoom(data: RtpRoomDTO) {
     const url = "https://cosmoserver.tk:4443/stream/ffmpeg/rtp/room";
 
-    await this.renderService.initTemplate(data.params);
+    const { inputs } = await this.renderService.initTemplate(data.params, 'ffmpeg');
+
+    const files = inputs.map(input => input.src.path);
 
     const result = await this._app.curl(url, {
       method: 'POST',
-      data,
+      data: { ...data, inputs: files },
       dataType: 'json',
       headers: {
         'content-type': 'application/json',

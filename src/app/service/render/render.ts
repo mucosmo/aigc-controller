@@ -23,7 +23,7 @@ export class RenderService {
   adminUserModel: Repository<AdminUserModel>;
 
   //初始化模板
-  async initTemplate(params: any) {
+  async initTemplate(params: any, mode = 'gcc') {
     //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
     const regions = params.template.regions.filter(item => ['video', 'audio', 'picture'].indexOf(item.type) > -1);
     const srcs = params.srcs;
@@ -44,10 +44,10 @@ export class RenderService {
 
 
 
-    const filterDesc = await this.__initFilterGraph(template); // 耗时小于 10 ms
+    const { filterGraphDesc, inputs } = await this.__initFilterGraph(template, mode); // 耗时小于 10 ms
 
 
-    return filterDesc;
+    return { filterGraphDesc, inputs };
   }
 
   //数据源到模板区域的映射
@@ -63,9 +63,9 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const filterDesc = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.__initFilterGraph(template);
 
-    return filterDesc;
+    return filterGraphDesc;
   }
 
 
@@ -85,9 +85,9 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const filterDesc = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.__initFilterGraph(template);
 
-    return filterDesc;
+    return filterGraphDesc;
   }
 
   //给模板区域增减滤波器
@@ -102,9 +102,9 @@ export class RenderService {
       theRegion.filters = theRegion.filters.filter(item => deleteFilters.indexOf(item.id) === -1);
     });
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const filterDesc = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.__initFilterGraph(template);
 
-    return filterDesc;
+    return filterGraphDesc;
   }
 
   //更新模板区域的滤波器
@@ -128,9 +128,9 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const filterDesc = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.__initFilterGraph(template);
 
-    return filterDesc;
+    return filterGraphDesc;
   }
 
 
@@ -166,14 +166,14 @@ export class RenderService {
     }
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const filterDesc = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.__initFilterGraph(template);
 
-    return filterDesc;
+    return filterGraphDesc;
   }
 
 
   /**通过模板及其参数构造滤波器图 */
-  private async __initFilterGraph(template: any) {
+  private async __initFilterGraph(template: any, mode = 'gcc') {
     console.log('============= start to init filter graph ============');
     const t1 = Date.now();
 
@@ -185,8 +185,12 @@ export class RenderService {
 
 
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
-    const inputs = regions.map(region => {
-      return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`
+    const inputs = regions.map((region, index) => {
+      if (mode === 'ffmpeg') {
+        return `[${index + 1}]null[${region.id}]`; // 直接从命令行以 -i 形式输入
+      } else {
+        return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`; // 通过 movie= 形式输入
+      }
     });
 
     //第二步：对不同的区域数据源使用 filter-chain
@@ -344,7 +348,8 @@ export class RenderService {
     console.log('------- end of  filter graph init --------');
 
 
-    return filterGraphDesc;
+
+    return { filterGraphDesc, inputs:regions };
   }
 
   /**模板有效性检验 */
