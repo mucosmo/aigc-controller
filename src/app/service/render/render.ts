@@ -42,8 +42,6 @@ export class RenderService {
     //存储数据源，和 template 匹配
     await this.ctx.app.redis.set(key + "_srcs", JSON.stringify(params.srcs), 'EX', TWENTYFOURHOURS);
 
-
-
     const { filterGraphDesc, inputs } = await this.__initFilterGraph(template, mode); // 耗时小于 10 ms
 
 
@@ -305,6 +303,22 @@ export class RenderService {
     console.log('---overlays');
     console.log(overlays);
 
+    // [v0][v1][v2][v3]concat=n=4:v=1:a=0,format=yuv420p[v]
+
+    // 考虑全局滤波器
+    let concatFilterChain = '';
+    if (template.globalFilters) {
+      const concatFilterArr = template.globalFilters.filter(item => item.name === 'concat');
+
+      const concatFilter = concatFilterArr.length > 0 ? concatFilterArr[0] : '';
+      lastFilterTag = 'concatOut';
+
+      concatFilterChain = regionsNameAfterFilter.slice(0, concatFilter.options.n).map(item => `[${item}]`).join('') +
+        `concat=n=${concatFilter.options.n}:v=${concatFilter.options.v}:a=${concatFilter.options.a},format=yuv420p[${lastFilterTag}]`;
+    }
+
+
+
     //第四步：从 regions 中取出 drawtext 和 subtitles(硬字幕) 作为全局的滤波器 
     const textFilters = template.regions.filter(item => item.type === 'subtitles' || item.type === 'drawtext') as Array<any>;
     textFilters.sort((a, b) => {
@@ -333,9 +347,13 @@ export class RenderService {
 
 
     //组合所有 filter-chain
-    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...maskFilterChains, ...overlays, ...textFiltersSorted).filter(item => item !== '').join(';');
+    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...maskFilterChains, ...overlays, concatFilterChain, ...textFiltersSorted).filter(item => item !== '').join(';');
 
+
+    console.log(filterGraphDesc)
+    console.log(`---lastFilterTag:`, lastFilterTag)
     const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
+    console.log(lastTagIndex)
 
     //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
     filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
@@ -351,7 +369,7 @@ export class RenderService {
 
 
 
-    return { filterGraphDesc, inputs:regions };
+    return { filterGraphDesc, inputs: regions };
   }
 
   /**模板有效性检验 */
@@ -368,17 +386,20 @@ export class RenderService {
 
   /**写入服务器文件 */
   private async __writeFilterGraphIntoFile(filterGraph: string) {
-    const serverHttp = "https://cosmoserver.tk:4443/stream/render"
-    const result = await this._app.curl(serverHttp, {
-      method: 'POST',
-      data: { text: filterGraph },
-      dataType: 'json',
-      headers: {
-        'content-type': 'application/json',
-      },
-    });
+    // const serverHttp = "https://cosmoserver.tk:4443/stream/render"
+    // const result = await this._app.curl(serverHttp, {
+    //   method: 'POST',
+    //   data: { text: filterGraph },
+    //   dataType: 'json',
+    //   headers: {
+    //     'content-type': 'application/json',
+    //   },
+    // });
 
-    return result;
+    // return result;
+
+    this._app;
+    return filterGraph;
   }
 
   // /**
