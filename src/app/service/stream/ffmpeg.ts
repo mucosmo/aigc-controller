@@ -24,11 +24,9 @@ export class FfmpegService {
 
     const { inputs } = await this.renderService.initTemplate(data.params, 'ffmpeg');
 
-    const files = inputs.map(input => input.src.path);
-
     const result = await this._app.curl(url, {
       method: 'POST',
-      data: { ...data, inputs: files },
+      data: { ...data, inputs },
       dataType: 'json',
       headers: {
         'content-type': 'application/json',

@@ -291,9 +291,11 @@ export class RenderService {
 
       const x = theRegion.area.x;
       const y = theRegion.area.y;
+      const enableDuration = theRegion.area.enable; // 持续（显示）时间
+      const enableStr = enableDuration ? `:enable=${enableDuration}` : '';
       let desc = '';
       if (i === 0) {
-        desc = `[0][${regionLabel}]overlay=${x}:${y}[out0]`; //对应于 c 代码中添加的 [0] 标记
+        desc = `[0][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`; //对应于 c 代码中添加的 [0] 标记
       } else {
         desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}[out${i}]`;
       }
