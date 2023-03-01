@@ -54,8 +54,8 @@ export class StreamPushDTO {
   path: string;
 
   @CreateApiPropertyDoc('数字人朗读的文本')
-  @Rule(RuleType.string().trim().required())
-  text: string;
+  @Rule(RuleType.object().required())
+  dh: object;
 
   @CreateApiPropertyDoc('实现方式')
   @Rule(RuleType.string().trim().optional())

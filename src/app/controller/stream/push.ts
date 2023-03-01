@@ -13,6 +13,9 @@ import { Context } from '@/interface';
 
 import { StreamPushService } from '../../service/stream/push';
 import { StreamPushDTO } from '../../dto/stream/push';
+import { CreateDhDTO } from '../../dto/stream/dh';
+import { DigitalHumanService } from '../../service/stream/dh';
+
 
 import { AdminRoleService } from '../../service/admin/role';
 import { AdminPermissionService } from '../../service/admin/permission';
@@ -25,6 +28,9 @@ import { AdminPermissionService } from '../../service/admin/permission';
 export class StreamPushController {
   @Inject('streamPushService')
   streamPushService: StreamPushService;
+
+  @Inject('digitalHumanService')
+  digitalHumanService: DigitalHumanService;
 
   @Inject('adminRoleService')
   roleService: AdminRoleService;
@@ -39,9 +45,11 @@ export class StreamPushController {
   })
   @Validate()
   async pullStreamAndPushToRooms(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    const streamSrc = await this.streamPushService.getDhStreamSrc();
+    const dh = params.dh as CreateDhDTO & { text: string };
+    const { addr: streamSrc, topic } = await this.digitalHumanService.createDh(dh);
+    await this.digitalHumanService.driveDh({ topic, text: dh.text });
     const data = await this.streamPushService.startStreamPush({ ...params, streamSrc });
-    ctx.helper.success(data);
+    ctx.helper.success({ ...data, topic });
   }
 
   @Post('/push/open', {
@@ -50,7 +58,6 @@ export class StreamPushController {
   })
   @Validate()
   async openStreamPushChannel(ctx: Context, @Body(ALL) params: StreamPushDTO) {
-    // const streamSrc = await this.streamPushService.getDhStreamSrc();
     const data = await this.streamPushService.openStreamPush(params);
     ctx.helper.success(data);
   }
