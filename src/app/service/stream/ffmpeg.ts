@@ -7,6 +7,8 @@ import { RtpRoomDTO } from '../../dto/stream/ffmpeg';
 
 import { RenderService } from '../../service/render/render';
 
+import { StreamPushService } from '../../service/stream/push';
+
 @Provide()
 export class FfmpegService {
   @Inject()
@@ -15,17 +17,21 @@ export class FfmpegService {
   @Inject()
   private renderService!: RenderService;
 
+  @Inject()
+  private streamPushService!: StreamPushService;
+
   @App()
   private _app!: Application;
 
   /**composite video with ffmpeg and push to rtp room */
   async rtpRoom(data: RtpRoomDTO) {
+    const channel = await this.streamPushService.openStreamPush(data);
     const url = "https://cosmoserver.tk:4443/stream/ffmpeg/rtp/room";
     const commandWithoutChannel = await this._overlay(data);
-    console.log(commandWithoutChannel);
+    const command = commandWithoutChannel + ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`;
     const result = await this._app.curl(url, {
       method: 'POST',
-      data: { ...data, commandWithoutChannel },
+      data: { command, channelSessionId: channel.sessionId },
       dataType: 'json',
       headers: {
         'content-type': 'application/json',
