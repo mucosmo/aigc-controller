@@ -59,9 +59,13 @@ export class FfmpegService {
       outputOpts,
       ` -map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
       ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`,
-      ` -map 0:a -c:a libopus -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
-      ` -f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
-    ].join('');
+    ].concat(
+      data.streams?.includes("audio") ?
+        [
+          ` -map 0:a -c:a libopus -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
+          ` -f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
+        ] : []
+    ).join('');
     return command;
   }
 

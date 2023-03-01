@@ -18,13 +18,17 @@ export class RtpRoomDTO {
   @Rule(RuleType.string().trim().optional())
   displayName: string;
 
+  @CreateApiPropertyDoc('流选择')
+  @Rule(RuleType.array().optional())
+  streams: Array<string>;
+
   @CreateApiPropertyDoc('命令参数')
   @Rule(RuleType.object({
-    globalOptions:RuleType.required(),
+    globalOptions: RuleType.required(),
     background: RuleType.required(),
     template: RuleType.required(),
     srcs: RuleType.required(),
-    outputOptions:RuleType.optional(),
+    outputOptions: RuleType.optional(),
 
   }
   ).required())
