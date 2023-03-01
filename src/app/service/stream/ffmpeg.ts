@@ -55,10 +55,12 @@ export class FfmpegService {
       globalOptions,
       ` -i /opt/application/tx-rtcStream/files/resources/${filterParams.background}`,
       ...inputsStr,
-      ` -filter_complex "${filterGraphDesc}"`,
+      ` -filter_complex "${filterGraphDesc}[ret]"`,
       outputOpts,
-      ` -an -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
-      ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`
+      ` -map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
+      ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`,
+      ` -map 0:a -c:a libopus -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
+      ` -f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
     ].join('');
     return command;
   }
