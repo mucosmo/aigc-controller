@@ -295,7 +295,7 @@ export class RenderService {
       if (i === 0) {
         desc = `[0][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`; //对应于 c 代码中添加的 [0] 标记
       } else {
-        desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}[out${i}]`;
+        desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
       }
       lastFilterTag = `out${i}`;
       overlays.push(desc);
