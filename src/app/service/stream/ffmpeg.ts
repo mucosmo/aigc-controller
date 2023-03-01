@@ -27,8 +27,7 @@ export class FfmpegService {
   async rtpRoom(data: RtpRoomDTO) {
     const channel = await this.streamPushService.openStreamPush(data);
     const url = "https://cosmoserver.tk:4443/stream/ffmpeg/rtp/room";
-    const commandWithoutChannel = await this._overlay(data);
-    const command = commandWithoutChannel + ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`;
+    const command = await this._overlay(data, channel);
     const result = await this._app.curl(url, {
       method: 'POST',
       data: { command, channelSessionId: channel.sessionId },
@@ -40,7 +39,7 @@ export class FfmpegService {
     return result.data;
   }
 
-  private async _overlay(data: RtpRoomDTO) {
+  private async _overlay(data: RtpRoomDTO, channel: any) {
     const filterParams = data.params as {
       globalOptions: any[],
       outputOptions: any[],
@@ -49,20 +48,19 @@ export class FfmpegService {
     const { filterGraphDesc, inputs } = await this.renderService.initTemplate(filterParams, 'ffmpeg');
     const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? ' ' + filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? ' ' + filterParams.outputOptions.join(' ') : '';
-
     const inputsStr = inputs.map(input => ` ${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`);
-    const commandWithoutChannel = [
+
+    const command = [
       `ffmpeg`,
       globalOptions,
       ` -i /opt/application/tx-rtcStream/files/resources/${filterParams.background}`,
       ...inputsStr,
       ` -filter_complex "${filterGraphDesc}"`,
       outputOpts,
-      ` -an -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc 2222 -payload_type 101`
+      ` -an -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
+      ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`
     ].join('');
-
-    return commandWithoutChannel;
-
+    return command;
   }
 
 }
