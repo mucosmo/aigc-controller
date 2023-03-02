@@ -36,7 +36,7 @@ export class FfmepegController {
 
 
   @Post('/metadata', {
-    summary: '获取文件或者流的原数据',
+    summary: '获取文件或者流的元数据',
     description: '',
   })
   @Validate()
