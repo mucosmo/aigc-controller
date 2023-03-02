@@ -24,7 +24,7 @@ export class RtpRoomDTO {
 
   @CreateApiPropertyDoc('命令参数')
   @Rule(RuleType.object({
-    globalOptions: RuleType.required(),
+    globalOptions: RuleType.optional(),
     template: RuleType.required(),
     srcs: RuleType.required(),
     outputOptions: RuleType.optional(),
