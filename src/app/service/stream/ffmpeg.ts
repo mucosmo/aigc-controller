@@ -42,7 +42,8 @@ export class FfmpegService {
   }
 
   /**get the metadata of files or streams */
-  async getMetadata(paths: any[]) {
+  async getMetadata(iPaths: any[]) {
+    const paths = [...new Set(iPaths)];// 去重复
     const filesMeta = {};
     for (let path of paths) {
       filesMeta[path] = await asyncFfprobe(paths[0]);
@@ -56,16 +57,16 @@ export class FfmpegService {
       outputOptions: any[],
       background: string,
     }
-    const { template } = await this.renderService.videoInitTemplate(filterParams);
-    const { filterGraphDesc: filteGraphVideo, inputs, lastFilterTag } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
-    
-    await this.getMetadata(inputs.map(input => input.src.path));
+    const { template } = await this.renderService.initTemplate(filterParams);
+    const { filterGraphDesc: filteGraphVideo, videos, lastFilterTag } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
+    const { filterGraphAudio, audios } = await this.renderService.audioFilterGraph(template);
 
+    const inputs = [...videos, ...audios];
+    await this.getMetadata(inputs.map(input => input.src.path));
     const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? filterParams.outputOptions.join(' ') : '';
     const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
 
-    const filterGraphAudio = data.streams?.includes("audio") ? await this.renderService.audioFilterGraph(template) : '';
     let filterComplex = [
       filterGraphAudio,
       filteGraphVideo,

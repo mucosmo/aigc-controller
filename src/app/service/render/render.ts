@@ -23,13 +23,15 @@ export class RenderService {
   adminUserModel: Repository<AdminUserModel>;
 
   //初始化模板
-  async videoInitTemplate(params: any, mode = 'gcc') {
-    //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
-    const regions = params.template.regions.filter(item => ['video', 'audio', 'picture'].includes(item.type));
+  async initTemplate(params: any, mode = 'gcc') {
     const srcs = params.srcs;
 
+    //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
+    const videos = this._getMediaFromTemplate(params.template, 'video');
+    const audios = this._getMediaFromTemplate(params.template, 'audio');
+
     //初始化数据源
-    regions.forEach(itemRegion => {
+    [...videos, ...audios].forEach(itemRegion => {
       const theSrc = srcs.find(src => src.id === itemRegion.srcId)
       itemRegion.src = theSrc;
     });
@@ -175,19 +177,17 @@ export class RenderService {
 
     this.__checkTemplate(template);
 
-    const regions = template.regions.filter(item => ['video', 'audio', 'picture'].includes(item.type)) as Array<any>;
+    const videos = this._getMediaFromTemplate(template, 'video');
 
-    let bgLabel = regions[0].id;; // 背景视频或图像的标签
+    let bgLabel = videos[0].id;; // 背景视频或图像的标签
 
     let lastFilterTag = '';// 标记最后一个输出 
 
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
-    const inputs = regions.map((region, index) => {
+    const inputs = videos.map((region, index) => {
       if (mode === 'ffmpeg') {
-        if (['video', 'picture'].includes(region.type)) {
-          lastFilterTag = region.id;
-          return `[${index}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
-        }
+        lastFilterTag = region.id;
+        return `[${index}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
       } else {
         return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`; // 通过 movie= 形式输入
       }
@@ -195,7 +195,7 @@ export class RenderService {
 
     //第二步：对不同的区域数据源使用 filter-chain
     let regionsNameAfterFilter = [];
-    const filterChains = regions.map((region, index) => {
+    const filterChains = videos.map((region, index) => {
       //如果没有 filter, 返回空数组
       if (!region.filters || region.filters.length === 0) {
         regionsNameAfterFilter.push(region.id);
@@ -203,7 +203,7 @@ export class RenderService {
       }
 
       // 如果背景有滤波器
-      if (index === 0) bgLabel = regions[index].id + '_prepro';
+      if (index === 0) bgLabel = videos[index].id + '_prepro';
 
       //排序后的filter
       const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => a.seq - b.seq);
@@ -228,7 +228,7 @@ export class RenderService {
 
     //第二步（2）：如果有形状要求（蒙版），则需要先合成中间形态
 
-    const maskFilterChains = regions.map(region => {
+    const maskFilterChains = videos.map(region => {
 
       if (!region.filters || region.filters.length === 0) {
         return '';
@@ -269,7 +269,7 @@ export class RenderService {
       } else {
         regionIdTrue = regionId;
       }
-      const theRegion = template.regions.find(region => region.id === regionIdTrue && region.area);
+      const theRegion = template.videos.find(region => region.id === regionIdTrue && region.area);
       return theRegion;
     })
 
@@ -285,7 +285,7 @@ export class RenderService {
         regionId = regionLabel;
       }
 
-      const theRegion = template.regions.find(region => region.id === regionId);
+      const theRegion = template.videos.find(region => region.id === regionId);
       if (!theRegion.area) {
         console.log('no area!');
         continue;
@@ -322,8 +322,8 @@ export class RenderService {
 
 
 
-    //第四步：从 regions 中取出 drawtext 和 subtitles(硬字幕) 作为全局的滤波器 
-    const textFilters = template.regions.filter(item => item.type === 'subtitles' || item.type === 'drawtext') as Array<any>;
+    //第四步：从 videos 中取出 drawtext 和 subtitles(硬字幕) 作为全局的滤波器 
+    const textFilters = template.videos.filter(item => item.type === 'subtitles' || item.type === 'drawtext') as Array<any>;
     textFilters.sort((a, b) => {
       const layerA = a.id.split('_')[1].split('.')[0];
       const layerB = b.id.split('_')[1].split('.')[0];
@@ -357,7 +357,7 @@ export class RenderService {
       ...overlays,
       concatFilterChain,
       ...textFiltersSorted
-    ].filter(item => item).join(';').replace(';;',';'); // item 可能包含 '' 或者 undefined
+    ].filter(item => item).join(';').replace(';;', ';'); // item 可能包含 '' 或者 undefined
 
     // console.log(`---lastFilterTag:`, lastFilterTag)
     // const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
@@ -375,13 +375,13 @@ export class RenderService {
 
     console.log('------- end of  filter graph init --------');
 
-    return { filterGraphDesc, inputs: regions, lastFilterTag };
+    return { filterGraphDesc, videos, lastFilterTag };
   }
 
   /**模板有效性检验 */
   private __checkTemplate(template: any) {
     for (let [key, val] of Object.entries(template.profile)) {
-      const count = template.regions.filter(item => item.type === key).length;
+      const count = template.videos.filter(item => item.type === key).length;
       if (count !== val) {
         console.error(`--- the template failed at ${key} check`)
         return false;
@@ -457,12 +457,44 @@ export class RenderService {
   }
 
   // composite audio track
-  async audioFilterGraph(audioRegions: any,) {
+  async audioFilterGraph(template: any,) {
     console.log('--- audioFilterGraph');
-    console.log(audioRegions)
-    return [
-      `[1:a]afade=t=in:st=0:d=1[a1];`,
-      `[a1]amerge=inputs=1[a];`
+    const videosCount = this._getMediaFromTemplate(template, 'video').length;
+    const audios = this._getMediaFromTemplate(template, 'audio');
+    console.log(audios);
+    const audiosOutIdx = []
+    const audiosFilters = audios.map((audio, index) => {
+      const newIndex = index + videosCount;
+      const filterChain = audio.filters.reduce((acc, filter) => {
+        const filterStr = `${filter.name}=`;
+        const propertys = [];
+        for (let [key, val] of Object.entries(filter.options)) {
+          propertys.push(`${key}=${val}`);
+        }
+        return acc + filterStr + (propertys.join(':'));
+      }, '');
+      const outIndex = `[a${newIndex}]`;
+      audiosOutIdx.push(outIndex);
+      return `[${newIndex}:a]${filterChain}${outIndex};`;
+    })
+
+    const filterGraphAudio = [
+      ...audiosFilters,
+      `${audiosOutIdx.join('')}amerge=inputs=${audiosOutIdx.length}[a];`
     ].join('');
+
+    return { filterGraphAudio, audios };
   }
+
+
+  /**get videos (including image) and audios from template */
+  private _getMediaFromTemplate(template: any, type: 'video' | 'audio') {
+    switch (type) {
+      case 'video':
+        return template.videos.filter(item => ['video', 'picture'].includes(item.type)) ?? [] as Array<any>;
+      case 'audio':
+        return template.audios ?? [] as Array<any>;
+    }
+  }
+
 }
