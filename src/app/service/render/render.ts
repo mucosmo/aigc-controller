@@ -177,11 +177,13 @@ export class RenderService {
 
     const regions = template.regions.filter(item => ['video', 'audio', 'picture'].includes(item.type)) as Array<any>;
 
+    let bgLabel = regions[0].id;; // 背景视频或图像的标签
+
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
     const inputs = regions.map((region, index) => {
       if (mode === 'ffmpeg') {
         if (['video', 'picture'].includes(region.type)) {
-          return `[${index + 1}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
+          return `[${index}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
         }
       } else {
         return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`; // 通过 movie= 形式输入
@@ -190,12 +192,15 @@ export class RenderService {
 
     //第二步：对不同的区域数据源使用 filter-chain
     let regionsNameAfterFilter = [];
-    const filterChains = regions.map(region => {
+    const filterChains = regions.map((region, index) => {
       //如果没有 filter, 返回空数组
       if (!region.filters || region.filters.length === 0) {
         regionsNameAfterFilter.push(region.id);
         return '';
       }
+
+      // 如果背景有滤波器
+      if (index === 0) bgLabel = regions[index].id + '_prepro';
 
       //排序后的filter
       const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => a.seq - b.seq);
@@ -290,7 +295,7 @@ export class RenderService {
       const enableStr = enableDuration ? `:enable=${enableDuration}` : '';
       let desc = '';
       if (i === 0) {
-        desc = `[0:v][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`; //对应于 c 代码中添加的 [0] 标记
+        desc = `[${bgLabel}][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`;
       } else {
         desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
       }

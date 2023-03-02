@@ -50,19 +50,19 @@ export class FfmpegService {
 
     const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? filterParams.outputOptions.join(' ') : '';
-    const inputsStr = inputs.map(input => ` ${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
+    const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
 
     const filterGraphAudio = data.streams?.includes("audio") ? await this.renderService.audioFilterGraph(template) : '';
-    const filterComplex = [
+    let filterComplex = [
       filterGraphAudio,
       filteGraphVideo,
       '[ret]'].join('').replace(';;', ';');
 
-    const videoOutput = [
+    const videoSink = [
       `-map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
       `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`].join(' ');
 
-    const audioOutput = data.streams?.includes("audio") ? [
+    const audioSink = data.streams?.includes("audio") ? [
       `-map "[a]" -c:a libopus -ac 1 -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
       `-f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
     ].join(' ') : '';
@@ -70,12 +70,11 @@ export class FfmpegService {
     const command = [
       `ffmpeg`,
       globalOptions,
-      `-i /opt/application/tx-rtcStream/files/resources/${filterParams.background}`,
       inputsStr,
       `-filter_complex "${filterComplex}"`,
       outputOpts,
-      videoOutput,
-      audioOutput
+      videoSink,
+      audioSink
     ].join(' ');
 
     return command;
