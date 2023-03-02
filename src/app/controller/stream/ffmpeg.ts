@@ -34,4 +34,15 @@ export class FfmepegController {
     ctx.helper.success(data);
   }
 
+
+  @Post('/metadata', {
+    summary: '获取文件或者流的原数据',
+    description: '',
+  })
+  @Validate()
+  async getMetadataOfFiles(ctx: Context, @Body(ALL) params: string[]) {
+    const data = await this.ffmpegService.getMetadata(params);
+    ctx.helper.success(data);
+  }
+
 }

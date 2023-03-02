@@ -9,6 +9,8 @@ import { RenderService } from '../../service/render/render';
 
 import { StreamPushService } from '../../service/stream/push';
 
+import ffmpeg from 'fluent-ffmpeg';
+
 @Provide()
 export class FfmpegService {
   @Inject()
@@ -39,6 +41,15 @@ export class FfmpegService {
     return result.data;
   }
 
+  /**get the metadata of files or streams */
+  async getMetadata(paths: any[]) {
+    const filesMeta = {};
+    for (let path of paths) {
+      filesMeta[path] = await asyncFfprobe(paths[0]);
+    }
+    return filesMeta;
+  }
+
   private async _overlay(data: RtpRoomDTO, channel: any) {
     const filterParams = data.params as {
       globalOptions: any[],
@@ -47,6 +58,8 @@ export class FfmpegService {
     }
     const { template } = await this.renderService.videoInitTemplate(filterParams);
     const { filterGraphDesc: filteGraphVideo, inputs, lastFilterTag } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
+    
+    await this.getMetadata(inputs.map(input => input.src.path));
 
     const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? filterParams.outputOptions.join(' ') : '';
@@ -81,6 +94,20 @@ export class FfmpegService {
   }
 
 }
+
+
+async function asyncFfprobe(path) {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(path, (err, metadata) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(metadata);
+      }
+    });
+  });
+};
+
 
 // async function concat(){
 
