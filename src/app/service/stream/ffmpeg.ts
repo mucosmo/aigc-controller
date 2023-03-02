@@ -45,27 +45,39 @@ export class FfmpegService {
       outputOptions: any[],
       background: string,
     }
-    const { filterGraphDesc, inputs } = await this.renderService.initTemplate(filterParams, 'ffmpeg');
-    const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? ' ' + filterParams.globalOptions.join(' ') : '';
-    const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? ' ' + filterParams.outputOptions.join(' ') : '';
-    const inputsStr = inputs.map(input => ` ${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`);
+    const { template } = await this.renderService.videoInitTemplate(filterParams);
+    const { filterGraphDesc: filteGraphVideo, inputs } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
+
+    const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? filterParams.globalOptions.join(' ') : '';
+    const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? filterParams.outputOptions.join(' ') : '';
+    const inputsStr = inputs.map(input => ` ${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
+
+    const filterGraphAudio = data.streams?.includes("audio") ? await this.renderService.audioFilterGraph(template) : '';
+    const filterComplex = [
+      filterGraphAudio,
+      filteGraphVideo,
+      '[ret]'].join('').replace(';;', ';');
+
+    const videoOutput = [
+      `-map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
+      `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`].join(' ');
+
+    const audioOutput = data.streams?.includes("audio") ? [
+      `-map "[a]" -c:a libopus -ac 1 -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
+      `-f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
+    ].join(' ') : '';
 
     const command = [
       `ffmpeg`,
       globalOptions,
-      ` -i /opt/application/tx-rtcStream/files/resources/${filterParams.background}`,
-      ...inputsStr,
-      ` -filter_complex "${filterGraphDesc}[ret]"`,
+      `-i /opt/application/tx-rtcStream/files/resources/${filterParams.background}`,
+      inputsStr,
+      `-filter_complex "${filterComplex}"`,
       outputOpts,
-      ` -map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
-      ` -f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`,
-    ].concat(
-      data.streams?.includes("audio") ?
-        [
-          ` -map 0:a -c:a libopus -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
-          ` -f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
-        ] : []
-    ).join('');
+      videoOutput,
+      audioOutput
+    ].join(' ');
+
     return command;
   }
 

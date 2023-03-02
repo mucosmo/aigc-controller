@@ -35,7 +35,7 @@ export class RenderController {
   })
   // @Validate()
   async initTemplate(ctx: Context, @Body(ALL) params: any) {
-      const result = await this.service.initTemplate(params);
+      const result = await this.service.videoInitTemplate(params);
       ctx.helper.success(result);
   }
 

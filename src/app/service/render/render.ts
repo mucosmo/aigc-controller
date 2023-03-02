@@ -23,9 +23,9 @@ export class RenderService {
   adminUserModel: Repository<AdminUserModel>;
 
   //初始化模板
-  async initTemplate(params: any, mode = 'gcc') {
+  async videoInitTemplate(params: any, mode = 'gcc') {
     //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
-    const regions = params.template.regions.filter(item => ['video', 'audio', 'picture'].indexOf(item.type) > -1);
+    const regions = params.template.regions.filter(item => ['video', 'audio', 'picture'].includes(item.type));
     const srcs = params.srcs;
 
     //初始化数据源
@@ -41,11 +41,7 @@ export class RenderService {
 
     //存储数据源，和 template 匹配
     await this.ctx.app.redis.set(key + "_srcs", JSON.stringify(params.srcs), 'EX', TWENTYFOURHOURS);
-
-    const { filterGraphDesc, inputs } = await this.__initFilterGraph(template, mode); // 耗时小于 10 ms
-
-
-    return { filterGraphDesc, inputs };
+    return { template };
   }
 
   //数据源到模板区域的映射
@@ -61,7 +57,7 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const { filterGraphDesc } = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.videoFilterGraph(template);
 
     return filterGraphDesc;
   }
@@ -83,7 +79,7 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const { filterGraphDesc } = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.videoFilterGraph(template);
 
     return filterGraphDesc;
   }
@@ -100,7 +96,7 @@ export class RenderService {
       theRegion.filters = theRegion.filters.filter(item => deleteFilters.indexOf(item.id) === -1);
     });
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const { filterGraphDesc } = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.videoFilterGraph(template);
 
     return filterGraphDesc;
   }
@@ -126,7 +122,7 @@ export class RenderService {
     });
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const { filterGraphDesc } = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.videoFilterGraph(template);
 
     return filterGraphDesc;
   }
@@ -164,28 +160,29 @@ export class RenderService {
     }
 
     await this.ctx.app.redis.set(templateId, JSON.stringify(template), 'EX', TWENTYFOURHOURS);
-    const { filterGraphDesc } = await this.__initFilterGraph(template);
+    const { filterGraphDesc } = await this.videoFilterGraph(template);
 
     return filterGraphDesc;
   }
 
 
-  /**通过模板及其参数构造滤波器图 */
-  private async __initFilterGraph(template: any, mode = 'gcc') {
+  /**
+   * 通过模板及其参数构造视频滤波器图
+   */
+  async videoFilterGraph(template: any, mode = 'gcc') {
     console.log('============= start to init filter graph ============');
     const t1 = Date.now();
 
     this.__checkTemplate(template);
 
-    // const regions = template.regions as Array<any>;
-
-    const regions = template.regions.filter(item => ['video', 'audio', 'picture'].indexOf(item.type) > -1) as Array<any>;
-
+    const regions = template.regions.filter(item => ['video', 'audio', 'picture'].includes(item.type)) as Array<any>;
 
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
     const inputs = regions.map((region, index) => {
       if (mode === 'ffmpeg') {
-        return `[${index + 1}]null[${region.id}]`; // 直接从命令行以 -i 形式输入
+        if (['video', 'picture'].includes(region.type)) {
+          return `[${index + 1}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
+        }
       } else {
         return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`; // 通过 movie= 形式输入
       }
@@ -293,15 +290,14 @@ export class RenderService {
       const enableStr = enableDuration ? `:enable=${enableDuration}` : '';
       let desc = '';
       if (i === 0) {
-        desc = `[0][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`; //对应于 c 代码中添加的 [0] 标记
+        desc = `[0:v][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`; //对应于 c 代码中添加的 [0] 标记
       } else {
         desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
       }
       lastFilterTag = `out${i}`;
       overlays.push(desc);
     }
-    console.log('---overlays');
-    console.log(overlays);
+
 
     // [v0][v1][v2][v3]concat=n=4:v=1:a=0,format=yuv420p[v]
 
@@ -349,8 +345,6 @@ export class RenderService {
     //组合所有 filter-chain
     let filterGraphDesc = [].concat(...inputs, ...filterChains, ...maskFilterChains, ...overlays, concatFilterChain, ...textFiltersSorted).filter(item => item !== '').join(';');
 
-
-    console.log(filterGraphDesc)
     console.log(`---lastFilterTag:`, lastFilterTag)
     const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
     console.log(lastTagIndex)
@@ -448,5 +442,16 @@ export class RenderService {
       region['area'][key1] = value1;
     }
     return region;
+  }
+
+  // composite audio track
+  async audioFilterGraph(audioRegions: any,) {
+    console.log('--- audioFilterGraph');
+    console.log(audioRegions)
+    return [
+      `[2:a]afade=t=out:st=30:d=1[a1];`,
+      `[1:a]afade=t=in:st=31:d=1[b1];`,
+      `[a1][b1]amerge=inputs=2[a];`
+    ].join('');
   }
 }
