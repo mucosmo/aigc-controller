@@ -46,7 +46,7 @@ export class FfmpegService {
       background: string,
     }
     const { template } = await this.renderService.videoInitTemplate(filterParams);
-    const { filterGraphDesc: filteGraphVideo, inputs } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
+    const { filterGraphDesc: filteGraphVideo, inputs, lastFilterTag } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
 
     const globalOptions = filterParams.globalOptions && filterParams.globalOptions.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions && filterParams.outputOptions.length > 0 ? filterParams.outputOptions.join(' ') : '';
@@ -56,10 +56,10 @@ export class FfmpegService {
     let filterComplex = [
       filterGraphAudio,
       filteGraphVideo,
-      '[ret]'].join('').replace(';;', ';');
+    ].join('');
 
     const videoSink = [
-      `-map "[ret]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
+      `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 -ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
       `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`].join(' ');
 
     const audioSink = data.streams?.includes("audio") ? [

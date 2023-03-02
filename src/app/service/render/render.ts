@@ -179,10 +179,13 @@ export class RenderService {
 
     let bgLabel = regions[0].id;; // 背景视频或图像的标签
 
+    let lastFilterTag = '';// 标记最后一个输出 
+
     //第一步：把数据源写入滤波器 movie, 作为文件输入使用
     const inputs = regions.map((region, index) => {
       if (mode === 'ffmpeg') {
         if (['video', 'picture'].includes(region.type)) {
+          lastFilterTag = region.id;
           return `[${index}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
         }
       } else {
@@ -217,7 +220,7 @@ export class RenderService {
         }
         return filterStr + (propertys.join(':'));
       })
-
+      lastFilterTag = region.id + '_prepro';
       regionsNameAfterFilter.push(region.id + '_prepro');
       return `[${region.id}]` + filterDesc.join(",") + `[${region.id}_prepro]`;
     });
@@ -271,7 +274,6 @@ export class RenderService {
     })
 
     let overlays = [];
-    let lastFilterTag = '';// 标记最后一个输出 
     for (let i = 0; i < regionsToOverlay.length; i++) {
       const regionLabel = regionsToOverlay[i];
       let regionId = '';
@@ -348,14 +350,21 @@ export class RenderService {
 
 
     //组合所有 filter-chain
-    let filterGraphDesc = [].concat(...inputs, ...filterChains, ...maskFilterChains, ...overlays, concatFilterChain, ...textFiltersSorted).filter(item => item !== '').join(';');
+    let filterGraphDesc = [
+      ...inputs,
+      ...filterChains,
+      ...maskFilterChains,
+      ...overlays,
+      concatFilterChain,
+      ...textFiltersSorted
+    ].filter(item => item).join(';').replace(';;',';'); // item 可能包含 '' 或者 undefined
 
-    console.log(`---lastFilterTag:`, lastFilterTag)
-    const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
-    console.log(lastTagIndex)
+    // console.log(`---lastFilterTag:`, lastFilterTag)
+    // const lastTagIndex = filterGraphDesc.indexOf(`[${lastFilterTag}]`);
+    // console.log(lastTagIndex)
 
-    //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
-    filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
+    // //去除最后的输出标记，因为 c 中自动添加了 out 作为最后一个滤波器输出的标记
+    // filterGraphDesc = filterGraphDesc.slice(0, lastTagIndex);
 
     // //正则处理，
     // filterGraphDesc = this.__filterGraphRegHandle(filterGraphDesc);
@@ -366,9 +375,7 @@ export class RenderService {
 
     console.log('------- end of  filter graph init --------');
 
-
-
-    return { filterGraphDesc, inputs: regions };
+    return { filterGraphDesc, inputs: regions, lastFilterTag };
   }
 
   /**模板有效性检验 */
@@ -454,9 +461,8 @@ export class RenderService {
     console.log('--- audioFilterGraph');
     console.log(audioRegions)
     return [
-      `[2:a]afade=t=out:st=30:d=1[a1];`,
-      `[1:a]afade=t=in:st=31:d=1[b1];`,
-      `[a1][b1]amerge=inputs=2[a];`
+      `[1:a]afade=t=in:st=0:d=1[a1];`,
+      `[a1]amerge=inputs=1[a];`
     ].join('');
   }
 }
