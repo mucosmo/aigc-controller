@@ -27,7 +27,7 @@ export class StreamSessionController {
   })
   @Validate()
   async liveStreamUrl(ctx: Context, @Body(ALL) sessionId: string) {
-    const serverHttp = "https://cosmoserver.tk:4443/stream/session/end"
+    const serverHttp = "https://chaosyhy.com:4443/stream/session/end"
     const result = await this._app.curl(serverHttp, {
       method: 'DELETE',
       data: sessionId,
@@ -45,7 +45,7 @@ export class StreamSessionController {
   })
   @Validate()
   async endAllExteStream(ctx: Context) {
-    const serverHttp = "https://cosmoserver.tk:4443/stream/session/end/all"
+    const serverHttp = "https://chaosyhy.com:4443/stream/session/end/all"
     const result = await this._app.curl(serverHttp, {
       method: 'DELETE',
       data: {},

@@ -28,7 +28,7 @@ export class FfmpegService {
   /**composite video with ffmpeg and push to rtp room */
   async rtpRoom(data: RtpRoomDTO) {
     const channel = await this.streamPushService.openStreamPush(data);
-    const url = "https://cosmoserver.tk:4443/stream/ffmpeg/rtp/room";
+    const url = "https://chaosyhy.com:4443/stream/ffmpeg/rtp/room";
     const command = await this._overlay(data, channel);
     const result = await this._app.curl(url, {
       method: 'POST',

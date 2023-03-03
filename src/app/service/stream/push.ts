@@ -32,7 +32,7 @@ export class StreamPushService {
       room: params.room,
       streamSrc: params.streamSrc, //`rtmp://121.5.133.154:1935/myapp/12345`,
     }
-    const url = "https://cosmoserver.tk:4443/stream/push"
+    const url = "https://chaosyhy.com:4443/stream/push"
     const result = await this._app.curl(url, {
       method: 'POST',
       data,
@@ -51,7 +51,7 @@ export class StreamPushService {
       deviceName: params.deviceName,
       displayName: params.displayName,
     }
-    const url = "https://cosmoserver.tk:4443/stream/push/open"
+    const url = "https://chaosyhy.com:4443/stream/push/open"
     const result = await this._app.curl(url, {
       method: 'POST',
       data,

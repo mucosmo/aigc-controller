@@ -392,7 +392,7 @@ export class RenderService {
 
   /**写入服务器文件 */
   private async __writeFilterGraphIntoFile(filterGraph: string) {
-    // const serverHttp = "https://cosmoserver.tk:4443/stream/render"
+    // const serverHttp = "https://chaosyhy.com:4443/stream/render"
     // const result = await this._app.curl(serverHttp, {
     //   method: 'POST',
     //   data: { text: filterGraph },
