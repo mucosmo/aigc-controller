@@ -461,24 +461,23 @@ export class RenderService {
     console.log('--- audioFilterGraph');
     const videosCount = this._getMediaFromTemplate(template, 'video').length;
     const audios = this._getMediaFromTemplate(template, 'audio');
-    console.log(audios);
     const audiosOutIdx = []
     const audiosFilters = audios.map((audio, index) => {
       const newIndex = index + videosCount;
-      const filterChain = audio.filters.reduce((acc, filter) => {
+      const filterChain = audio.filters.map(filter => {
         const filterStr = `${filter.name}=`;
         const propertys = [];
         for (let [key, val] of Object.entries(filter.options)) {
           propertys.push(`${key}=${val}`);
         }
-        return acc + filterStr + (propertys.join(':'));
-      }, '');
+        return filterStr + (propertys.join(':'));
+      }).join(',');
       const outIndex = `[a${newIndex}]`;
       audiosOutIdx.push(outIndex);
       return `[${newIndex}:a]${filterChain}${outIndex};`;
     })
 
-    const filterGraphAudio = [
+    const filterGraphAudio = audiosOutIdx.length === 0 ? '' : [
       ...audiosFilters,
       `${audiosOutIdx.join('')}amerge=inputs=${audiosOutIdx.length}[a];`
     ].join('');
