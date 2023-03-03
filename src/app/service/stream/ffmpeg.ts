@@ -68,7 +68,7 @@ export class FfmpegService {
     const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
 
     let filterComplex = [
-      data.streams.includes('audios') ? filterGraphAudio : '',
+      data.streams?.includes('audio') ? filterGraphAudio : '',
       filteGraphVideo,
     ].join('');
 

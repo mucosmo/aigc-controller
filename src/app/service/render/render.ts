@@ -464,14 +464,14 @@ export class RenderService {
     const audiosOutIdx = []
     const audiosFilters = audios.map((audio, index) => {
       const newIndex = index + videosCount;
-      const filterChain = audio.filters.map(filter => {
+      const filterChain = audio.filters?.map(filter => {
         const filterStr = `${filter.name}=`;
         const propertys = [];
         for (let [key, val] of Object.entries(filter.options)) {
           propertys.push(`${key}=${val}`);
         }
         return filterStr + (propertys.join(':'));
-      }).join(',');
+      }).join(',') ?? 'anull';
       const outIndex = `[a${newIndex}]`;
       audiosOutIdx.push(outIndex);
       return `[${newIndex}:a]${filterChain}${outIndex};`;
