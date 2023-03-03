@@ -27,7 +27,7 @@ export class FfmpegService {
 
   /**composite video with ffmpeg and push to rtp room */
   async rtpRoom(data: RtpRoomDTO) {
-    const channel = await this.streamPushService.openStreamPush(data);
+    const channel = await this.streamPushService.openStreamPush(data.sink);
     const url = "https://chaosyhy.com:4443/stream/ffmpeg/rtp/room";
     const command = await this._overlay(data, channel);
     const result = await this._app.curl(url, {
@@ -52,7 +52,7 @@ export class FfmpegService {
   }
 
   private async _overlay(data: RtpRoomDTO, channel: any) {
-    const filterParams = data.params as {
+    const filterParams = data.render as {
       globalOptions: any[],
       outputOptions: any[],
       background: string,
