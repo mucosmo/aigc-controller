@@ -7,6 +7,9 @@ import { Context, Application } from '@/interface';
 
 import { AdminUserModel } from '../../model/admin-user';
 
+import { StreamPushOpenDTO } from '../../dto/stream/push';
+
+
 @Provide()
 export class StreamPushService {
   @Inject()
@@ -44,7 +47,7 @@ export class StreamPushService {
     return result.data;
   }
 
-  async openStreamPush(params: { room: string, deviceName?: string, displayName?: string }) {
+  async openStreamPush(params: StreamPushOpenDTO) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
     const data = {
       room: params.room,

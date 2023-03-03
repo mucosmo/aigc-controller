@@ -66,6 +66,24 @@ export class StreamPushDTO {
   displayName: string;
 }
 
+
+/**
+ * 打开 channel 用于推送流到 rtc 房间
+ */
+export class StreamPushOpenDTO {
+  @CreateApiPropertyDoc('数字人要加入的房间')
+  @Rule(RuleType.string().trim().valid('room1', 'room2').required())
+  room: string;
+
+  @CreateApiPropertyDoc('实现方式')
+  @Rule(RuleType.string().trim().optional())
+  deviceName: string;
+
+  @CreateApiPropertyDoc('显示的名字')
+  @Rule(RuleType.string().trim().optional())
+  displayName: string;
+}
+
 export class BroadcasterStopDTO {
   @CreateApiPropertyDoc('在哪个房间停止数字人')
   @Rule(RuleType.string().trim().required())

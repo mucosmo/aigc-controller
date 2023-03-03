@@ -12,7 +12,7 @@ import { Context } from '@/interface';
 
 
 import { StreamPushService } from '../../service/stream/push';
-import { StreamPushDTO } from '../../dto/stream/push';
+import { StreamPushDTO, StreamPushOpenDTO } from '../../dto/stream/push';
 import { CreateDhDTO } from '../../dto/stream/dh';
 import { DigitalHumanService } from '../../service/stream/dh';
 
@@ -57,7 +57,7 @@ export class StreamPushController {
     description: '',
   })
   @Validate()
-  async openStreamPushChannel(ctx: Context, @Body(ALL) params: StreamPushDTO) {
+  async openStreamPushChannel(ctx: Context, @Body(ALL) params: StreamPushOpenDTO) {
     const data = await this.streamPushService.openStreamPush(params);
     ctx.helper.success(data);
   }
