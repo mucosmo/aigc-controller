@@ -16,7 +16,34 @@ export class RtpRoomDTO {
   @Rule(RuleType.array().optional())
   streams: Array<string>;
 
-  @CreateApiPropertyDoc('命令参数')
+  @CreateApiPropertyDoc('合成参数')
+  @Rule(RuleType.object({
+    globalOptions: RuleType.optional(),
+    template: RuleType.required(),
+    srcs: RuleType.required(),
+    outputOptions: RuleType.optional(),
+  }
+  ).required())
+  render: object;
+}
+
+
+class FileSinkDTO {
+  @CreateApiPropertyDoc('文件名')
+  @Rule(RuleType.string().required())
+  path: string;
+}
+
+export class LocalFileDTO {
+  @CreateApiPropertyDoc('文件生成路径')
+  @Rule(RuleType.object().required())
+  sink: FileSinkDTO;
+
+  @CreateApiPropertyDoc('流选择')
+  @Rule(RuleType.array().optional())
+  streams: Array<string>;
+
+  @CreateApiPropertyDoc('合成参数')
   @Rule(RuleType.object({
     globalOptions: RuleType.optional(),
     template: RuleType.required(),

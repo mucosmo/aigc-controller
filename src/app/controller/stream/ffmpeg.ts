@@ -12,7 +12,7 @@ import { Context } from '@/interface';
 
 
 import { FfmpegService } from '../../service/stream/ffmpeg';
-import { RtpRoomDTO } from '../../dto/stream/ffmpeg';
+import { RtpRoomDTO, LocalFileDTO } from '../../dto/stream/ffmpeg';
 
 
 @Provide()
@@ -31,6 +31,17 @@ export class FfmepegController {
   @Validate()
   async push2RtpRoom(ctx: Context, @Body(ALL) params: RtpRoomDTO) {
     const data = await this.ffmpegService.rtpRoom(params);
+    ctx.helper.success(data);
+  }
+
+
+  @Post('/file', {
+    summary: '通过 rtp 协议送到 rtc 房间',
+    description: '',
+  })
+  @Validate()
+  async generateLocalFile(ctx: Context, @Body(ALL) params: LocalFileDTO) {
+    const data = await this.ffmpegService.localFile(params);
     ctx.helper.success(data);
   }
 
