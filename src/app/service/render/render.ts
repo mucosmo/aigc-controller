@@ -32,8 +32,7 @@ export class RenderService {
 
     //初始化数据源
     [...videos, ...audios].forEach(itemRegion => {
-      const theSrc = srcs.find(src => src.id === itemRegion.srcId)
-      itemRegion.src = theSrc;
+      itemRegion.src= srcs[itemRegion.srcId];
     });
 
     //存储初始化后的模板

@@ -4,6 +4,18 @@ import { CreateApiPropertyDoc } from '@midwayjs/swagger';
 
 import { StreamPushOpenDTO } from './push';
 
+/**which stream should be choosed */
+export class StreamsEnableDTO {
+  @CreateApiPropertyDoc('流选择')
+  @Rule(RuleType.boolean().optional())
+  video: boolean;
+
+  @Rule(RuleType.boolean().optional())
+  audio: boolean;
+
+
+}
+
 /**
  * 拉流并推送到会议房间
  */
@@ -13,8 +25,8 @@ export class RtpRoomDTO {
   sink: StreamPushOpenDTO;
 
   @CreateApiPropertyDoc('流选择')
-  @Rule(RuleType.array().optional())
-  streams: Array<string>;
+  @Rule(RuleType.object().required())
+  streams: StreamsEnableDTO;
 
   @CreateApiPropertyDoc('合成参数')
   @Rule(RuleType.object({
@@ -40,8 +52,8 @@ export class LocalFileDTO {
   sink: FileSinkDTO;
 
   @CreateApiPropertyDoc('流选择')
-  @Rule(RuleType.array().optional())
-  streams: Array<string>;
+  @Rule(RuleType.object().required())
+  streams: StreamsEnableDTO;
 
   @CreateApiPropertyDoc('合成参数')
   @Rule(RuleType.object({

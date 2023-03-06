@@ -3,13 +3,17 @@ import { Provide, Inject, App } from '@midwayjs/decorator';
 
 import { Context, Application } from '@/interface';
 
-import { RtpRoomDTO, LocalFileDTO } from '../../dto/stream/ffmpeg';
+import { RtpRoomDTO, LocalFileDTO, StreamsEnableDTO } from '../../dto/stream/ffmpeg';
 
 import { RenderService } from '../../service/render/render';
 
 import { StreamPushService } from '../../service/stream/push';
 
 import ffmpeg from 'fluent-ffmpeg';
+
+/** 24小时的秒数，用于 redis 缓存 */
+const OneDaySeconds = 24 * 60 * 60;
+
 
 @Provide()
 export class FfmpegService {
@@ -36,7 +40,7 @@ export class FfmpegService {
       `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`
     ].join(' ');
 
-    const audioSink = data.streams?.includes("audio") ? [
+    const audioSink = data.streams.audio ? [
       `-map "[a]" -c:a libopus -ac 1 -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
       `-f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
     ].join(' ') : '';
@@ -55,7 +59,7 @@ export class FfmpegService {
       `-map "[${lastFilterTag}]:v"`
     ].join(' ');
 
-    const audioSink = data.streams?.includes("audio") ? [
+    const audioSink = data.streams.audio ? [
       `-map "[a]"`
     ].join(' ') : '';
 
@@ -72,15 +76,26 @@ export class FfmpegService {
 
   /**get the metadata of files or streams */
   async getMetadata(iPaths: any[]) {
+    const t1 = new Date().getTime();
     const paths = [...new Set(iPaths)];// 去重复
     const filesMeta = {};
+    let metadata;
     for (let path of paths) {
-      filesMeta[path] = await asyncFfprobe(path);
+      const key = `ffmpeg:metadata:${path.replace(/:/g, '')}`;
+      const stored = await this._app.redis.get(key);
+      if (stored) {
+        metadata = JSON.parse(stored);
+      } else {
+        metadata = await asyncFfprobe(path);
+        this._app.redis.set(key, JSON.stringify(metadata), 'EX', OneDaySeconds);
+      }
+      filesMeta[path] = metadata;
     }
+    console.log(new Date().getTime() - t1)
     return filesMeta;
   }
 
-  private async filterComplex(data: { streams: any[], render: any }) {
+  private async filterComplex(data: { streams: StreamsEnableDTO, render: any }) {
     const filterParams = data.render as {
       globalOptions: any[],
       outputOptions: any[],
@@ -97,7 +112,7 @@ export class FfmpegService {
     const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
 
     let filterComplex = [
-      data.streams?.includes('audio') ? filterGraphAudio : '',
+      data.streams.audio ? filterGraphAudio : '',
       filteGraphVideo,
     ].join('');
 
