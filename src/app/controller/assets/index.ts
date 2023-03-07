@@ -12,6 +12,7 @@ import { Context } from '@/interface';
 
 import { FfmpegService } from '../../service/stream/ffmpeg';
 
+import { AssetsListsDTO } from '../../dto/assets/assets';
 
 
 @Provide()
@@ -28,7 +29,7 @@ export class AssetsController {
     description: '',
   })
   @Validate()
-  async initTemplate(ctx: Context, @Body(ALL) params: { type: 'RTC' | 'audios' | 'videos' | 'images' }) {
+  async initTemplate(ctx: Context, @Body(ALL) params: AssetsListsDTO) {
     const type = params.type.toLowerCase();
 
     ctx.helper.success(assets[type]);
@@ -41,7 +42,7 @@ export class AssetsController {
   @Validate()
   async initTemplatdde(ctx: Context) {
 
-    ctx.helper.success(['RTC', 'audios', 'videos', 'images']);
+    ctx.helper.success(category);
   }
 
   @Post('/metadata', {
@@ -55,6 +56,30 @@ export class AssetsController {
   }
 
 }
+
+
+const category = [{
+  title: "material",
+  key: "0-0",
+  children: [
+    {
+      title: "RTC",
+      key: "0-0-0",
+    },
+    {
+      title: "videos",
+      key: "0-0-1",
+    },
+    {
+      title: "audios",
+      key: "0-0-2",
+    },
+    {
+      title: "images",
+      key: "0-0-3",
+    },
+  ],
+}]
 
 
 
