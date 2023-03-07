@@ -3,11 +3,15 @@ import {
   Provide,
   Post,
   Validate,
+  Inject,
   Body,
   ALL
 } from '@midwayjs/decorator';
 
 import { Context } from '@/interface';
+
+import { FfmpegService } from '../../service/stream/ffmpeg';
+
 
 
 @Provide()
@@ -16,6 +20,8 @@ import { Context } from '@/interface';
   description: '',
 })
 export class AssetsController {
+  @Inject('ffmpegService')
+  ffmpegService: FfmpegService;
 
   @Post('/lists', {
     summary: '初始化模板',
@@ -36,6 +42,16 @@ export class AssetsController {
   async initTemplatdde(ctx: Context) {
 
     ctx.helper.success(['RTC', 'audios', 'videos', 'images']);
+  }
+
+  @Post('/metadata', {
+    summary: '初始化模板',
+    description: '',
+  })
+  @Validate()
+  async getMetadata(ctx: Context, @Body(ALL) params: string[]) {
+    const data = await this.ffmpegService.getMetadata(params);
+    ctx.helper.success(data);
   }
 
 }
