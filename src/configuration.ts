@@ -10,9 +10,13 @@ import * as jaeger from '@mw-components/jaeger';
 import * as jwt from '@mw-components/jwt';
 import * as koid from '@mw-components/koid';
 
+import * as dotenv from 'dotenv';
+
 import { Application, NpmPkg } from '@/interface';
 
 import { customLogger } from './app/util/custom-logger';
+
+dotenv.config();
 
 @Configuration({
   imports: [
