@@ -5,7 +5,9 @@ import { Provide, Inject, App } from '@midwayjs/decorator';
 import { Context, Application } from '@/interface';
 
 
-let dhPeers = [];
+const dhPeersRedisKey = 'dhPeers';
+
+const OneYearSeconds = 60 * 60 * 24 * 365;
 
 @Provide()
 export class RoomService {
@@ -14,8 +16,6 @@ export class RoomService {
 
     @App()
     private _app!: Application;
-
-
 
 
     /**get room info*/
@@ -30,6 +30,8 @@ export class RoomService {
             },
         });
         const peers = result.data;
+        let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
+        dhPeers = dhPeers ?? [];
         dhPeers.map(dhPeer => {
             const peer = peers.find(peer => peer.room === dhPeer.room);
             if (peer) {
@@ -46,6 +48,8 @@ export class RoomService {
 
     /**new dh peer start by ffmpeg get in*/
     async newDhPeer(roomId: string, peerId: string) {
+        let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
+        dhPeers = dhPeers ?? [];
         const room = dhPeers.find(r => r.room === roomId);
         if (!room) {
             dhPeers.push({
@@ -56,11 +60,14 @@ export class RoomService {
             room.members.push(peerId);
             room.members = [...new Set(room.members)];
         }
+        await this._app.redis.set(dhPeersRedisKey, JSON.stringify(dhPeers), 'EX', OneYearSeconds);
         return dhPeers;
     }
 
     /**new dh peer start by ffmpeg get in*/
     async deleteDhPeer(roomId: string, peerId: string) {
+        let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
+        dhPeers = dhPeers ?? [];
         const room = dhPeers.find(r => r.room === roomId);
         if (room) {
             const members = room.members;
@@ -69,8 +76,8 @@ export class RoomService {
                 members.splice(indexToRemove, 1);
             }
         }
-        dhPeers = dhPeers.filter(dhPeer => dhPeer.members.lenght > 0);
-
+        dhPeers = dhPeers.filter(dhPeer => dhPeer.members.length > 0);
+        await this._app.redis.set(dhPeersRedisKey, JSON.stringify(dhPeers), 'EX', OneYearSeconds);
         return dhPeers;
     }
 
