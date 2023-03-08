@@ -23,18 +23,18 @@ export class RoomsController {
   @Inject('roomService')
   roomService: RoomService;
 
-  @Post('/info', {
-    summary: '初始化模板',
+  @Post('/stats', {
+    summary: '房间信息',
     description: '',
   })
   @Validate()
   async getRoomInof(ctx: Context) {
-    const data = await this.roomService.getRoomInfo();
+    const data = await this.roomService.getRoomStats();
     ctx.helper.success(data);
   }
 
   @Post('/dh/join', {
-    summary: '初始化模板',
+    summary: '数字人加入',
     description: '',
   })
   @Validate()
@@ -47,7 +47,7 @@ export class RoomsController {
 
 
   @Post('/dh/leave', {
-    summary: '初始化模板',
+    summary: '数字人离开',
     description: '',
   })
   @Validate()

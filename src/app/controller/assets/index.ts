@@ -40,7 +40,7 @@ export class AssetsController {
     let data = null;
 
     if (type === 'rtc') {
-      data = await this.roomService.getRoomInfo()
+      data = await this.roomService.getRoomStats()
     } else {
       data = assets[type]
     }

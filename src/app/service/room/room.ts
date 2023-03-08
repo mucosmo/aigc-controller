@@ -19,8 +19,8 @@ export class RoomService {
 
 
     /**get room info*/
-    async getRoomInfo() {
-        const url = "https://chaosyhy.com:4443/rooms/info"
+    async getRoomStats() {
+        const url = "https://chaosyhy.com:4443/rooms/stats"
         const result = await this._app.curl(url, {
             method: 'POST',
             data: {},
