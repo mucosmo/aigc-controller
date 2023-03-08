@@ -12,6 +12,8 @@ import { Context } from '@/interface';
 
 import { FfmpegService } from '../../service/stream/ffmpeg';
 
+import { RoomService } from '../../service/room/room';
+
 import { AssetsListsDTO } from '../../dto/assets/assets';
 
 
@@ -24,6 +26,9 @@ export class AssetsController {
   @Inject('ffmpegService')
   ffmpegService: FfmpegService;
 
+  @Inject('roomService')
+  roomService: RoomService;
+
   @Post('/lists', {
     summary: '初始化模板',
     description: '',
@@ -32,7 +37,15 @@ export class AssetsController {
   async initTemplate(ctx: Context, @Body(ALL) params: AssetsListsDTO) {
     const type = params.type.toLowerCase();
 
-    ctx.helper.success(assets[type]);
+    let data = null;
+
+    if (type === 'rtc') {
+      data = await this.roomService.getRoomInfo()
+    } else {
+      data = assets[type]
+    }
+
+    ctx.helper.success(data);
   }
 
   @Post('/categories', {
