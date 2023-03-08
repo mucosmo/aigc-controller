@@ -106,7 +106,7 @@ export class FfmpegService {
     const { filterGraphAudio, audios } = await this.renderService.audioFilterGraph(template);
 
     const inputs = [...videos, ...audios];
-    await this.getMetadata(inputs.map(input => input.src.path));
+    // await this.getMetadata(inputs.map(input => input.src.path));
     const globalOptions = filterParams.globalOptions?.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions?.length > 0 ? filterParams.outputOptions.join(' ') : '';
     const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
