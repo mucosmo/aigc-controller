@@ -30,18 +30,18 @@ export class RoomService {
             },
         });
         const peers = result.data;
-        let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
-        dhPeers = dhPeers ?? [];
-        dhPeers.map(dhPeer => {
-            const peer = peers.find(peer => peer.room === dhPeer.room);
-            if (peer) {
-                peer.members.push(...dhPeer.members)
-                peer.members = [...new Set(peer.members)];
-            } else {
-                peers.push(dhPeer)
-            }
-            return dhPeer;
-        })
+        // let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
+        // dhPeers = dhPeers ?? [];
+        // dhPeers.map(dhPeer => {
+        //     const peer = peers.find(peer => peer.room === dhPeer.room);
+        //     if (peer) {
+        //         peer.members.push(...dhPeer.members)
+        //         peer.members = [...new Set(peer.members)];
+        //     } else {
+        //         peers.push(dhPeer)
+        //     }
+        //     return dhPeer;
+        // })
         return peers;
     }
 
