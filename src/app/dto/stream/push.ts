@@ -42,8 +42,12 @@ export class StreamPullDTO {
  */
 export class StreamPushDTO {
   @CreateApiPropertyDoc('数字人要加入的房间')
-  @Rule(RuleType.string().trim().valid('room1', 'room2').required())
-  room: string;
+  @Rule(RuleType.string().trim().required())
+  roomId: string;
+
+  @CreateApiPropertyDoc('数字人id')
+  @Rule(RuleType.string().trim().optional())
+  userId: string;
 
   @CreateApiPropertyDoc('源流类型')
   @Rule(RuleType.string().trim().valid('file', 'live','demand','rtc').required())

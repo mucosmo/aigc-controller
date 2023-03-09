@@ -7,7 +7,8 @@ import { Context, Application } from '@/interface';
 
 import { AdminUserModel } from '../../model/admin-user';
 
-import { StreamPushOpenDTO } from '../../dto/stream/push';
+import { StreamPushDTO, StreamPushOpenDTO } from '../../dto/stream/push';
+
 
 
 @Provide()
@@ -29,12 +30,8 @@ export class StreamPushService {
   }
 
   /**start stream push to webrtc room */
-  async startStreamPush(params: { room: string, streamSrc: string }) {
+  async startStreamPush(data: StreamPushDTO & { streamSrc: string }) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
-    const data = {
-      room: params.room,
-      streamSrc: params.streamSrc, //`rtmp://121.5.133.154:1935/myapp/12345`,
-    }
     const url = "https://chaosyhy.com:4443/stream/push"
     const result = await this._app.curl(url, {
       method: 'POST',
