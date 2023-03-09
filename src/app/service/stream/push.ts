@@ -47,13 +47,8 @@ export class StreamPushService {
     return result.data;
   }
 
-  async openStreamPush(params: StreamPushOpenDTO) {
+  async openStreamPush(data: StreamPushOpenDTO) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
-    const data = {
-      room: params.room,
-      deviceName: params.deviceName,
-      displayName: params.displayName,
-    }
     const url = "https://chaosyhy.com:4443/stream/push/open"
     const result = await this._app.curl(url, {
       method: 'POST',
