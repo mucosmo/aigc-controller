@@ -6,7 +6,7 @@ import { CreateApiPropertyDoc } from '@midwayjs/swagger';
  */
 export class AssetsListsDTO {
   @CreateApiPropertyDoc('会话id')
-  @Rule(RuleType.string().valid('RTC','images','videos','audios').required())
+  @Rule(RuleType.string().valid('RTC','images','videos','audios','subtitles').required())
   type: string;
 
  
