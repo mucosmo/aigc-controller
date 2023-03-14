@@ -70,7 +70,7 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "npm run stop && npm run build && egg-scripts start --daemon --title=midway-server-my_midway_project --framework=midway --port=60123",
+    "start": "npm run stop && npm run build && egg-scripts start --require=/opt/application/tx-streamPpr/src/config/preload.js --daemon --title=midway-server-my_midway_project --framework=midway --port=60123",
     "online": "egg-scripts start --title=midway-server-my_midway_project --framework=midway",
     "stop": "egg-scripts stop --title=midway-server-my_midway_project",
     "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev --port=60123",

@@ -7,8 +7,6 @@ import {
 
 import { JwtAuthMiddlewareConfig } from './config.types';
 
-import { ConnectionOptions } from 'typeorm';
-
 // jwt配置
 export const jwtConfig: JwtConfig = {
   secret: '', // 默认密钥，生产环境一定要更改!
@@ -43,16 +41,4 @@ export const security = {
   csrf: {
     enable: false
   },
-};
-
-// 数据库配置
-export const orm: ConnectionOptions = {
-  type: 'mysql',
-  host: '127.0.0.1',
-  port: 3306,
-  username: 'txhz',
-  password: 'q43xD78asesdSD3s',
-  database: 'shop_development',
-  synchronize: false,
-  logging: true,
 };
