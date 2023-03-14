@@ -33,6 +33,18 @@ export class RoomsController {
     ctx.helper.success(data);
   }
 
+
+  @Post('/node/create', {
+    summary: '创建房间',
+    description: '',
+  })
+  @Validate()
+  async nodeCreateRoom(ctx: Context, @Body(ALL) params: { roomId: string, peerId: string }) {
+    const data = await this.roomService.nodeCreateRoom(params);
+    ctx.helper.success(data);
+  }
+  
+
   @Post('/dh/join', {
     summary: '数字人加入',
     description: '',

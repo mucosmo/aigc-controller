@@ -46,6 +46,22 @@ export class RoomService {
     }
 
 
+    /**create new room from node*/
+    async nodeCreateRoom(data) {
+        const url = "https://chaosyhy.com:4443/rooms/node/create"
+        const result = await this._app.curl(url, {
+            method: 'POST',
+            data,
+            dataType: 'json',
+            headers: {
+                'content-type': 'application/json',
+            },
+        });
+        return result.data;
+    }
+
+
+
     /**new dh peer start by ffmpeg get in*/
     async newDhPeer(roomId: string, peerId: string) {
         let dhPeers = JSON.parse(await this._app.redis.get(dhPeersRedisKey));
