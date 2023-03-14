@@ -10,6 +10,7 @@ import { AdminUserModel } from '../../model/admin-user';
 /** 24小时的秒数，用于 redis 缓存 */
 const TWENTYFOURHOURS = 24 * 60 * 60;
 
+// const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
 
 @Provide()
 export class RenderService {
@@ -32,7 +33,7 @@ export class RenderService {
 
     //初始化数据源
     [...videos, ...audios].forEach(itemRegion => {
-      itemRegion.src= srcs[itemRegion.srcId];
+      itemRegion.src = srcs[itemRegion.srcId];
     });
 
     //存储初始化后的模板
@@ -391,7 +392,7 @@ export class RenderService {
 
   /**写入服务器文件 */
   private async __writeFilterGraphIntoFile(filterGraph: string) {
-    // const serverHttp = "https://chaosyhy.com:4443/stream/render"
+    // const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/render`;
     // const result = await this._app.curl(serverHttp, {
     //   method: 'POST',
     //   data: { text: filterGraph },

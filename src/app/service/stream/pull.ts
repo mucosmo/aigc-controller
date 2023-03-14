@@ -7,6 +7,7 @@ import { Context, Application } from '@/interface';
 
 import { AdminUserModel } from '../../model/admin-user';
 
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
 
 @Provide()
 export class StreamPullService {
@@ -33,7 +34,7 @@ export class StreamPullService {
       room: params.room,
       streamSrc: params.streamSrc, //`rtmp://121.5.133.154:1935/myapp/12345`,
     }
-    const url = "https://chaosyhy.com:4443/stream/push"
+    const url = `${MEDIASOUP_SERVER_HOST}/stream/push`
     const result = await this._app.curl(url, {
       method: 'POST',
       data,
@@ -51,7 +52,7 @@ export class StreamPullService {
       room: params.room,
       streamSrc: params.streamSrc, //`rtmp://121.5.133.154:1935/myapp/12345`,
     }
-    const url = "https://chaosyhy.com:4443/stream/push/open"
+    const url = `${MEDIASOUP_SERVER_HOST}/stream/push/open`
     const result = await this._app.curl(url, {
       method: 'POST',
       data,

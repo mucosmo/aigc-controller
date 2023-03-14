@@ -9,7 +9,7 @@ import { AdminUserModel } from '../../model/admin-user';
 
 import { StreamPushDTO, StreamPushOpenDTO } from '../../dto/stream/push';
 
-
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
 
 @Provide()
 export class StreamPushService {
@@ -32,7 +32,7 @@ export class StreamPushService {
   /**start stream push to webrtc room */
   async startStreamPush(data: StreamPushDTO & { streamSrc: string }) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
-    const url = "https://chaosyhy.com:4443/stream/push"
+    const url = `${MEDIASOUP_SERVER_HOST}/stream/push`;
     const result = await this._app.curl(url, {
       method: 'POST',
       data,
@@ -46,7 +46,7 @@ export class StreamPushService {
 
   async openStreamPush(data: StreamPushOpenDTO) {
     // 将流地址和要播放的房间号传给 mediasoup 服务器
-    const url = "https://chaosyhy.com:4443/stream/push/open"
+    const url = `${MEDIASOUP_SERVER_HOST}/stream/push/open`;
     const result = await this._app.curl(url, {
       method: 'POST',
       data,

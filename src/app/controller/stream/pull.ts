@@ -18,6 +18,8 @@ import { StreamPullDTO, StreamLiveDTO } from '../../dto/stream/push';
 import { AdminRoleService } from '../../service/admin/role';
 import { AdminPermissionService } from '../../service/admin/permission';
 
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
+
 @Provide()
 @Controller('/stream', {
   tagName: 'RTC 数据流管理',
@@ -43,7 +45,7 @@ export class StreamPullController {
   @Validate()
   async pushStreamToASR(ctx: Context, @Body(ALL) params: StreamPullDTO) {
     // 发送给 mediasoup 服务器，控制其音视频流
-    const serverHttp = "https://chaosyhy.com:4443/stream/pull/dm"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/pull/dm`;
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
       data: params,
@@ -63,7 +65,7 @@ export class StreamPullController {
   @Validate()
   async liveStreamUrl(ctx: Context, @Body(ALL) params: StreamLiveDTO) {
     // 发送给 mediasoup 服务器，生成某用户的直播流地址
-    const serverHttp = "https://chaosyhy.com:4443/stream/pull/live"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/pull/live`;
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
       data: params,
@@ -81,7 +83,7 @@ export class StreamPullController {
   })
   // @Validate()
   async pullStream(ctx: Context, @Body(ALL) params: StreamPullDTO) {
-    const serverHttp = "https://chaosyhy.com:4443/stream/pull"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/pull`;
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
       data: params,
@@ -100,7 +102,7 @@ export class StreamPullController {
   // @Validate()
   async streamRender(ctx: Context, @Body(ALL) params: { text: string }) {
     const filterStr = this.streamPushService.avFilterGraph(params);
-    const serverHttp = "https://chaosyhy.com:4443/stream/render"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/render`;
     const result = await this._app.curl(serverHttp, {
       method: 'POST',
       data: { text: filterStr },

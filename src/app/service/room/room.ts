@@ -9,6 +9,8 @@ const dhPeersRedisKey = 'dhPeers';
 
 const OneYearSeconds = 60 * 60 * 24 * 365;
 
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
+
 @Provide()
 export class RoomService {
     @Inject()
@@ -20,7 +22,7 @@ export class RoomService {
 
     /**get room info*/
     async getRoomStats() {
-        const url = "https://chaosyhy.com:4443/rooms/stats"
+        const url = `${MEDIASOUP_SERVER_HOST}/rooms/stats`;
         const result = await this._app.curl(url, {
             method: 'POST',
             data: {},
@@ -48,7 +50,7 @@ export class RoomService {
 
     /**create new room from node*/
     async nodeCreateRoom(data) {
-        const url = "https://chaosyhy.com:4443/rooms/node/create"
+        const url = `${MEDIASOUP_SERVER_HOST}/rooms/node/create`;
         const result = await this._app.curl(url, {
             method: 'POST',
             data,

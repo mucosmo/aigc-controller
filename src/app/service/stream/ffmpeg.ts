@@ -14,6 +14,7 @@ import ffmpeg from 'fluent-ffmpeg';
 /** 24小时的秒数，用于 redis 缓存 */
 const OneDaySeconds = 24 * 60 * 60;
 
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
 
 @Provide()
 export class FfmpegService {
@@ -129,7 +130,7 @@ export class FfmpegService {
 
   /**send to server to execute ffmpeg command */
   async executeCommand(command: string, channelSessionId: string) {
-    const url = "https://chaosyhy.com:4443/stream/ffmpeg/rtp/room";
+    const url = `${MEDIASOUP_SERVER_HOST}/stream/ffmpeg/rtp/room`;
     const result = await this._app.curl(url, {
       method: 'POST',
       data: { command, channelSessionId },

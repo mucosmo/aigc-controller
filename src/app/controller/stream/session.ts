@@ -10,7 +10,7 @@ import {
 
 import { Application, Context } from '@/interface';
 
-
+const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
 
 @Provide()
 @Controller('/stream/session', {
@@ -27,7 +27,7 @@ export class StreamSessionController {
   })
   @Validate()
   async liveStreamUrl(ctx: Context, @Body(ALL) sessionId: string) {
-    const serverHttp = "https://chaosyhy.com:4443/stream/session/end"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/session/end`;
     const result = await this._app.curl(serverHttp, {
       method: 'DELETE',
       data: sessionId,
@@ -45,7 +45,7 @@ export class StreamSessionController {
   })
   @Validate()
   async endAllExteStream(ctx: Context) {
-    const serverHttp = "https://chaosyhy.com:4443/stream/session/end/all"
+    const serverHttp = `${MEDIASOUP_SERVER_HOST}/stream/session/end/all`;
     const result = await this._app.curl(serverHttp, {
       method: 'DELETE',
       data: {},
