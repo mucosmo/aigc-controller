@@ -83,6 +83,17 @@ export class StreamPushOpenDTO {
   @Rule(RuleType.string().trim().optional())
   userId: string;
 
+  @CreateApiPropertyDoc('数字人 peer id')
+  @Rule(RuleType.string().trim().optional())
+  peerId: string;
+
+  @CreateApiPropertyDoc('是否播放音频')
+  @Rule(RuleType.boolean().optional())
+  audio: boolean;
+
+  @CreateApiPropertyDoc('是否播放视频')
+  @Rule(RuleType.boolean().optional())
+  video: boolean;
 
   @CreateApiPropertyDoc('实现方式')
   @Rule(RuleType.string().trim().optional())

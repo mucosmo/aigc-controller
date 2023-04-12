@@ -32,7 +32,8 @@ export class FfmpegService {
 
   /**composite video with ffmpeg and push to rtp room */
   async rtpRoom(data: RtpRoomDTO) {
-    const channel = await this.streamPushService.openStreamPush(data.sink);
+    const peerId = 'node_' + data.sink.userId + Math.random().toString(36).slice(2);
+    const channel = await this.streamPushService.openStreamPush({ ...data.sink, peerId, ...data.streams });
     const { partialCommand, lastFilterTag } = await this.filterComplex(data);
 
     const videoSink = [
@@ -48,7 +49,7 @@ export class FfmpegService {
 
     const command = [...partialCommand, videoSink, audioSink].join(' ');
 
-    return await this.executeCommand(command, channel.sessionId);
+    return await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
   }
 
 
@@ -72,7 +73,7 @@ export class FfmpegService {
 
     const command = [...partialCommand, fileSink].join(' ');
 
-    return await this.executeCommand(command, 'undefined');;
+    return await this.executeCommand({ command });;
   }
 
   /**get the metadata of files or streams */
@@ -129,11 +130,11 @@ export class FfmpegService {
   }
 
   /**send to server to execute ffmpeg command */
-  async executeCommand(command: string, channelSessionId: string) {
-    const url = `${MEDIASOUP_SERVER_HOST}/stream/ffmpeg/rtp/room`;
+  async executeCommand(data: { command: string, roomId?: string, peerId?: string }) {
+    const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command`;
     const result = await this._app.curl(url, {
       method: 'POST',
-      data: { command, channelSessionId },
+      data,
       dataType: 'json',
       headers: {
         'content-type': 'application/json',
