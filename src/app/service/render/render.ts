@@ -250,7 +250,7 @@ export class RenderService {
 
       const scaleOptions = region.filters.find(item => item.name === 'scale').options;
 
-      return `movie='/opt/application/tx-rtcStream/files/resources/mask.png'[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}:[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
+      return `movie='/opt/application/tx-rtcStream/files/resources/mask.png'[${regionId}_mask];[${regionId}_mask]alphaextract,scale=w=${scaleOptions.w}:h=${scaleOptions.h}[${regionId}_premask];[${regionId}_prepro][${regionId}_premask]alphamerge[${regionId}_maskmerge]`;
     });
 
     //第三步：按照 layer(regionId 中的 z 数据) 关系进行 overlay
