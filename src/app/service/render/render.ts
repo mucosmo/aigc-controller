@@ -171,7 +171,7 @@ export class RenderService {
   /**
    * 通过模板及其参数构造视频滤波器图
    */
-  async videoFilterGraph(template: any, mode = 'gcc') {
+  async videoFilterGraph(template: any, startFrame = 0, mode = 'gcc') {
     console.log('============= start to init filter graph ============');
     const t1 = Date.now();
 
@@ -304,6 +304,10 @@ export class RenderService {
       lastFilterTag = `out${i}`;
       overlays.push(desc);
     }
+
+    // skip some frames after composition
+    overlays.push(`[${lastFilterTag}]trim=start_frame=${startFrame},setpts=PTS-STARTPTS[trimstart]`);
+    lastFilterTag = `trimstart`;
 
 
     // [v0][v1][v2][v3]concat=n=4:v=1:a=0,format=yuv420p[v]

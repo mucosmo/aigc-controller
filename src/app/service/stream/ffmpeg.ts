@@ -34,7 +34,9 @@ export class FfmpegService {
   async rtpRoom(data: RtpRoomDTO) {
     const peerId = 'node_' + data.sink.userId + Math.random().toString(36).slice(2);
     const channel = await this.streamPushService.openStreamPush({ ...data.sink, peerId, ...data.streams });
-    const { partialCommand, lastFilterTag } = await this.filterComplex(data);
+    const commandStats = await this.getCommandStats();
+    commandStats.currentFrame = 0;
+    const { partialCommand, lastFilterTag } = await this.filterComplex({...data, startFrame:commandStats.currentFrame});
 
     const videoSink = [
       `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 `,
@@ -55,7 +57,7 @@ export class FfmpegService {
 
   /**composite video with ffmpeg to generate local file */
   async localFile(data: LocalFileDTO) {
-    const { partialCommand, lastFilterTag } = await this.filterComplex(data);
+    const { partialCommand, lastFilterTag } = await this.filterComplex({...data, startFrame:0});
 
     const videoSink = [
       `-map "[${lastFilterTag}]:v"`
@@ -97,14 +99,14 @@ export class FfmpegService {
     return filesMeta;
   }
 
-  private async filterComplex(data: { streams: StreamsEnableDTO, render: any }) {
+  private async filterComplex(data: { streams: StreamsEnableDTO, render: any, startFrame: number }) {
     const filterParams = data.render as {
       globalOptions: any[],
       outputOptions: any[],
       background: string,
     }
     const { template } = await this.renderService.initTemplate(filterParams);
-    const { filterGraphDesc: filteGraphVideo, videos, lastFilterTag } = await this.renderService.videoFilterGraph(template, 'ffmpeg'); // 耗时小于 10 ms
+    const { filterGraphDesc: filteGraphVideo, videos, lastFilterTag } = await this.renderService.videoFilterGraph(template, data.startFrame, 'ffmpeg'); // 耗时小于 10 ms
     const { filterGraphAudio, audios } = await this.renderService.audioFilterGraph(template);
 
     const inputs = [...videos, ...audios];
@@ -140,6 +142,19 @@ export class FfmpegService {
         'content-type': 'application/json',
       },
     });
+    return result.data;
+  }
+
+  async getCommandStats(){
+    const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command/stats`;
+    const result = await this._app.curl(url, {
+      method: 'GET',
+      dataType: 'json',
+      headers: {
+        'content-type': 'application/json',
+      },
+    });
+
     return result.data;
   }
 }

@@ -4,6 +4,7 @@ import {
   Inject,
   ALL,
   Post,
+  Get,
   Validate,
   Body,
 } from '@midwayjs/decorator';
@@ -31,6 +32,17 @@ export class FfmepegController {
   @Validate()
   async push2RtpRoom(ctx: Context, @Body(ALL) params: RtpRoomDTO) {
     const data = await this.ffmpegService.rtpRoom(params);
+    ctx.helper.success(data);
+  }
+
+  @Get('/rtp/command/stats', {
+    summary: '获取 rtp 推流的状态',
+    description: '',
+  })
+  @Validate()
+  async getRtpStats(ctx: Context) {
+    const data = await this.ffmpegService.getCommandStats();
+    //FIXME: no response to postman
     ctx.helper.success(data);
   }
 
