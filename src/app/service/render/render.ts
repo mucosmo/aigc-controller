@@ -305,9 +305,9 @@ export class RenderService {
       overlays.push(desc);
     }
 
-    // skip some frames after composition
-    overlays.push(`[${lastFilterTag}]trim=start_frame=${startFrame},setpts=PTS-STARTPTS[trimstart]`);
-    lastFilterTag = `trimstart`;
+    // // skip some frames after composition
+    // overlays.push(`[${lastFilterTag}]trim=start_frame=${startFrame},setpts=PTS-STARTPTS[trimstart]`);
+    // lastFilterTag = `trimstart`;
 
 
     // [v0][v1][v2][v3]concat=n=4:v=1:a=0,format=yuv420p[v]

@@ -34,9 +34,10 @@ export class FfmpegService {
   async rtpRoom(data: RtpRoomDTO) {
     const peerId = 'node_' + data.sink.userId + Math.random().toString(36).slice(2);
     const channel = await this.streamPushService.openStreamPush({ ...data.sink, peerId, ...data.streams });
-    const commandStats = await this.getCommandStats();
-    commandStats.currentFrame = 0;
-    const { partialCommand, lastFilterTag } = await this.filterComplex({...data, startFrame:commandStats.currentFrame});
+    const ffmpegStats = await this.getFfmpegStats();
+    console.log('---ffmpegStats -->', ffmpegStats)
+    const currentTime = ffmpegStats.currentTime;
+    const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: ffmpegStats.currentFrame, skipTime: currentTime });
 
     const videoSink = [
       `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 `,
@@ -51,13 +52,15 @@ export class FfmpegService {
 
     const command = [...partialCommand, videoSink, audioSink].join(' ');
 
+    console.log('----- command: ', command);
+
     return await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
   }
 
 
   /**composite video with ffmpeg to generate local file */
   async localFile(data: LocalFileDTO) {
-    const { partialCommand, lastFilterTag } = await this.filterComplex({...data, startFrame:0});
+    const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: 0, skipTime: 0 });
 
     const videoSink = [
       `-map "[${lastFilterTag}]:v"`
@@ -99,7 +102,7 @@ export class FfmpegService {
     return filesMeta;
   }
 
-  private async filterComplex(data: { streams: StreamsEnableDTO, render: any, startFrame: number }) {
+  private async filterComplex(data: { streams: StreamsEnableDTO, render: any, startFrame: number, skipTime: number }) {
     const filterParams = data.render as {
       globalOptions: any[],
       outputOptions: any[],
@@ -113,7 +116,7 @@ export class FfmpegService {
     // await this.getMetadata(inputs.map(input => input.src.path));
     const globalOptions = filterParams.globalOptions?.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions?.length > 0 ? filterParams.outputOptions.join(' ') : '';
-    const inputsStr = inputs.map(input => `${input.options ? input.options.join(' ') : ''} -i ${input.src.path}`).join(' ');
+    const inputsStr = handleFfmpegInputOptions(inputs, data.skipTime);
 
     let filterComplex = [
       data.streams.audio ? filterGraphAudio : '',
@@ -145,7 +148,7 @@ export class FfmpegService {
     return result.data;
   }
 
-  async getCommandStats(){
+  async getFfmpegStats() {
     const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command/stats`;
     const result = await this._app.curl(url, {
       method: 'GET',
@@ -155,7 +158,10 @@ export class FfmpegService {
       },
     });
 
-    return result.data;
+    const currentFrame = parseFrame(result.data) && 0;
+    const currentTime = parseTime(result.data);
+
+    return { currentFrame, currentTime };
   }
 }
 
@@ -170,3 +176,56 @@ async function asyncFfprobe(path) {
     });
   });
 };
+
+function parseFrame(data) {
+  // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
+  if(!data) return 0;
+  const regex = /frame=\s*(\d+)/;
+  const match = regex.exec(data);
+  if (match) {
+    const number = parseInt(match[1]);
+    return number;
+  }
+  return 0;
+}
+
+// parse current timecode of executed ffmpeg command into seconds
+function parseTime(data: string) {
+  // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
+  console.log(data)
+  let ret = 0;
+  // frame= 1200 fps= 28 q=4.0 Lsize=    1355kB time=00:04:23.77 bitrate=  42.1kbits/s speed=6.08x    
+  // video:1334kB audio:502kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+  if (!data || data.includes('subtitle')) return ret;
+  let regex = /time=(\d{2}):(\d{2}):(\d{2}\.\d{1,3})/;
+  let match = regex.exec(data);
+  if (match) {
+    const hours = parseInt(match[1]);
+    const minutes = parseInt(match[2]);
+    const seconds = parseFloat(match[3]);
+    ret = hours * 3600 + minutes * 60 + seconds;
+  }
+  return ret;
+}
+
+
+// to handle ffmpeg input options, including -i, -re, -ss, -t and so on
+// for -ss and -t that means clip of input, we have to consider the time to skip while editing
+function handleFfmpegInputOptions(inputs, skipTime) {
+  const str = inputs.map(input => {
+    let optionStr = '';
+    if (input.options) {
+      input.options = input.options.map(option => {
+        if (option.includes('-ss')) {
+          const time = parseFloat(option.split(/\s+/)[1]);
+          option = `-ss ${time + skipTime}`;
+        }
+        return option;
+      });
+      optionStr += input.options.join(' ');
+    }
+    optionStr += ` -i ${input.src.path}`;
+    return optionStr;
+  }).join(' ');
+  return str;
+}

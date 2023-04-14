@@ -41,7 +41,7 @@ export class FfmepegController {
   })
   @Validate()
   async getRtpStats(ctx: Context) {
-    const data = await this.ffmpegService.getCommandStats();
+    const data = await this.ffmpegService.getFfmpegStats();
     //FIXME: no response to postman
     ctx.helper.success(data);
   }
