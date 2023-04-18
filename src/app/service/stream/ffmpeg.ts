@@ -108,7 +108,8 @@ export class FfmpegService {
       outputOptions: any[],
       background: string,
     }
-    const { template } = await this.renderService.initTemplate(filterParams);
+    let { template } = await this.renderService.initTemplate(filterParams);
+    template = this.renderService.templateWithClip(template, data.skipTime);
     const { filterGraphDesc: filteGraphVideo, videos, lastFilterTag } = await this.renderService.videoFilterGraph(template, data.startFrame, 'ffmpeg'); // 耗时小于 10 ms
     const { filterGraphAudio, audios } = await this.renderService.audioFilterGraph(template);
 
@@ -116,7 +117,7 @@ export class FfmpegService {
     // await this.getMetadata(inputs.map(input => input.src.path));
     const globalOptions = filterParams.globalOptions?.length > 0 ? filterParams.globalOptions.join(' ') : '';
     const outputOpts = filterParams.outputOptions?.length > 0 ? filterParams.outputOptions.join(' ') : '';
-    const inputsStr = handleFfmpegInputOptions(inputs, data.skipTime);
+    const inputsStr = handleFfmpegInputOptions(inputs, 0);
 
     let filterComplex = [
       data.streams.audio ? filterGraphAudio : '',
@@ -179,7 +180,7 @@ async function asyncFfprobe(path) {
 
 function parseFrame(data) {
   // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
-  if(!data) return 0;
+  if (!data) return 0;
   const regex = /frame=\s*(\d+)/;
   const match = regex.exec(data);
   if (match) {

@@ -500,4 +500,128 @@ export class RenderService {
     }
   }
 
+
+  // consider the template with clip time (-ss, -t, fade, enable)
+  templateWithClip(template, clipTime) {
+    template.videos = this.reflushClipTime(template.videos, clipTime);
+    template.audios = this.reflushClipTime(template.audios, clipTime);
+    return template;
+  }
+
+  reflushClipTime(medias: any[], t_d) {
+    medias = medias.map(media => {
+      let options = media.options;
+      let t_ss = 0;
+      let t_t = 100;
+      let t_in = 0;
+      let t_out = 100;
+      if (!Array.isArray(options)) return media;
+      options = options.map(function (element) {
+        var parts = element.split(/\s+/);
+        var command = parts[0];
+        var value = parts[1];
+        if (command === '-ss') {
+          t_ss = parseFloat(value);
+          // const numericValue = t_ss + t_d;
+          // return command + " " + numericValue;
+        } else if (command === '-t') {
+          t_t = parseFloat(value);
+          // const numericValue = t_t - t_d;
+          // return command + " " + numericValue;
+        }
+
+        return element;
+      });
+
+      let filters = media.filters;
+      if (!filters) return media;
+      filters = filters.map(filter => {
+        if (filter.name === 'fade' || filter.name === 'afade') {
+          if (filter.options.t === 'in') {
+            t_in = parseFloat(filter.options.st);
+          } else if (filter.options.t === 'out') {
+            t_out = parseFloat(filter.options.st);
+          }
+        }
+        return filter;
+      })
+
+      console.log('----before:', media.srcId)
+      console.log(`t_ss:${t_ss},t_t:${t_t}, t_in:${t_in},t_out:${t_out},t_d:${t_d}`)
+
+      // 当 t_d 大于 t_out 时，该片段不需要再渲染
+      if (t_d > t_out) return null;
+
+      const ret = handleClipTime(t_ss, t_t, t_in, t_out, t_d);
+
+      console.log('----after')
+      console.log(ret)
+
+      options = options.map(function (element) {
+        var parts = element.split(/\s+/);
+        var command = parts[0];
+        if (command === '-ss') {
+          element = command + " " + ret.t_ss;
+        } else if (command === '-t') {
+          element = command + " " + ret.t_t;
+        }
+        return element
+      });
+      console.log('----options:', options)
+
+      filters = filters.map(filter => {
+        if (filter.name === 'fade' || filter.name === 'afade') {
+          if (filter.options.t === 'in') {
+            filter.options.st = ret.t_in;
+          } else if (filter.options.t === 'out') {
+            filter.options.st = ret.t_out;
+          }
+        }
+        return filter;
+      })
+
+      console.log('----filters:', filters);
+
+      media.options = options;
+      media.filters = filters;
+
+
+      return media;
+
+    })
+
+    medias = medias.filter(item => item);
+    return medias;
+
+  }
+
+
 }
+
+function handleClipTime(t_ss, t_t, t_in, t_out, t_d) {
+  if (t_d <= t_in) {
+    t_ss = t_ss
+  } else if (t_d > t_in && t_d <= t_out) {
+    t_ss = (t_ss + (t_d - t_in)).toFixed(2)
+  }
+
+  if (t_d <= t_in) {
+    t_t = t_t
+  } else if (t_d > t_in && t_d <= t_out) {
+    t_t = (t_t - (t_d - t_in)).toFixed(2)
+  }
+
+  if (t_d <= t_in) {
+    t_in = (t_in - t_d).toFixed(2)
+  } else if (t_d > t_in && t_d <= t_out) {
+    t_in = 0
+  }
+
+  if (t_d <= t_out) {
+    t_out = (t_out - t_d).toFixed(2)
+  }
+
+  return { t_ss, t_t, t_in, t_out }
+}
+
+
