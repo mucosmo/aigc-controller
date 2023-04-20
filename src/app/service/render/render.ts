@@ -483,7 +483,7 @@ export class RenderService {
 
     const filterGraphAudio = audiosOutIdx.length === 0 ? '' : [
       ...audiosFilters,
-      `${audiosOutIdx.join('')}amerge=inputs=${audiosOutIdx.length}[a];`
+      `${audiosOutIdx.join('')}concat=n=${audiosOutIdx.length}:v=0:a=1[a];`
     ].join('');
 
     return { filterGraphAudio, audios };
@@ -515,6 +515,8 @@ export class RenderService {
       let t_t = 100;
       let t_in = 0;
       let t_out = 100;
+      const t_start = media.timeline?.start || 0;
+      let t_end = 1000;
       if (!Array.isArray(options)) return media;
       options = options.map(function (element) {
         var parts = element.split(/\s+/);
@@ -526,6 +528,7 @@ export class RenderService {
           // return command + " " + numericValue;
         } else if (command === '-t') {
           t_t = parseFloat(value);
+          t_end = t_start + t_t;
           // const numericValue = t_t - t_d;
           // return command + " " + numericValue;
         }
@@ -546,16 +549,18 @@ export class RenderService {
         return filter;
       })
 
-      console.log('----before:', media.srcId)
-      console.log(`t_ss:${t_ss},t_t:${t_t}, t_in:${t_in},t_out:${t_out},t_d:${t_d}`)
+      // console.log('----before:', media.srcId)
+      // console.log(`t_ss:${t_ss},t_t:${t_t}, t_in:${t_in},t_out:${t_out},t_start:${t_start},t_end:${t_end},t_d:${t_d}`)
 
       // 当 t_d 大于 t_out 时，该片段不需要再渲染
-      if (t_d > t_out) return null;
+      if (t_d > t_end) return null;
 
-      const ret = handleClipTime(t_ss, t_t, t_in, t_out, t_d);
+      const ret = handleClipTime(t_ss, t_t, t_in, t_out, t_start, t_d);
 
-      console.log('----after')
-      console.log(ret)
+      // console.log('----after')
+      // console.log(ret)
+
+      media.timeline && (media.timeline.start = ret.t_start)
 
       options = options.map(function (element) {
         var parts = element.split(/\s+/);
@@ -567,7 +572,7 @@ export class RenderService {
         }
         return element
       });
-      console.log('----options:', options)
+      // console.log('----options:', options)
 
       filters = filters.map(filter => {
         if (filter.name === 'fade' || filter.name === 'afade') {
@@ -580,7 +585,7 @@ export class RenderService {
         return filter;
       })
 
-      console.log('----filters:', filters);
+      // console.log('----filters:', filters);
 
       media.options = options;
       media.filters = filters;
@@ -598,30 +603,40 @@ export class RenderService {
 
 }
 
-function handleClipTime(t_ss, t_t, t_in, t_out, t_d) {
-  if (t_d <= t_in) {
+function handleClipTime(t_ss, t_t, t_in, t_out, t_start, t_d) {
+  if (t_d <= t_start) {
     t_ss = t_ss
-  } else if (t_d > t_in && t_d <= t_out) {
-    t_ss = (t_ss + (t_d - t_in)).toFixed(2)
+  } else if (t_d > t_start) {
+    t_ss = (t_ss + (t_d - t_start)).toFixed(2)
   }
 
-  if (t_d <= t_in) {
+  if (t_d <= t_start) {
     t_t = t_t
-  } else if (t_d > t_in && t_d <= t_out) {
-    t_t = (t_t - (t_d - t_in)).toFixed(2)
+  } else if (t_d > t_start) {
+    t_t = (t_t - (t_d - t_start)).toFixed(2)
   }
 
-  if (t_d <= t_in) {
-    t_in = (t_in - t_d).toFixed(2)
-  } else if (t_d > t_in && t_d <= t_out) {
+  if (t_d <= t_start) {
+    t_in = t_in
+  } else if (t_d > t_start && t_d <= t_start + t_in) {
+    t_in = (t_in - (t_d - t_start)).toFixed(2)
+  } else if (t_d > t_start + t_in && t_d <= t_start + t_out) {
     t_in = 0
   }
 
-  if (t_d <= t_out) {
-    t_out = (t_out - t_d).toFixed(2)
+  if (t_d <= t_start) {
+    t_out = t_out
+  } else if (t_d > t_start && t_d <= t_start + t_out) {
+    t_out = (t_out - (t_d - t_start)).toFixed(2)
   }
 
-  return { t_ss, t_t, t_in, t_out }
+  if (t_d <= t_start) {
+    t_start = t_start - t_d;
+  } else if (t_d > t_start) {
+    t_start = 0;
+  }
+
+  return { t_ss, t_t, t_in, t_out, t_start }
 }
 
 

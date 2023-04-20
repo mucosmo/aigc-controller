@@ -34,10 +34,10 @@ export class FfmpegService {
   async rtpRoom(data: RtpRoomDTO) {
     const peerId = 'node_' + data.sink.userId + Math.random().toString(36).slice(2);
     const channel = await this.streamPushService.openStreamPush({ ...data.sink, peerId, ...data.streams });
-    const ffmpegStats = await this.getFfmpegStats();
+    const ffmpegStats = await this.getFfmpegStats(data.sink.roomId);
     console.log('---ffmpegStats -->', ffmpegStats)
     const currentTime = ffmpegStats.currentTime;
-    const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: ffmpegStats.currentFrame, skipTime: currentTime });
+    const { partialCommand, lastFilterTag, template } = await this.filterComplex({ ...data, startFrame: ffmpegStats.currentFrame, skipTime: currentTime });
 
     const videoSink = [
       `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 `,
@@ -45,7 +45,7 @@ export class FfmpegService {
       `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`
     ].join(' ');
 
-    const audioSink = data.streams.audio ? [
+    const audioSink = template.audios.length ? [
       `-map "[a]" -c:a libopus -ac 1 -ssrc ${channel.rtpParameters.AUDIO_SSRC} -payload_type ${channel.rtpParameters.AUDIO_PT}`,
       `-f rtp rtp://${channel.audioTransport.ip}:${channel.audioTransport.port}`
     ].join(' ') : '';
@@ -132,7 +132,7 @@ export class FfmpegService {
       outputOpts
     ];
 
-    return { partialCommand, lastFilterTag };
+    return { partialCommand, lastFilterTag, template };
   }
 
   /**send to server to execute ffmpeg command */
@@ -149,20 +149,28 @@ export class FfmpegService {
     return result.data;
   }
 
-  async getFfmpegStats() {
+  async getFfmpegStats(roomId) {
     const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command/stats`;
     const result = await this._app.curl(url, {
-      method: 'GET',
+      method: 'POST',
       dataType: 'json',
+      data: { roomId },
       headers: {
         'content-type': 'application/json',
       },
     });
 
-    const currentFrame = parseFrame(result.data) && 0;
-    const currentTime = parseTime(result.data);
+    // const currentFrame = parseFrame(result.data) && 0;
+    // const currentTime = parseTime(result.data);
 
-    return { currentFrame, currentTime };
+    const startTime = result.data.startTime;
+    let currentTime = 0;
+    if(startTime  === 0){
+      currentTime = 0;
+    }else{
+      currentTime = parseFloat(((new Date().getTime() - startTime) / 1000).toFixed(2));
+    }
+    return { currentFrame: 0, currentTime };
   }
 }
 
@@ -178,36 +186,36 @@ async function asyncFfprobe(path) {
   });
 };
 
-function parseFrame(data) {
-  // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
-  if (!data) return 0;
-  const regex = /frame=\s*(\d+)/;
-  const match = regex.exec(data);
-  if (match) {
-    const number = parseInt(match[1]);
-    return number;
-  }
-  return 0;
-}
+// function parseFrame(data) {
+//   // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
+//   if (!data) return 0;
+//   const regex = /frame=\s*(\d+)/;
+//   const match = regex.exec(data);
+//   if (match) {
+//     const number = parseInt(match[1]);
+//     return number;
+//   }
+//   return 0;
+// }
 
-// parse current timecode of executed ffmpeg command into seconds
-function parseTime(data: string) {
-  // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
-  console.log(data)
-  let ret = 0;
-  // frame= 1200 fps= 28 q=4.0 Lsize=    1355kB time=00:04:23.77 bitrate=  42.1kbits/s speed=6.08x    
-  // video:1334kB audio:502kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
-  if (!data || data.includes('subtitle')) return ret;
-  let regex = /time=(\d{2}):(\d{2}):(\d{2}\.\d{1,3})/;
-  let match = regex.exec(data);
-  if (match) {
-    const hours = parseInt(match[1]);
-    const minutes = parseInt(match[2]);
-    const seconds = parseFloat(match[3]);
-    ret = hours * 3600 + minutes * 60 + seconds;
-  }
-  return ret;
-}
+// // parse current timecode of executed ffmpeg command into seconds
+// function parseTime(data: string) {
+//   // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
+//   console.log(data)
+//   let ret = 0;
+//   // frame= 1200 fps= 28 q=4.0 Lsize=    1355kB time=00:04:23.77 bitrate=  42.1kbits/s speed=6.08x    
+//   // video:1334kB audio:502kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: unknown
+//   if (!data || data.includes('subtitle')) return ret;
+//   let regex = /time=(\d{2}):(\d{2}):(\d{2}\.\d{1,3})/;
+//   let match = regex.exec(data);
+//   if (match) {
+//     const hours = parseInt(match[1]);
+//     const minutes = parseInt(match[2]);
+//     const seconds = parseFloat(match[3]);
+//     ret = hours * 3600 + minutes * 60 + seconds;
+//   }
+//   return ret;
+// }
 
 
 // to handle ffmpeg input options, including -i, -re, -ss, -t and so on

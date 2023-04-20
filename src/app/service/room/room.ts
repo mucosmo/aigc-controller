@@ -47,6 +47,20 @@ export class RoomService {
         return peers;
     }
 
+    /**reset room*/
+    async resetRoom(roomId: string) {
+        const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/reset`;
+        const result = await this._app.curl(url, {
+            method: 'POST',
+            data: { roomId },
+            dataType: 'json',
+            headers: {
+                'content-type': 'application/json',
+            },
+        });
+        return result.data;
+    }
+
 
     /**create new room from node*/
     async nodeCreateRoom(data) {

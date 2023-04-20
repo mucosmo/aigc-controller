@@ -33,6 +33,16 @@ export class RoomsController {
     ctx.helper.success(data);
   }
 
+  @Post('/reset', {
+    summary: '重置房间',
+    description: '',
+  })
+  @Validate()
+  async resetRoom(ctx: Context, @Body(ALL) params: { roomId: string}) {
+    const data = await this.roomService.resetRoom(params.roomId);
+    ctx.helper.success(data);
+  }
+
 
   @Post('/node/create', {
     summary: '创建房间',
