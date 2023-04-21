@@ -509,6 +509,7 @@ export class RenderService {
   }
 
   reflushClipTime(medias: any[], t_d) {
+    if (!medias || medias.length === 0) return [];
     medias = medias.map(media => {
       let options = media.options;
       let t_ss = 0;

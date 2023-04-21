@@ -165,12 +165,13 @@ export class FfmpegService {
 
     const startTime = result.data.startTime;
     let currentTime = 0;
-    if(startTime  === 0){
+    if (startTime === 0) {
       currentTime = 0;
-    }else{
+    } else {
       currentTime = parseFloat(((new Date().getTime() - startTime) / 1000).toFixed(2));
     }
-    return { currentFrame: 0, currentTime };
+    //FIXME: currentTime shoudl be true value instead of 0
+    return { currentFrame: 0, currentTime: 0 && currentTime };
   }
 }
 
