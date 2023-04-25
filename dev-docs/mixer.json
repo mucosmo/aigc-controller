@@ -1,0 +1,187 @@
+{
+  "scriptId": "script001",
+  "scriptName": "企业宣传视频脚本",
+  "scriptDescription": "企业宣传视频脚本描述.md",
+
+  "scenes": [
+    {
+      "sceneId": "scene001",
+      "sceneName": "场景1",
+      "sceneDescription": "场景描述.md",
+      "project": {
+        "size": {
+          "w": 640,
+          "h": 480
+        }
+      },
+      "captions": [
+        {
+          "text": "test text",
+          "x": "(w-text_w)/2-n",
+          "y": "h-n*2",
+          "fontfile": "/usr/share/fonts/chinese/SIMKAI.TTF",
+          "fontcolor": "red",
+          "fontsize": 20,
+          "timeline": {
+            "start": "00:00:01.20",
+            "end": "00:00:12.45"
+          },
+          "visible": true
+        }
+      ],
+      "subtitles": [
+        {
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9567",
+          "file": "/opt/caption01.srt",
+          "visible": true,
+          "filters": [
+            {
+              "name": "rotate",
+              "options": {
+                "angle": "90*PI/180"
+              }
+            }
+          ]
+        },
+        {
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9324",
+          "visible": true,
+          "file": "/opt/caption02.srt"
+        }
+      ],
+      "audios": [
+        {
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9438",
+          "visible": true,
+          "clip": {
+            "start": "00:00:01.20",
+            "duration": "5.1",
+            "end": "00:00:12.45"
+          },
+          "timeline": {
+            "start": "00:00:01.20",
+            "end": "00:00:12.45",
+            "speed": 1.2
+          },
+          "filters": [
+            {
+              "name": "fadeout",
+              "options": {
+                "start": "00:00:01.20",
+                "duration": "2"
+              }
+            }
+          ]
+        }
+      ],
+      "shots": [
+        {
+          "shotId": "shot001",
+          "shotName": "镜头1",
+          "shotDescription": "镜头描述.md",
+          "clips": [
+            {
+              "clipId": "clip001",
+              "clipName": "片段1",
+              "captions": [],
+              "subtitles": [],
+              "audios": [
+                {
+                  "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9438",
+                  "visible": true,
+                  "clip": {
+                    "start": "00:00:01.20",
+                    "duration": "5.1",
+                    "end": "00:00:12.45"
+                  },
+                  "timeline": {
+                    "start": "00:00:01.20",
+                    "end": "00:00:12.45",
+                    "speed": 1.2
+                  },
+                  "filters": [
+                    {
+                      "name": "fadeout",
+                      "options": {
+                        "start": "00:00:01.20",
+                        "duration": "2"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "videos": [
+                {
+                  "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9735",
+                  "visible": true,
+                  "clip": {
+                    "start": "00:00:01.20",
+                    "duration": "5.1",
+                    "end": "00:00:12.45"
+                  },
+                  "crop": {
+                    "x": "10",
+                    "y": "20",
+                    "w": "200",
+                    "h": "300"
+                  },
+                  "scale": {
+                    "w": "-1",
+                    "h": "200"
+                  },
+                  "timeline": {
+                    "start": "00:00:01.20",
+                    "end": "00:00:12.45",
+                    "speed": 1.2
+                  },
+                  "filters": [
+                    {
+                      "name": "zoompan",
+                      "params": {
+                        "z": "1.3",
+                        "d": "100"
+                      }
+                    },
+                    {
+                      "name": "chromakey",
+                      "options": {
+                        "color": "0x00ff00",
+                        "similarity": 0.3,
+                        "blend": 0.05
+                      }
+                    }
+                  ],
+                  "transitions": [
+                    {
+                      "name": "xfade",
+                      "options": {
+                        "transition": "circleclose",
+                        "duration": "2",
+                        "offset": 15
+                      }
+                    }
+                  ]
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "xfade",
+                  "options": {
+                    "transition": "circleclose",
+                    "duration": "2",
+                    "offset": 15
+                  }
+                }
+              ],
+              "timeline": {
+                "start": "00:00:01.20",
+                "end": "00:00:12.45",
+                "speed": 1.2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
