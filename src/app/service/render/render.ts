@@ -25,16 +25,23 @@ export class RenderService {
 
   //初始化模板
   async initTemplate(params: any, mode = 'gcc') {
-    const srcs = params.srcs;
+    // const srcs = params.srcs;
 
     //区域不包含 drawtext 和 硬字幕 subtitles, 这两种作为 filter 在后面处理， 软字幕暂不处理
     const videos = this._getMediaFromTemplate(params.template, 'video');
     const audios = this._getMediaFromTemplate(params.template, 'audio');
 
     //初始化数据源
-    [...videos, ...audios].forEach(itemRegion => {
-      itemRegion.src = srcs[itemRegion.srcId];
-    });
+    for (let itemRegion of [...videos, ...audios]) {
+      const srcId = itemRegion.srcId;
+      const key = `ffmpeg:srcs:${srcId.replace(/:/g, '')}`;
+      const origin = await this._app.redis.get(key);
+      if (origin) {
+        itemRegion.src = JSON.parse(origin);
+      } else {
+        throw new HttpError(`数据源不存在: ${srcId}`, 404);
+      }
+    }
 
     //存储初始化后的模板
     const key = params.template.id;
@@ -179,7 +186,9 @@ export class RenderService {
 
     const videos = this._getMediaFromTemplate(template, 'video');
 
-    let bgLabel = videos[0].id;; // 背景视频或图像的标签
+    console.log('---videos:', videos)
+
+    let bgLabel = 'blackBg';; // 背景视频或图像的标签
 
     let lastFilterTag = '';// 标记最后一个输出 
 
@@ -202,8 +211,8 @@ export class RenderService {
         return '';
       }
 
-      // 如果背景有滤波器
-      if (index === 0) bgLabel = videos[index].id + '_prepro';
+      // // 如果背景有滤波器
+      // if (index === 0) bgLabel = videos[index].id + '_prepro';
 
       //排序后的filter
       const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => a.seq - b.seq);
@@ -298,10 +307,20 @@ export class RenderService {
       let desc = '';
       if (i === 0) {
         desc = `[${bgLabel}][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`;
+        lastFilterTag = 'out0'
       } else {
-        desc = `[out${i - 1}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
+        const transitions = theRegion.transitions;
+        if (transitions) {
+          const transTag = 'trans_' + Math.random().toString(36).slice(2, 10);
+          desc = `[${lastFilterTag}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr},settb=1/20[out${i}]`;
+          desc = desc + `;[out${i}][${transitions[0].to}_prepro]xfade=transition=${transitions[0].params.transition}:duration=${transitions[0].params.duration}:offset=${transitions[0].params.offset}[${transTag}]`
+          lastFilterTag = transTag;
+        } else {
+          desc = `[${lastFilterTag}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
+          lastFilterTag = `out${i}`;
+        }
       }
-      lastFilterTag = `out${i}`;
+
       overlays.push(desc);
     }
 
@@ -354,7 +373,9 @@ export class RenderService {
 
 
     //组合所有 filter-chain
+    const project = template.project;
     let filterGraphDesc = [
+      `color=c=${project.bgColor}:s=${project.width}x${project.height}:r=30:d=${project.duration}[${bgLabel}]`,
       ...inputs,
       ...filterChains,
       ...maskFilterChains,
@@ -640,4 +661,13 @@ function handleClipTime(t_ss, t_t, t_in, t_out, t_start, t_d) {
   return { t_ss, t_t, t_in, t_out, t_start }
 }
 
+
+class HttpError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
 

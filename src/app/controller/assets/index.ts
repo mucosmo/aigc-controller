@@ -68,6 +68,16 @@ export class AssetsController {
     ctx.helper.success(data);
   }
 
+  @Post('/source', {
+    summary: '关联元数据',
+    description: '',
+  })
+  @Validate()
+  async connectSource(ctx: Context, @Body(ALL) params: any) {
+    const data = await this.ffmpegService.connectSource(params);
+    ctx.helper.success(data);
+  }
+
 }
 
 

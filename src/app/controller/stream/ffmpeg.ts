@@ -34,6 +34,16 @@ export class FfmepegController {
     ctx.helper.success(data);
   }
 
+  @Post('/rtc/mixer', {
+    summary: 'rtc 混合器用以生成喂给 ffmpeg 的命令',
+    description: '',
+  })
+  @Validate()
+  async receiveRtcCommand(ctx: Context, @Body(ALL) params: any) {
+    // const data = await this.ffmpegService.rtpRoom(params);
+    ctx.helper.success({received: params});
+  }
+
   @Post('/rtp/command/stats', {
     summary: '获取 rtp 推流的状态',
     description: '',

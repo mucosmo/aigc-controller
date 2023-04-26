@@ -37,10 +37,12 @@ export class FfmpegService {
     const ffmpegStats = await this.getFfmpegStats(data.sink.roomId);
     console.log('---ffmpegStats -->', ffmpegStats)
     const currentTime = ffmpegStats.currentTime;
-    const { partialCommand, lastFilterTag, template } = await this.filterComplex({ ...data, startFrame: ffmpegStats.currentFrame, skipTime: currentTime });
+    let { partialCommand, lastFilterTag, template } = await this.filterComplex({ ...data, startFrame: ffmpegStats.currentFrame, skipTime: currentTime });
 
+
+    console.log('---- lastFilterTag -->', lastFilterTag)
     const videoSink = [
-      `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 1000k -deadline 1 -cpu-used 2 `,
+      `-map "[${lastFilterTag}]:v" -c:v vp8 -b:v 500k -deadline realtime -cpu-used 2 -r 30 -vsync drop -auto-alt-ref 0`,
       `-ssrc ${channel.rtpParameters.VIDEO_SSRC} -payload_type ${channel.rtpParameters.VIDEO_PT}`,
       `-f rtp rtp://${channel.videoTransport.ip}:${channel.videoTransport.port}`
     ].join(' ');
@@ -54,7 +56,9 @@ export class FfmpegService {
 
     console.log('----- command: ', command);
 
-    return await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
+    const execRet =  await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
+
+    return {command, execRet}
   }
 
 
@@ -100,6 +104,14 @@ export class FfmpegService {
     }
     console.log(new Date().getTime() - t1)
     return filesMeta;
+  }
+
+
+  async connectSource(params: any) {
+    for (let [key, val] of Object.entries(params)) {
+      const redisKey = `ffmpeg:srcs:${key.replace(/:/g, '')}`;
+      await this._app.redis.set(redisKey, JSON.stringify(val));
+    }
   }
 
   private async filterComplex(data: { streams: StreamsEnableDTO, render: any, startFrame: number, skipTime: number }) {
