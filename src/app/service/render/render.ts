@@ -311,16 +311,22 @@ export class RenderService {
       } else {
         const transitions = theRegion.transitions;
         if (transitions) {
-          const transTag = 'trans_' + Math.random().toString(36).slice(2, 10);
+          let transTag = 'trans_' + Math.random().toString(36).slice(2, 10);
           desc = `[${lastFilterTag}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr},settb=1/20[out${i}]`;
           desc = desc + `;[out${i}][${transitions[0].to}_prepro]xfade=transition=${transitions[0].params.transition}:duration=${transitions[0].params.duration}:offset=${transitions[0].params.offset}[${transTag}]`
+          let toVideo = videos.find(item => item.id === transitions[0].to);
+          while (toVideo.transitions) {
+            const nextTransTag = 'trans_' + Math.random().toString(36).slice(2, 10);
+            desc = desc + `;[${transTag}][${toVideo.transitions[0].to}_prepro]xfade=transition=${toVideo.transitions[0].params.transition}:duration=${toVideo.transitions[0].params.duration}:offset=${toVideo.transitions[0].params.offset}[${nextTransTag}]`
+            toVideo = videos.find(item => toVideo.transitions && (item.id === toVideo.transitions[0].to));
+            transTag = nextTransTag
+          }
           lastFilterTag = transTag;
         } else {
           desc = `[${lastFilterTag}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr}[out${i}]`;
           lastFilterTag = `out${i}`;
         }
       }
-
       overlays.push(desc);
     }
 
