@@ -11,6 +11,18 @@ import { StreamPushService } from '../../service/stream/push';
 
 import ffmpeg from 'fluent-ffmpeg';
 
+import crypto from 'crypto';
+
+import path from 'path';
+
+import { Repository } from 'typeorm';
+
+import { RtcAssetModel } from '/opt/application/tx-streamPpr/src/app/model/rtc-asset';
+
+import { InjectEntityModel } from '@midwayjs/orm';
+
+
+
 /** 24小时的秒数，用于 redis 缓存 */
 const OneDaySeconds = 24 * 60 * 60;
 
@@ -29,6 +41,9 @@ export class FfmpegService {
 
   @App()
   private _app!: Application;
+
+  @InjectEntityModel(RtcAssetModel)
+  private rtcAssetModel: Repository<RtcAssetModel>;
 
   /**composite video with ffmpeg and push to rtp room */
   async rtpRoom(data: RtpRoomDTO) {
@@ -54,11 +69,9 @@ export class FfmpegService {
 
     const command = [...partialCommand, videoSink, audioSink].join(' ');
 
-    console.log('----- command: ', command);
+    const execRet = await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
 
-    const execRet =  await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
-
-    return {command, execRet}
+    return { command, execRet }
   }
 
 
@@ -107,10 +120,28 @@ export class FfmpegService {
   }
 
 
-  async connectSource(params: any) {
-    for (let [key, val] of Object.entries(params)) {
-      const redisKey = `ffmpeg:srcs:${key.replace(/:/g, '')}`;
+  async connectSource(params: { [key: string]: { path: string, type: string, url: string, name: string, metadata: any } }) {
+    for (let val of Object.values(params)) {
+      const filePath = val.path;
+      val.name = path.basename(filePath)
+      val.url = filePath.replace('/opt/application/tx-rtcStream', 'https://chaosyhy.com:60125')
+      const md5 = crypto.createHash('md5').update(val.url).digest('hex').toUpperCase();
+      const redisKey = `ffmpeg:srcs:${md5}`;
+
+      val.metadata = await asyncFfprobe(filePath);
+
       await this._app.redis.set(redisKey, JSON.stringify(val));
+
+      await this.rtcAssetModel.save([
+        {
+          md5,
+          fileName: val.name,
+          fileUrl: val.url,
+          filePath,
+          metadata: val.metadata,
+          fileType: val.type,
+        }
+      ])
     }
   }
 

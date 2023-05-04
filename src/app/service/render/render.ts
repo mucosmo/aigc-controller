@@ -33,6 +33,7 @@ export class RenderService {
 
     //初始化数据源
     for (let itemRegion of [...videos, ...audios]) {
+      console.log('---- itemRegion', itemRegion)
       const srcId = itemRegion.srcId;
       const key = `ffmpeg:srcs:${srcId.replace(/:/g, '')}`;
       const origin = await this._app.redis.get(key);
@@ -186,8 +187,6 @@ export class RenderService {
 
     const videos = this._getMediaFromTemplate(template, 'video');
 
-    console.log('---videos:', videos)
-
     let bgLabel = 'blackBg';; // 背景视频或图像的标签
 
     let lastFilterTag = '';// 标记最后一个输出 
@@ -215,7 +214,7 @@ export class RenderService {
       // if (index === 0) bgLabel = videos[index].id + '_prepro';
 
       //排序后的filter
-      const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => a.seq - b.seq);
+      const filtersSorted = region.filters.filter(item => item.name !== "shapemask").sort((a, b) => parseInt(a.seq) - parseInt(b.seq));
 
       const filterDesc = filtersSorted.map(itemFilter => {
         if (!itemFilter.options) {
@@ -264,10 +263,11 @@ export class RenderService {
 
     //第三步：按照 layer(regionId 中的 z 数据) 关系进行 overlay
     const regionsSorted = regionsNameAfterFilter.sort((a, b) => {
-      const layerA = a.split('_')[1].split('.')[0];
-      const layerB = b.split('_')[1].split('.')[0];
-      return Number(layerA) - Number(layerB);
+      // const layerA = a.split('_')[1].split('.')[0];
+      // const layerB = b.split('_')[1].split('.')[0];
+      return Number(a.track) - Number(b.track);
     })
+
 
     const regionsToOverlay = regionsSorted.filter(regionId => {
       let regionIdTrue = '';
@@ -281,6 +281,8 @@ export class RenderService {
       const theRegion = template.videos.find(region => region.id === regionIdTrue && region.area);
       return theRegion;
     })
+
+    console.log('----- regionsToOverlay ',regionsToOverlay)
 
     let overlays = [];
     for (let i = 0; i < regionsToOverlay.length; i++) {
@@ -305,11 +307,14 @@ export class RenderService {
       const enableDuration = theRegion.area.enable; // 持续（显示）时间
       const enableStr = enableDuration ? `:enable=${enableDuration}` : '';
       let desc = '';
+      // FIXME: i = 0, possible to transition
       if (i === 0) {
         desc = `[${bgLabel}][${regionLabel}]overlay=${x}:${y}${enableStr}[out0]`;
         lastFilterTag = 'out0'
       } else {
         const transitions = theRegion.transitions;
+
+        console.log('------------------transitions------------------', theRegion)
         if (transitions) {
           let transTag = 'trans_' + Math.random().toString(36).slice(2, 10);
           desc = `[${lastFilterTag}][${regionLabel}]overlay=x=${x}:y=${y}${enableStr},settb=1/20[out${i}]`;
@@ -352,7 +357,7 @@ export class RenderService {
 
 
     //第四步：从 videos 中取出 drawtext 和 subtitles(硬字幕) 作为全局的滤波器 
-    const textFilters = template.videos.filter(item => item.type === 'subtitles' || item.type === 'drawtext') as Array<any>;
+    const textFilters = template.videos.filter(item => item.type === 'subtitles' || item.type === 'caption') as Array<any>;
     textFilters.sort((a, b) => {
       const layerA = a.id.split('_')[1].split('.')[0];
       const layerB = b.id.split('_')[1].split('.')[0];
@@ -362,10 +367,10 @@ export class RenderService {
 
     const textFiltersSorted = textFilters.map(itemFilter => {
       if (!itemFilter.options) {
-        return `${itemFilter.type}`;
+        return `${itemFilter.name}`;
       }
 
-      let filterStr = `${itemFilter.type}=`;
+      let filterStr = `${itemFilter.name}=`;
       let propertys = []
       for (let [key, val] of Object.entries(itemFilter.options)) {
         propertys.push(`${key}=${val}`);
