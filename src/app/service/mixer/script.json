@@ -1,0 +1,380 @@
+{
+  "scriptId": "script001",
+  "scriptName": "企业宣传视频脚本",
+  "scriptDescription": "企业宣传视频脚本描述.md",
+  "meta": {
+    "size": {
+      "w": 640,
+      "h": 480
+    }
+  },
+  "scenes": [
+    {
+      "sceneId": "scene001",
+      "sceneName": "场景1",
+      "sceneDescription": "场景描述.md",
+      "enable": true,
+      "timeline": {
+        "start": 0,
+        "end": 12
+      },
+      "layout": {
+        "0": {
+          "x": 0,
+          "y": 0,
+          "w": 0.6667,
+          "h": 1,
+          "layer": 0
+        },
+        "1": {
+          "x": 0.3333,
+          "y": 0,
+          "w": 0.3333,
+          "h": 1,
+          "layer": 0
+        }
+      },
+      "captions": [
+        {
+          "text": "test text",
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE1114",
+          "name": "test text",
+          "x": "(w-text_w)/2-n",
+          "y": "h-n*2",
+          "fontfile": "/usr/share/fonts/chinese/SIMKAI.TTF",
+          "fontcolor": "red",
+          "fontsize": 20,
+          "timeline": {
+            "start": 0,
+            "end": 12
+          },
+          "enable": true
+        },
+        {
+          "text": "test text",
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE1114",
+          "name": "test text",
+          "x": "(w-text_w)/2-n",
+          "y": "h-n*2",
+          "fontfile": "/usr/share/fonts/chinese/SIMKAI.TTF",
+          "fontcolor": "red",
+          "fontsize": 20,
+          "timeline": {
+            "start": 0,
+            "end": 12
+          },
+          "enable": false
+        }
+      ],
+      "subtitles": [
+        {
+          "id": "E40CE972-A8EA-4379-85D3-D59F6DAE9324",
+          "enable": true,
+          "track": 5,
+          "type": "subtitles",
+          "name": "subtitles",
+          "options": {
+            "filename": "/opt/application/tx-rtcStream/files/resources/subtitles.srt",
+            "force_style": "'Fontsize=18,PrimaryColour=&H0230bf&'"
+          }
+        }
+      ],
+      "audios": [
+        {
+          "id": "B8B0892BB14FBB07CFA60E38B19242B2",
+          "name": "稻香.mp3",
+          "enable": true,
+          "clip": {
+            "start": 53,
+            "duration": 10,
+            "end": 12
+          },
+          "timeline": {
+            "start": 1,
+            "end": 12,
+            "speed": 1.2
+          },
+          "filters": [
+            {
+              "seq": 0,
+              "name": "afade",
+              "options": {
+                "t": "out",
+                "st": "9",
+                "d": "1"
+              }
+            }
+          ]
+        },
+        {
+          "id": "C246A6CE6683213E43DCD3660616869B",
+          "name": "彩虹.mp3",
+          "enable": true,
+          "clip": {
+            "start": 13,
+            "duration": 30,
+            "end": 12
+          },
+          "timeline": {
+            "start": 1,
+            "end": 12,
+            "speed": 1.2
+          },
+          "filters": [
+            {
+              "seq": 0,
+              "name": "afade",
+              "options": {
+                "t": "in",
+                "st": "0",
+                "d": "1"
+              }
+            }
+          ]
+        }
+      ],
+      "shots": [
+        {
+          "shotId": "shot001",
+          "shotName": "镜头1",
+          "shotDescription": "镜头描述.md",
+          "area": 0,
+          "enable": true,
+          "clips": [
+            {
+              "clipId": "镜头1片段1",
+              "clipName": "片段1",
+              "captions": [],
+              "subtitles": [],
+              "enable": true,
+              "audios": [],
+              "videos": [
+                {
+                  "id": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
+                  "name": "forest.mp4",
+                  "enable": true,
+                  "clip": {
+                    "start": 2,
+                    "duration": 10,
+                    "end": 12
+                  },
+                  "crop": {
+                    "x": "10",
+                    "y": "20",
+                    "w": "200",
+                    "h": "300"
+                  },
+                  "scale": {
+                    "w": "1",
+                    "h": "1"
+                  },
+                  "timeline": {
+                    "start": 1,
+                    "end": 12,
+                    "speed": 1.2
+                  },
+                  "filters": [
+                  ],
+                  "transitions": [
+                    {
+                      "name": "xfade",
+                      "options": {
+                        "transition": "circleclose",
+                        "duration": "2",
+                        "offset": 15
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
+                  "name": "forest.mp4",
+                  "enable": true,
+                  "clip": {
+                    "start": 2,
+                    "duration": 10,
+                    "end": 12
+                  },
+                  "crop": {
+                    "x": "10",
+                    "y": "20",
+                    "w": "200",
+                    "h": "300"
+                  },
+                  "scale": {
+                    "w": "1",
+                    "h": "1"
+                  },
+                  "timeline": {
+                    "start": 1,
+                    "end": 12,
+                    "speed": 1.2
+                  },
+                  "filters": []
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "xfade",
+                  "options": {
+                    "transition": "circleclose",
+                    "duration": "2",
+                    "offset": 15
+                  }
+                }
+              ],
+              "timeline": {
+                "start": 1,
+                "end": 12,
+                "speed": 1.2
+              }
+            },
+            {
+              "clipId": "镜头1片段2",
+              "clipName": "片段2",
+              "captions": [],
+              "subtitles": [],
+              "enable": true,
+              "audios": [],
+              "videos": [
+                {
+                  "id": "690B4DA60D7F49E948A0A708228D5B59",
+                  "name": "20_input",
+                  "enable": true,
+                  "clip": {
+                    "start": 1,
+                    "duration": 10,
+                    "end": 12
+                  },
+                  "crop": {
+                    "x": "10",
+                    "y": "20",
+                    "w": "200",
+                    "h": "300"
+                  },
+                  "scale": {
+                    "w": "-1",
+                    "h": "200"
+                  },
+                  "timeline": {
+                    "start": 1,
+                    "end": 12,
+                    "speed": 1.2
+                  },
+                  "filters": [
+                    {
+                      "name": "zoompan",
+                      "seq": 0,
+                      "options": {
+                        "z": "'if(between(time,0,6),min(max(zoom,pzoom)+0.015,4),1)'",
+                        "d": 480,
+                        "x": "1*iw/3-(1*iw/zoom/3)",
+                        "y": "2*ih/4-(2*ih/zoom/4)"
+                      }
+                    }
+                  ],
+                  "transitions": [
+                    {
+                      "name": "xfade",
+                      "options": {
+                        "transition": "circleclose",
+                        "duration": "2",
+                        "offset": 15
+                      }
+                    }
+                  ]
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "xfade",
+                  "options": {
+                    "transition": "circleclose",
+                    "duration": "2",
+                    "offset": 15
+                  }
+                }
+              ],
+              "timeline": {
+                "start": 1,
+                "end": 12,
+                "speed": 1.2
+              }
+            }
+          ]
+        },
+        {
+          "shotId": "shot002",
+          "shotName": "镜头2",
+          "shotDescription": "镜头描述.md",
+          "area": 1,
+          "enable": true,
+          "clips": [
+            {
+              "clipId": "镜头 2 片段 1",
+              "clipName": "片段1",
+              "captions": [],
+              "subtitles": [],
+              "enable": true,
+              "audios": [],
+              "videos": [
+                {
+                  "id": "873CBB261B2EB0E2FD336A7C4A8CA6C1",
+                  "name": "dog_couch.jpg",
+                  "enable": true,
+                  "clip": {
+                    "start": 1,
+                    "duration": "5.1",
+                    "end": 12
+                  },
+                  "crop": {
+                    "x": "10",
+                    "y": "20",
+                    "w": "200",
+                    "h": "300"
+                  },
+                  "scale": {
+                    "w": "-1",
+                    "h": "200"
+                  },
+                  "timeline": {
+                    "start": 1,
+                    "end": 12,
+                    "speed": 1.2
+                  },
+                  "filters": [
+                  ],
+                  "transitions": [
+                    {
+                      "name": "xfade",
+                      "options": {
+                        "transition": "circleclose",
+                        "duration": "2",
+                        "offset": 15
+                      }
+                    }
+                  ]
+                }
+              ],
+              "transitions": [
+                {
+                  "name": "xfade",
+                  "options": {
+                    "transition": "circleclose",
+                    "duration": "2",
+                    "offset": 15
+                  }
+                }
+              ],
+              "timeline": {
+                "start": 1,
+                "end": 12,
+                "speed": 1.2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
