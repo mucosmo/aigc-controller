@@ -1,0 +1,204 @@
+{
+    "VideoTracks": [
+     {
+      "VideoTrackClips": [
+       {
+        "Type": "Image",
+        "MediaURL": "https://chaosyhy.com:60125/files/synthesis/picc/ppt-1.jpg",
+        "Effects": [],
+        "Duration": 10.815,
+        "X": 0,
+        "Y": 0,
+        "Width": 720,
+        "Height": 1280
+       },
+       {
+        "Type": "Image",
+        "MediaURL": "https://chaosyhy.com:60125/files/synthesis/picc/ppt-2.jpg",
+        "MediaId": "5d6d4840512b71ed8b1c909598416301",
+        "Effects": [],
+        "Duration": 2.408,
+        "TimelineIn": 3,
+        "TimelineOut": 5.407
+       },
+       {
+        "Type": "Image",
+        "MediaURL": "https://chaosyhy.com:60125/files/synthesis/picc/ppt-3.png",
+        "MediaId": "5d6d4840512b71ed8b1c909598416301",
+        "Effects": [],
+        "Duration": 2.408,
+        "TimelineIn": 5.407,
+        "TimelineOut": 7.814
+       },
+       {
+        "Type": "Image",
+        "MediaURL": "https://chaosyhy.com:60125/files/synthesis/picc/ppt-4.jpeg",
+        "MediaId": "5d6d4840512b71ed8b1c909598416301",
+        "Effects": [],
+        "Duration": 2.408,
+        "TimelineIn": 5.407,
+        "TimelineOut": 7.814
+       }
+      ]
+     },
+     {
+      "VideoTrackClips": []
+     },
+     {
+      "VideoTrackClips": []
+     },
+     {
+      "VideoTrackClips": [
+       {
+        "Type": "Video",
+        "MediaId": "28b84430ee8171edb858e7e7e4686302",
+        "Effects": [],
+        "TimelineIn": 0,
+        "TimelineOut": 3,
+        "In": 0,
+        "Out": 0.05,
+        "Duration": 3,
+        "X": 144,
+        "Y": 256,
+        "Width": 412,
+        "Height": 748
+       },
+       {
+        "Type": "Video",
+        "MediaId": "28b84430ee8171edb858e7e7e4686302",
+        "Effects": [],
+        "TimelineIn": 3,
+        "TimelineOut": 5.407,
+        "Duration": 2.408,
+        "X": 144,
+        "Y": 256,
+        "Width": 412,
+        "Height": 748
+       },
+       {
+        "Type": "Video",
+        "MediaId": "31509570ee8171eda5e6f7e7d6786302",
+        "Effects": [],
+        "TimelineIn": 5.407,
+        "TimelineOut": 7.814,
+        "Duration": 2.408,
+        "X": 144,
+        "Y": 256,
+        "Width": 412,
+        "Height": 748
+       },
+       {
+        "Type": "Video",
+        "MediaId": "31509570ee8171eda5e6f7e7d6786302",
+        "Effects": [],
+        "Duration": 3,
+        "X": 144,
+        "Y": 256,
+        "Width": 412,
+        "Height": 748,
+        "In": 2.358,
+        "Out": 2.408,
+        "TimelineIn": 7.814,
+        "TimelineOut": 10.814
+       }
+      ]
+     },
+     {
+      "VideoTrackClips": []
+     }
+    ],
+    "AudioTracks": [
+     {
+      "AudioTrackClips": [
+       {
+        "MediaId": "22d778f0099f71ed8195909598416303",
+        "TimelineIn": 0,
+        "TimelineOut": 3
+       },
+       {
+        "MediaId": "22d778f0099f71ed8195909598416303",
+        "TimelineIn": 7.814,
+        "TimelineOut": 10.814
+       }
+      ]
+     }
+    ],
+    "SubtitleTracks": [
+     {
+      "SubtitleTrackClips": [
+       {
+        "Type": "Text",
+        "Content": "默认视频标题",
+        "TimelineIn": 3,
+        "TimelineOut": 5.407,
+        "X": 0,
+        "Y": 156,
+        "FontColor": "#000000",
+        "Font": "微软雅黑",
+        "FontSize": 36,
+        "FontFace": {
+         "Bold": true,
+         "Italic": false,
+         "Underline": false
+        },
+        "Alignment": "TopCenter"
+       },
+       {
+        "Type": "Text",
+        "Content": "默认标题",
+        "TimelineIn": 5.407,
+        "TimelineOut": 7.814,
+        "X": 0,
+        "Y": 156,
+        "FontColor": "#FFFFFF",
+        "Font": "微软雅黑",
+        "FontSize": 72,
+        "FontFace": {
+         "Bold": true,
+         "Italic": false,
+         "Underline": false
+        },
+        "Alignment": "TopCenter"
+       }
+      ]
+     },
+     {
+      "SubtitleTrackClips": [
+       {
+        "Type": "Text",
+        "Content": "默认字幕，节点1，",
+        "TimelineIn": 3,
+        "TimelineOut": 5.408,
+        "X": 0,
+        "Y": 1200,
+        "FontColor": "#FFFFFF",
+        "Font": "微软雅黑",
+        "FontSize": 36,
+        "FontFace": {
+         "Bold": true,
+         "Italic": false,
+         "Underline": false
+        },
+        "Alignment": "TopCenter"
+       },
+       {
+        "Type": "Text",
+        "Content": "默认字幕，节点2，",
+        "TimelineIn": 5.408,
+        "TimelineOut": 7.816,
+        "X": 0,
+        "Y": 1024,
+        "FontColor": "#FFFFFF",
+        "Font": "微软雅黑",
+        "FontSize": 48,
+        "FontFace": {
+         "Bold": true,
+         "Italic": false,
+         "Underline": false
+        },
+        "Alignment": "TopCenter"
+       }
+      ]
+     }
+    ]
+   }
