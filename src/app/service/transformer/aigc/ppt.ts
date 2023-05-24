@@ -38,25 +38,6 @@ export class AigcPptService {
         return template as unknown as LocalFileDTO;
     }
 
-
-    // {
-    //     "Type": "Text",
-    //     "Content": "默认视频标题",
-    //     "TimelineIn": 3,
-    //     "TimelineOut": 5.407,
-    //     "X": 0,
-    //     "Y": 156,
-    //     "FontColor": "#000000",
-    //     "Font": "微软雅黑",
-    //     "FontSize": 36,
-    //     "FontFace": {
-    //         "Bold": true,
-    //         "Italic": false,
-    //         "Underline": fals
-    //     },
-    //     "Alignment": "TopCenter"
-    // }
-
     private __videosTracksToTemplateVideos(tracks) {
         const videos = []
         tracks.forEach((track, trackIdx) => {
@@ -65,158 +46,70 @@ export class AigcPptService {
                 const clips = track.VideoTrackClips;
                 let currentTime = 0
                 clips.forEach((element, index) => {
-                    let video;
+                    let video = {
+                        "id": `region_${trackIdx}_${index}`,
+                        "type": "video",
+                        "url": element.MediaURL,
+                        "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
+                        "options": [
+                            "-loop 1"
+                        ],
+                        "filters": [
+                            {
+                                "seq": 1,
+                                "name": "scale",
+                                "options": {
+                                    "w": "1280",
+                                    "h": "720"
+                                }
+                            },
+                            {
+                                "seq": 2,
+                                "name": "setsar",
+                                "options": {
+                                    "sar": "1:1"
+                                }
+                            },
+                            {
+                                "seq": 3,
+                                "name": "fps",
+                                "options": {
+                                    "fps": "30"
+                                }
+                            },
+                            {
+                                "seq": 4,
+                                "name": "settb",
+                                "options": {
+                                    "expr": "1/20"
+                                }
+                            }
+                        ],
+                        "area": {
+                            "x": "0",
+                            "y": "0"
+                        },
+                        "transitions": [
+                            {
+                                "name": "xfade",
+                                "options": {
+                                    "transition": "wipeleft",
+                                    "duration": "1",
+                                    "offset": currentTime
+                                },
+                                "to": `region_${trackIdx}_${index + 1}`
+                            }
+                        ]
+                    }
                     currentTime += element.Duration;
                     if (index === clips.length - 1) {
-                        video = {
-                            "id": `region_${trackIdx}_${index}`,
-                            "url": element.MediaURL,
-                            "type": "video",
-                            "srcId": "EE7776FEC0C7EE6F80B5DDA904BD1637",
-                            "options": [
-                                "-loop 1",
-                                `-t ${element.Duration}`
-                            ],
-                            "filters": [
-                                {
-                                    "seq": 1,
-                                    "name": "scale",
-                                    "options": {
-                                        "w": "1280",
-                                        "h": "720"
-                                    }
-                                },
-                                {
-                                    "seq": 2,
-                                    "name": "setsar",
-                                    "options": {
-                                        "sar": "1:1"
-                                    }
-                                },
-                                {
-                                    "seq": 3,
-                                    "name": "fps",
-                                    "options": {
-                                        "fps": "30"
-                                    }
-                                },
-                                {
-                                    "seq": 4,
-                                    "name": "settb",
-                                    "options": {
-                                        "expr": "1/20"
-                                    }
-                                }
-                            ]
-                        }
+                        video.options.push(`-t ${element.Duration}`);
+                        video['transitions'] = undefined;
+                        video['area'] = undefined;
                     } else if (index === 0) {
-                        video = {
-                            "id": `region_${trackIdx}_${index}`,
-                            "type": "video",
-                            "url": element.MediaURL,
-                            "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
-                            "options": [
-                                "-loop 1"
-                            ],
-                            "filters": [
-                                {
-                                    "seq": 1,
-                                    "name": "scale",
-                                    "options": {
-                                        "w": "1280",
-                                        "h": "720"
-                                    }
-                                },
-                                {
-                                    "seq": 2,
-                                    "name": "setsar",
-                                    "options": {
-                                        "sar": "1:1"
-                                    }
-                                },
-                                {
-                                    "seq": 3,
-                                    "name": "fps",
-                                    "options": {
-                                        "fps": "30"
-                                    }
-                                },
-                                {
-                                    "seq": 4,
-                                    "name": "settb",
-                                    "options": {
-                                        "expr": "1/20"
-                                    }
-                                }
-                            ],
-                            "area": {
-                                "x": "0",
-                                "y": "0"
-                            },
-                            "transitions": [
-                                {
-                                    "name": "xfade",
-                                    "options": {
-                                        "transition": "wipeleft",
-                                        "duration": "1",
-                                        "offset": currentTime
-                                    },
-                                    "to": `region_${trackIdx}_${index + 1}`
-                                }
-                            ]
-                        }
+                        video = video
                     } else {
-                        video = {
-                            "id": `region_${trackIdx}_${index}`,
-                            "type": "video",
-                            "url": element.MediaURL,
-                            "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
-                            "options": [
-                                "-loop 1"
-                            ],
-                            "filters": [
-                                {
-                                    "seq": 1,
-                                    "name": "scale",
-                                    "options": {
-                                        "w": "1280",
-                                        "h": "720"
-                                    }
-                                },
-                                {
-                                    "seq": 2,
-                                    "name": "setsar",
-                                    "options": {
-                                        "sar": "1:1"
-                                    }
-                                },
-                                {
-                                    "seq": 3,
-                                    "name": "fps",
-                                    "options": {
-                                        "fps": "30"
-                                    }
-                                },
-                                {
-                                    "seq": 4,
-                                    "name": "settb",
-                                    "options": {
-                                        "expr": "1/20"
-                                    }
-                                }
-                            ],
-                            "transitions": [
-                                {
-                                    "name": "xfade",
-                                    "options": {
-                                        "transition": "wipeleft",
-                                        "duration": "1",
-                                        "offset": currentTime
-                                    },
-                                    "to": `region_${trackIdx}_${index + 1}`
-                                }
-                            ]
-                        }
+                        video['area'] = undefined;
                     }
                     tracks.push(video);
                 });
@@ -304,7 +197,7 @@ export class AigcPptService {
         return templateSubtitles;
     }
 
-    private _audiossTracksToTemplateAudios(tracks){
+    private _audiossTracksToTemplateAudios(tracks) {
         return []
     }
 
