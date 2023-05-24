@@ -33,15 +33,21 @@ export class RenderService {
 
     //初始化数据源
     for (let itemRegion of [...videos, ...audios]) {
-      console.log('---- itemRegion', itemRegion)
-      const srcId = itemRegion.srcId;
-      const key = `ffmpeg:srcs:${srcId.replace(/:/g, '')}`;
-      const origin = await this._app.redis.get(key);
-      if (origin) {
-        itemRegion.src = JSON.parse(origin);
-      } else {
-        throw new HttpError(`数据源不存在: ${srcId}`, 404);
+
+      if(itemRegion.url){
+        console.log(itemRegion.url)
+        itemRegion.src= {path: itemRegion.url}
+      }else{
+        const srcId = itemRegion.srcId;
+        const key = `ffmpeg:srcs:${srcId.replace(/:/g, '')}`;
+        const origin = await this._app.redis.get(key);
+        if (origin) {
+          itemRegion.src = JSON.parse(origin);
+        } else {
+          throw new HttpError(`数据源不存在: ${srcId}`, 404);
+        } 
       }
+
     }
 
     //存储初始化后的模板

@@ -77,6 +77,8 @@ export class FfmpegService {
 
   /**composite video with ffmpeg to generate local file */
   async localFile(data: LocalFileDTO) {
+    const peerId = 'node_' + Math.random().toString(36).slice(2);
+
     const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: 0, skipTime: 0 });
 
     const videoSink = [
@@ -87,15 +89,18 @@ export class FfmpegService {
       `-map "[a]"`
     ].join(' ') : '';
 
+
+    const filePath = path.join(data.sink.path, `${new Date().getTime()}.mp4` )
     const fileSink = [
       videoSink,
       audioSink,
-      `${data.sink.path}`
+      `${filePath}`
     ].join(' ');
 
     const command = [...partialCommand, fileSink].join(' ');
 
-    return await this.executeCommand({ command });;
+     const ret =  await this.executeCommand({ command, peerId });
+     return {mixer: ret, command}
   }
 
   /**get the metadata of files or streams */

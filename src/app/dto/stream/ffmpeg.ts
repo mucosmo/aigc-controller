@@ -59,7 +59,7 @@ export class LocalFileDTO {
   @Rule(RuleType.object({
     globalOptions: RuleType.optional(),
     template: RuleType.required(),
-    srcs: RuleType.required(),
+    srcs: RuleType.optional(),
     outputOptions: RuleType.optional(),
   }
   ).required())
