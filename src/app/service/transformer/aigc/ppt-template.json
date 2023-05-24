@@ -1,0 +1,335 @@
+{
+    "sink": {
+        "roomId": "picc",
+        "userId": "picc001",
+        "deviceName": "FFMPEG",
+        "displayName": "basic",
+        "path": "/opt/application/tx-rtcStream/files/synthesis/picc"
+    },
+    "streams": {
+        "video": true,
+        "audio": true
+    },
+    "render": {
+        "template": {
+            "id": "template123232sdfsde#$",
+            "profile": {
+                "video": 3,
+                "picture": 2,
+                "drawtext": 2,
+                "subtitles": 1
+            },
+            "project": {
+                "width": 1280,
+                "height": 720,
+                "bgColor": "black",
+                "duration": 50
+            },
+            "videos": [
+                {
+                    "id": "region_0.0.2",
+                    "type": "picture",
+                    "url": "/opt/application/tx-streamPpr/picc/ppt-1.jpg",
+                    "srcId": "873CBB261B2EB0E2FD336A7C4A8CA6C1",
+                    "options": [
+                        "-loop 1"
+                    ],
+                    "filters": [
+                        {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "iw",
+                                "h": "ih"
+                            }
+                        }
+                    ],
+                    "area": {
+                        "x": "0",
+                        "y": "0"
+                    },
+                    "transitions": [
+                        {
+                            "name": "xfade",
+                            "options": {
+                                "transition": "wipeleft",
+                                "duration": "1",
+                                "offset": 5
+                            },
+                            "to": "region_0.0.4"
+                        }
+                    ]
+                },
+                {
+                    "id": "region_0.0.4",
+                    "type": "video",
+                    "url": "/opt/application/tx-streamPpr/picc/ppt-5.png",
+                    "srcId": "33279662646DB06A2835809942A44748",
+                    "options": [
+                        "-loop 1"
+                    ],
+                    "filters": [
+                         {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "1280",
+                                "h": "720"
+                            }
+                        },
+                        {
+                            "seq": 2,
+                            "name": "setsar",
+                            "options": {
+                                "sar": "1:1"
+                            }
+                        },
+                        {
+                            "seq": 3,
+                            "name": "fps",
+                            "options": {
+                                "fps": "30"
+                            }
+                        },
+                        {
+                            "seq": 4,
+                            "name": "settb",
+                            "options": {
+                                "expr": "1/20"
+                            }
+                        }
+                    ],
+                    "transitions": [
+                        {
+                            "name": "xfade",
+                            "options": {
+                                "transition": "circleclose",
+                                "duration": "1",
+                                "offset": 10
+                            },
+                            "to": "region_0.0.5"
+                        }
+                    ]
+                },
+                {
+                    "id": "region_0.0.5",
+                    "type": "video",
+                    "url": "/opt/application/tx-streamPpr/picc/ppt-2.jpg",
+                    "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
+                    "options": [
+                        "-loop 1"
+                    ],
+                    "filters": [
+                         {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "1280",
+                                "h": "720"
+                            }
+                        },
+                        {
+                            "seq": 2,
+                            "name": "setsar",
+                            "options": {
+                                "sar": "1:1"
+                            }
+                        },
+                        {
+                            "seq": 3,
+                            "name": "fps",
+                            "options": {
+                                "fps": "30"
+                            }
+                        },
+                        {
+                            "seq": 4,
+                            "name": "settb",
+                            "options": {
+                                "expr": "1/20"
+                            }
+                        }
+                    ],
+                    "transitions": [
+                        {
+                            "name": "xfade",
+                            "options": {
+                                "transition": "dissolve",
+                                "duration": "1",
+                                "offset": 20
+                            },
+                            "to": "region_0.0.6"
+                        }
+                    ]
+                },
+                {
+                    "id": "region_0.0.6",
+                    "type": "video",
+                    "url": "/opt/application/tx-streamPpr/picc/ppt-2.jpg",
+                    "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
+                    "options": [
+                        "-loop 1"
+                    ],
+                    "filters": [
+                         {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "1280",
+                                "h": "720"
+                            }
+                        },
+                        {
+                            "seq": 2,
+                            "name": "setsar",
+                            "options": {
+                                "sar": "1:1"
+                            }
+                        },
+                        {
+                            "seq": 3,
+                            "name": "fps",
+                            "options": {
+                                "fps": "30"
+                            }
+                        },
+                        {
+                            "seq": 4,
+                            "name": "settb",
+                            "options": {
+                                "expr": "1/20"
+                            }
+                        }
+                    ],
+                    "transitions": [
+                        {
+                            "name": "xfade",
+                            "options": {
+                                "transition": "dissolve",
+                                "duration": "1",
+                                "offset": 23
+                            },
+                            "to": "region_0.0.7"
+                        }
+                    ]
+                },
+                {
+                    "id": "region_0.0.7",
+                    "url": "/opt/application/tx-streamPpr/picc/ppt-3.png",
+                    "type": "video",
+                    "srcId": "EE7776FEC0C7EE6F80B5DDA904BD1637",
+                    "options": [
+                        "-loop 1",
+                        "-t 7"
+                    ],
+                    "filters": [
+                        {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "1280",
+                                "h": "720"
+                            }
+                        },
+                        {
+                            "seq": 2,
+                            "name": "setsar",
+                            "options": {
+                                "sar": "1:1"
+                            }
+                        },
+                        {
+                            "seq": 3,
+                            "name": "fps",
+                            "options": {
+                                "fps": "30"
+                            }
+                        },
+                        {
+                            "seq": 4,
+                            "name": "settb",
+                            "options": {
+                                "expr": "1/20"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "id": "region_3.0.1",
+                    "type": "video",
+                    "srcId": "B5B3823C1EB318E9CF526F06EA8F93DB",
+                    "url": "https://digitalhuman-resourse.oss-cn-shanghai.aliyuncs.com/dr-test/1684820145475_afb6e4d8-a30b-43f8-a69e-8c0cc2acc7df.webm",
+                    "options": [],
+                    "filters": [
+                        {
+                            "seq": 1,
+                            "name": "scale",
+                            "options": {
+                                "w": "250",
+                                "h": "-1"
+                            }
+                        },
+                        {
+                            "seq": 3,
+                            "name": "chromakey",
+                            "options": {
+                                "color": "0x00ff00",
+                                "similarity": 0.3,
+                                "blend": 0.05
+                            }
+                        }
+                    ],
+                    "area": {
+                        "x": "0",
+                        "y": "0"
+                    }
+                },
+                {
+                    "id": "region_4.0.0",
+                    "type": "caption",
+                    "name": "drawtext",
+                    "options": {
+                        "text": "你好啊这是PPT标题",
+                        "x": "(w-text_w)/2",
+                        "y": "10",
+                        "fontfile": "/usr/share/fonts/chinese/SIMKAI.TTF",
+                        "fontcolor": "green",
+                        "fontsize": 40
+                    }
+                },
+                {
+                    "id": "region_3.0.0",
+                    "type": "subtitles",
+                    "name": "subtitles",
+                    "options": {
+                        "filename": "/opt/application/tx-rtcStream/files/resources/subtitles.srt",
+                        "force_style": "'Fontsize=18,PrimaryColour=&H0230bf&,Alignment=5,MarginV=50'"
+                    }
+                }
+            ],
+            "audios": [
+                {
+                    "id": "audio_1.0.2",
+                    "type": "audio",
+                    "url": "https://digitalhuman-resourse.oss-cn-shanghai.aliyuncs.com/dr-test/1684820145475_afb6e4d8-a30b-43f8-a69e-8c0cc2acc7df.webm",
+                    "srcId": "B8B0892BB14FBB07CFA60E38B19242B2",
+                    "options": [],
+                    "timeline": {
+                        "start": 0
+                    },
+                    "filters": [
+                        {
+                            "seq": 0,
+                            "name": "afade",
+                            "options": {
+                                "t": "out",
+                                "st": "9",
+                                "d": "1"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
