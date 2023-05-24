@@ -81,23 +81,25 @@ export class FfmpegService {
 
     const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: 0, skipTime: 0 });
 
-    const videoSink = [
-      `-map "[${lastFilterTag}]:v"`
-    ].join(' ');
+    // const videoSink = [
+    //   `-map "[${lastFilterTag}]"`,
+    // ].join(' ');
 
-    const audioSink = data.streams.audio ? [
+    const a = data as any;
+
+    const audioSink = a.render.template.audios.length ? [
       `-map "[a]"`
     ].join(' ') : '';
 
 
     const filePath = path.join(data.sink.path, `${new Date().getTime()}.mp4` )
     const fileSink = [
-      videoSink,
+      // videoSink,
       audioSink,
       `${filePath}`
     ].join(' ');
 
-    const command = [...partialCommand, fileSink].join(' ');
+    const command = [...partialCommand, fileSink].join(' ').replace(`[${lastFilterTag}]`,'');
 
      const ret =  await this.executeCommand({ command, peerId });
      return {mixer: ret, command}

@@ -40,7 +40,7 @@ import {
     })
     @Validate()
     async generateLocalFile(ctx: Context, @Body(ALL) params: TimelineDTO) {
-      let body = this.aigcPptService.ppT2Ffmpeg(params);
+      let body = this.aigcPptService.pptToFfmpeg(params);
       const data = await this.ffmpegService.localFile(body);
       ctx.helper.success({body, data});
     }
