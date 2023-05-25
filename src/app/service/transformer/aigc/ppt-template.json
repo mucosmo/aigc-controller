@@ -4,7 +4,7 @@
         "userId": "picc001",
         "deviceName": "FFMPEG",
         "displayName": "basic",
-        "path": "/opt/application/tx-rtcStream/files/synthesis/picc"
+        "path": "/opt/application/data/aigc/picc"
     },
     "streams": {
         "video": true,

@@ -46,6 +46,7 @@ export class AigcPptService {
                 const clips = track.VideoTrackClips;
                 let currentTime = 0
                 clips.forEach((element, index) => {
+                    currentTime += element.Duration;
                     let video = {
                         "id": `region_${trackIdx}_${index}`,
                         "type": "video",
@@ -101,7 +102,6 @@ export class AigcPptService {
                             }
                         ]
                     }
-                    currentTime += element.Duration;
                     if (index === clips.length - 1) {
                         video.options.push(`-t ${element.Duration}`);
                         video['transitions'] = undefined;
@@ -169,7 +169,7 @@ export class AigcPptService {
                 const timeClip = secondsToTimeline(ele.TimelineIn) + ' --> ' + secondsToTimeline(ele.TimelineOut);
                 subStr += `${idx + 1}\n${timeClip}\n${ele.Content}\n\n`;
             });
-            const file = { data: subStr, path: `/opt/application/tx-rtcStream/files/synthesis/picc/${time}-${trackIdx + 1}.srt`, style: clips[0] };
+            const file = { data: subStr, path: `/opt/application/data/aigc/picc/${time}-${trackIdx + 1}.srt`, style: clips[0] };
             subtitlFiles.push(file);
         })
 
