@@ -33,7 +33,7 @@ export class AigcPptService {
         template.render.template.videos.push(...templateSubtitles);
 
         const templateAudios = this._audiossTracksToTemplateAudios(params.AudioTracks);
-        template.render.template.audios = templateAudios;
+        template.render.template.audios = templateAudios[0];
 
         return template as unknown as LocalFileDTO;
     }
@@ -113,9 +113,8 @@ export class AigcPptService {
                     }
                     tracks.push(video);
                 });
-            } else {
+            } else { // digital human
                 const clips = track.VideoTrackClips;
-                // let currentTime = 0
                 clips.forEach((element, index) => {
                     const video = {
                         "id": `region_${trackIdx}_${index + 1}`,
@@ -124,6 +123,13 @@ export class AigcPptService {
                         "url": element.MediaURL,
                         "options": [],
                         "filters": [
+                            {
+                                "seq": 0,
+                                "name": "setpts",
+                                "options": {
+                                    "expr": `PTS-STARTPTS+${element.TimelineIn}/TB`
+                                }
+                            },
                             {
                                 "seq": 1,
                                 "name": "scale",
@@ -198,7 +204,44 @@ export class AigcPptService {
     }
 
     private _audiossTracksToTemplateAudios(tracks) {
-        return []
+        const audios = [];
+        tracks.forEach((track, trackIdx) => {
+            const clips = track.AudioTrackClips;
+            let audioOneTrack = [];
+            clips.forEach((element, index) => {
+                const audio = {
+                    "id": `region_${trackIdx}_${index + 1}`,
+                    "type": "audio",
+                    "url": element.MediaURL,
+                    "srcId": "B8B0892BB14FBB07CFA60E38B19242B2",
+                    "options": [],
+                    "filters": [
+                        {
+                            "seq": 0,
+                            "name": "asetpts",
+                            "options": {
+                                "expr": `PTS-STARTPTS+${element.TimelineIn}/TB`
+                            }
+                        }
+                        // ,
+                        // {
+                        //     "seq": 1,
+                        //     "name": "afade",
+                        //     "options": {
+                        //         "t": "out",
+                        //         "st": "9",
+                        //         "d": "1"
+                        //     }
+                        // }
+                    ]
+                }
+                audioOneTrack.push(audio)
+            });
+            if (audioOneTrack.length) {
+                audios.push(audioOneTrack);
+            }
+        })
+        return audios;
     }
 
 

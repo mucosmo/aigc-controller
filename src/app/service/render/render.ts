@@ -201,7 +201,7 @@ export class RenderService {
     const inputs = videos.map((region, index) => {
       if (mode === 'ffmpeg') {
         lastFilterTag = region.id;
-        return `[${index}]null[${region.id}]`; // 直接从命令行以 -i 形式输入
+        return `[${index}:v]null[${region.id}]`; // 直接从命令行以 -i 形式输入
       } else {
         return `movie='${region.src.path.replace(':', '\\:')}'[${region.id}]`; // 通过 movie= 形式输入
       }
