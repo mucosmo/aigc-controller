@@ -28,11 +28,11 @@ export class AigcPptService {
         template.render.template.videos = templateVideos[0];
 
         // console.log(templateVideos[1])
-        template.render.template.videos.push(templateVideos[1][1]);
+        template.render.template.videos.push(...templateVideos[1]);
 
         template.render.template.videos.push(...templateSubtitles);
 
-        const templateAudios = this._audiossTracksToTemplateAudios(params.AudioTracks);
+        const templateAudios = this._audioTracksToTemplateAudios(params.AudioTracks);
         template.render.template.audios = templateAudios[0];
 
         return template as unknown as LocalFileDTO;
@@ -88,7 +88,8 @@ export class AigcPptService {
                         ],
                         "area": {
                             "x": "0",
-                            "y": "0"
+                            "y": "0",
+                            enable: this.__overlayEnable(element)
                         },
                         "transitions": [
                             {
@@ -121,7 +122,9 @@ export class AigcPptService {
                         "type": "video",
                         "srcId": "B5B3823C1EB318E9CF526F06EA8F93DB",
                         "url": element.MediaURL,
-                        "options": [],
+                        "options": [
+                            `-t ${element.TimelineOut - element.TimelineIn}`
+                        ],
                         "filters": [
                             {
                                 "seq": 0,
@@ -147,10 +150,22 @@ export class AigcPptService {
                                     "blend": 0.05
                                 }
                             }
+                            // ,
+                            // {
+                            //     "seq": 5,
+                            //     "name": "fade",
+                            //     "options": {
+                            //         "t": "out",
+                            //         "st": `${element.TimelineOut - 0.5}`,
+                            //         "d": "0.5",
+                            //     }
+                            // }
                         ],
                         "area": {
                             "x": element.X,
-                            "y": element.Y
+                            "y": element.Y,
+                            enable: this.__overlayEnable(element)
+
                         }
                     }
                     tracks.push(video)
@@ -203,7 +218,7 @@ export class AigcPptService {
         return templateSubtitles;
     }
 
-    private _audiossTracksToTemplateAudios(tracks) {
+    private _audioTracksToTemplateAudios(tracks) {
         const audios = [];
         tracks.forEach((track, trackIdx) => {
             const clips = track.AudioTrackClips;
@@ -214,25 +229,26 @@ export class AigcPptService {
                     "type": "audio",
                     "url": element.MediaURL,
                     "srcId": "B8B0892BB14FBB07CFA60E38B19242B2",
-                    "options": [],
+                    "options": [
+                        `-t ${element.TimelineOut - element.TimelineIn}`
+                    ],
                     "filters": [
                         {
                             "seq": 0,
-                            "name": "asetpts",
+                            "name": "adelay",
                             "options": {
-                                "expr": `PTS-STARTPTS+${element.TimelineIn}/TB`
+                                "delays": `${element.TimelineIn * 1000}|${element.TimelineIn * 1000} `
+                            }
+                        },
+                        {
+                            "seq": 1,
+                            "name": "afade",
+                            "options": {
+                                "t": "out",
+                                "st": `${element.TimelineOut - 0.5}`,
+                                "d": "0.5"
                             }
                         }
-                        // ,
-                        // {
-                        //     "seq": 1,
-                        //     "name": "afade",
-                        //     "options": {
-                        //         "t": "out",
-                        //         "st": "9",
-                        //         "d": "1"
-                        //     }
-                        // }
                     ]
                 }
                 audioOneTrack.push(audio)
@@ -242,6 +258,13 @@ export class AigcPptService {
             }
         })
         return audios;
+    }
+
+
+    private __overlayEnable(element) {
+        const ovin = element.TimelineIn ?? 0;
+        const ovout = element.TimelineOut ?? element.Duration;
+        return `'between(t, ${ovin}, ${ovout})'`
     }
 
 

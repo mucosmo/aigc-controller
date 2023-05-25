@@ -515,7 +515,7 @@ export class RenderService {
 
     const filterGraphAudio = audiosOutIdx.length === 0 ? '' : [
       ...audiosFilters,
-      `${audiosOutIdx.join('')}concat=n=${audiosOutIdx.length}:v=0:a=1[a];`
+      `${audiosOutIdx.join('')}amix=inputs=${audiosOutIdx.length}:duration=longest[a];`
     ].join('');
 
     return { filterGraphAudio, audios };
