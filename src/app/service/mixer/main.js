@@ -240,6 +240,3 @@ function transSceneToRender(scene, size) {
     return render;
 
 }
-
-
-transformer(script);
