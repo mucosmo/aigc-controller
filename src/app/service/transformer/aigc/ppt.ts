@@ -95,8 +95,8 @@ export class AigcPptService {
                             {
                                 "name": "xfade",
                                 "options": {
-                                    "transition": "wipeleft",
-                                    "duration": "1",
+                                    "transition": element.Effects.Transition?.Name ?? "wipeleft",
+                                    "duration": element.Effects.Transition?.Duration ?? 1,
                                     "offset": currentTime
                                 },
                                 "to": `region_${trackIdx}_${index + 1}`
