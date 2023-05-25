@@ -391,6 +391,8 @@ ffmpeg -ss 20 -t 10 -i /opt/application/tx-rtcStream/files/resources/稻香.mp3 
 
 # 延迟视频中的音频
 ffmpeg -i /opt/application/tx-rtcStream/files/resources/audio_10sOffice.mp4 -af "asetpts='if(lt(T\,0.1),PTS,PTS+4/TB)',aresample=async=1" -c:v copy -y asetpts.mp4
+ffmpeg -i /opt/application/tx-rtcStream/files/resources/audio_10sOffice.mp4 -filter_complex "asetpts= PTS+4/TB" -c:v copy -y asetpts.mp4
+ffmpeg -i /opt/application/tx-rtcStream/files/resources/audio_10sOffice.mp4 -i /opt/application/tx-rtcStream/files/resources/audio_10sOffice.mp4  -filter_complex "[0:a]adelay=2000|2000[a1]; [1:a]adelay=5000|50   00[a2]; [a1][a2]amix=inputs=2:duration=longest[out]" -map "[out]" -y adelay.mp3
 
 
 ffmpeg -ss 20 -t 10 -i /opt/application/tx-rtcStream/files/resources/稻香.mp3 -ss 30 -t 10 -i /opt/application/tx-rtcStream/files/resources/彩虹.mp3 -filter_complex "[0]afade=t=out:st=7:d=3,apad=pad_dur=3[a0];[a0][1]concat=n=2:v=0:a=1" -y concat_apad.mp3
