@@ -76,8 +76,8 @@ export class FfmpegService {
 
 
   /**composite video with ffmpeg to generate local file */
-  async localFile(data: LocalFileDTO) {
-    const peerId = 'node_' + Math.random().toString(36).slice(2);
+  async localFile(data: LocalFileDTO, user: any) {
+    // const peerId = 'node_' + Math.random().toString(36).slice(2);
 
     const { partialCommand, lastFilterTag } = await this.filterComplex({ ...data, startFrame: 0, skipTime: 0 });
 
@@ -92,17 +92,16 @@ export class FfmpegService {
     ].join(' ') : '';
 
 
-    const filePath = path.join(data.sink.path, `${new Date().getTime()}.mp4` )
     const fileSink = [
       videoSink,
       audioSink,
-      `${filePath}`
+      data.sink.path
     ].join(' ');
 
     const command = [...partialCommand, fileSink].join(' ');
 
-     const ret =  await this.executeCommand({ command, peerId });
-     return {mixer: ret, command}
+    const ret = await this.executeCommand({ command, peerId: user.name, roomId: user.tenant, duration: 20 });
+    return { mixer: ret, command }
   }
 
   /**get the metadata of files or streams */
@@ -186,7 +185,7 @@ export class FfmpegService {
   }
 
   /**send to server to execute ffmpeg command */
-  async executeCommand(data: { command: string, roomId?: string, peerId?: string }) {
+  async executeCommand(data: { command: string, roomId?: string, peerId?: string, duration?: number }) {
     const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command`;
     const result = await this._app.curl(url, {
       method: 'POST',

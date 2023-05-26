@@ -77,6 +77,15 @@ export = {
     this.ctx.status = status;
   },
 
+  fail(this: any, result = null, message = '发生错误', status = 500) {
+    this.ctx.body = {
+      code: status,
+      message,
+      data: result,
+    };
+    this.ctx.status = status;
+  },
+
   /**
    * 处理失败响应(未使用，暂时注释)
    * @param ctx

@@ -1,13 +1,14 @@
 
-import { Provide, Inject } from '@midwayjs/decorator';
+import { Provide, Inject, App } from '@midwayjs/decorator';
 
-import { Context, } from '@/interface';
+import { Context, Application } from '@/interface';
 
 import { TimelineDTO } from '../../../dto/aigc/ppt';
 import { LocalFileDTO } from '@/app/dto/stream/ffmpeg';
 
 import fs from 'fs';
 import path from 'path';
+import moment from 'moment';
 
 
 @Provide()
@@ -15,16 +16,30 @@ export class AigcPptService {
     @Inject()
     ctx: Context;
 
+    @App()
+    private _app!: Application;
+
     pptToFfmpeg(params: TimelineDTO) {
         const template = JSON.parse(fs.readFileSync(path.join(__dirname, './ppt-template.json'), 'utf-8'));
-        console.log(template.sink);
+        const dir = `/opt/application/data/aigc/${params.user.tenant}/${params.user.name}`;
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+
+        const filePath = path.join(dir, `${moment().format('YYYYMMDD_HHmmss')}.mp4`);
+        template.sink = {
+            roomId: params.user.tenant,
+            userId: params.user.name,
+            path: filePath,
+            url: filePath.replace('/opt/application', 'https://chaosyhy.com:60125')
+        }
 
         // subtitles
-        const templateSubtitles = this.__subtitleTracksToTemplateSubtitles(params.SubtitleTracks);
-        console.log(templateSubtitles);
+        const templateSubtitles = this.__subtitleTracksToTemplateSubtitles(params.data.SubtitleTracks, dir);
 
         // slides
-        const templateVideos = this.__videosTracksToTemplateVideos(params.VideoTracks);
+        const templateVideos = this.__videosTracksToTemplateVideos(params.data.VideoTracks);
         template.render.template.videos = templateVideos[0];
 
         // console.log(templateVideos[1])
@@ -32,10 +47,15 @@ export class AigcPptService {
 
         template.render.template.videos.push(...templateSubtitles);
 
-        const templateAudios = this._audioTracksToTemplateAudios(params.AudioTracks);
+        const templateAudios = this._audioTracksToTemplateAudios(params.data.AudioTracks);
         template.render.template.audios = templateAudios[0];
 
         return template as unknown as LocalFileDTO;
+    }
+
+    ffmpegProgress(user) {
+        const key = `ppt2videoProgress:${user.tenant}_${user.name}`
+        return this._app.redis.get(key);
     }
 
     private __videosTracksToTemplateVideos(tracks) {
@@ -50,7 +70,7 @@ export class AigcPptService {
                     let video = {
                         "id": `region_${trackIdx}_${index}`,
                         "type": "video",
-                        "url": element.MediaURL,
+                        "url": element.Path ?? element.MediaURL,
                         "srcId": "5B88FB00A7B75BF6A31BBC9A1DA269D5",
                         "options": [
                             "-loop 1"
@@ -121,7 +141,7 @@ export class AigcPptService {
                         "id": `region_${trackIdx}_${index + 1}`,
                         "type": "video",
                         "srcId": "B5B3823C1EB318E9CF526F06EA8F93DB",
-                        "url": element.MediaURL,
+                        "url": element.Path ?? element.MediaURL,
                         "options": [
                             `-t ${element.TimelineOut - element.TimelineIn}`
                         ],
@@ -179,7 +199,7 @@ export class AigcPptService {
         return videos;
     }
 
-    private __subtitleTracksToTemplateSubtitles(tracks) {
+    private __subtitleTracksToTemplateSubtitles(tracks, dir) {
         const subtitlFiles = [];
         const time = new Date().getTime();
         tracks.forEach((track, trackIdx) => {
@@ -190,7 +210,7 @@ export class AigcPptService {
                 const timeClip = secondsToTimeline(ele.TimelineIn) + ' --> ' + secondsToTimeline(ele.TimelineOut);
                 subStr += `${idx + 1}\n${timeClip}\n${ele.Content}\n\n`;
             });
-            const file = { data: subStr, path: `/opt/application/data/aigc/picc/${time}-${trackIdx + 1}.srt`, style: clips[0] };
+            const file = { data: subStr, path: path.join(dir, `${time}-${trackIdx + 1}.srt`), style: clips[0] };
             subtitlFiles.push(file);
         })
 
@@ -227,7 +247,7 @@ export class AigcPptService {
                 const audio = {
                     "id": `region_${trackIdx}_${index + 1}`,
                     "type": "audio",
-                    "url": element.MediaURL,
+                    "url": element.Path ?? element.MediaURL,
                     "srcId": "B8B0892BB14FBB07CFA60E38B19242B2",
                     "options": [
                         `-t ${element.TimelineOut - element.TimelineIn}`

@@ -68,7 +68,7 @@ export class FfmepegController {
   })
   @Validate()
   async generateLocalFile(ctx: Context, @Body(ALL) params: LocalFileDTO) {
-    const data = await this.ffmpegService.localFile(params);
+    const data = await this.ffmpegService.localFile(params, {});
     ctx.helper.success(data);
   }
 
