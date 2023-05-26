@@ -17,7 +17,7 @@ import path from 'path';
 
 import { Repository } from 'typeorm';
 
-import { RtcAssetModel } from '/opt/application/tx-streamPpr/src/app/model/rtc-asset';
+import { RtcAssetModel } from '../../model/rtc-asset';
 
 import { InjectEntityModel } from '@midwayjs/orm';
 
