@@ -18,3 +18,5 @@ docs
 .serverless
 .fun
 .env
+
+src/app/public/apidoc

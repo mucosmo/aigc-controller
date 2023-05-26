@@ -24,3 +24,10 @@ mv .env.example .env
 ```bash
 npm run start
 ```
+
+## 文档
+
+```bash
+# 生成接口文档
+apidoc -i src/app/controller/ -o src/app/public/apidoc
+```
