@@ -54,7 +54,10 @@ export class AigcController {
   @Validate()
   async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { user: { tenant: string, name: string, path: string } }) {
     // const ret = fs.existsSync(params.user.path)
-    const progress = this.aigcPptService.ffmpegProgress(params.user);
+    let progress = parseFloat(await this.aigcPptService.ffmpegProgress(params.user));
+    if (progress > 0.98) {
+      progress = 1
+    }
     ctx.helper.success({ progress });
   }
 

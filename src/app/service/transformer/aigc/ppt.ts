@@ -53,9 +53,9 @@ export class AigcPptService {
         return template as unknown as LocalFileDTO;
     }
 
-    ffmpegProgress(user) {
-        const key = `ppt2videoProgress:${user.tenant}_${user.name}`
-        return this._app.redis.get(key);
+    async ffmpegProgress(user) {
+        const key = `ppt2videoProgress:${user.tenant}_${user.name}`;
+        return await this._app.redis.get(key);
     }
 
     private __videosTracksToTemplateVideos(tracks) {
