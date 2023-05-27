@@ -18,6 +18,7 @@ import { AigcPptService } from '../../service/transformer/aigc/ppt';
 import { FfmpegService } from '../../service/stream/ffmpeg';
 
 import { AigcUploadService } from '@/app/service/upload/aigc';
+import { UploadFileDTO } from '@/app/dto/aigc/upload';
 
 
 @Provide()
@@ -120,7 +121,7 @@ export class AigcController {
     description: '',
   })
   @Validate()
-  async upload(ctx: Context, @Body(ALL) params: any) {
+  async upload(ctx: Context, @Body(ALL) params: UploadFileDTO) {
     const ret = await this.aigcUploadService.save(params);
     ctx.helper.success(ret);
   }
