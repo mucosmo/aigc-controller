@@ -55,7 +55,13 @@ export class AigcPptService {
 
     async ffmpegProgress(user) {
         const key = `ppt2videoProgress:${user.tenant}_${user.name}`;
-        return await this._app.redis.get(key);
+        let info = JSON.parse(await this._app.redis.get(key));
+        let occupied = info.occupied;
+        let progress = info.progress;
+        if (progress > 0.98) {
+            progress = 1;
+        }
+        return {progress,occupied};
     }
 
     private __videosTracksToTemplateVideos(tracks) {

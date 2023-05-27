@@ -1,6 +1,6 @@
 # PPT 生成视频接口文档
 
-## 总体说明
+### 说明
 
 请求：所有接口请求的形式是 HTTP POST 请求，请求体为 JSON 格式
 
@@ -15,7 +15,7 @@ data具体内容在接口中详细描述。
 ### 上传文件
 
 **请求地址：**
- `https://chaosyhy.com:60126/upload/:tenant/:user`
+ `POST https://chaosyhy.com:60126/upload/:tenant/:user`
 
 **params 参数含义如下：**
 | 字段 | 类型 |  必须  | 说明 |
@@ -51,7 +51,7 @@ data具体内容在接口中详细描述。
 
 **请求地址**：
 
- `https://chaosyhy.com:60124/aigc/ppt2video`
+ `POST https://chaosyhy.com:60124/aigc/ppt2video`
 
 **请求参数定义：**
 
@@ -65,7 +65,7 @@ data具体内容在接口中详细描述。
 | asset. AudioTracks | Array | 音频轨道 |
 | asset. SubtitleTracks | Array | 字幕轨道 |
 
-**请求参数示例**：
+**请求示例**：
 
 ```json
 {
@@ -73,7 +73,7 @@ data具体内容在接口中详细描述。
         "tenant": "picc",
         "name": "user01"
     },
-    "data": {
+    "asset": {
         "VideoTracks": [
             {
                 "VideoTrackClips": [
@@ -250,9 +250,6 @@ data具体内容在接口中详细描述。
     "message": "请求成功",
     "data": {
         "sink": {
-            "roomId": "picc",
-            "userId": "user01",
-            "path": "/opt/application/data/aigc/picc/user01/20230527_075432.mp4",
             "url": "https://chaosyhy.com:60125/data/aigc/picc/user01/20230527_075432.mp4"
         }
     }
@@ -262,14 +259,25 @@ data具体内容在接口中详细描述。
 ### 查询合成进度
 
 **请求地址：**
- `https://chaosyhy.com:60124/aigc/ppt2video/progress`
+ `POST https://chaosyhy.com:60124/aigc/ppt2video/progress`
 
 **body参数定义：**
 | 参数名称 | 类型   |  描述  |
 | :------:    | :----:  | :----:  |
-| user |   Object   |   公司名称   |
-|user.tenant   |   String   |   用户所属租乎   |
+| user |   Object   |   用户信息   |
+|user.tenant   |   String   |   用户所属租户   |
 | user.name |   String   | 用户名 |
+
+**请求示例：**
+
+```json
+{
+    "user": {
+        "tenant": "picc",
+        "name": "user01"
+    }
+}
+```
 
 **返回结构：**
 

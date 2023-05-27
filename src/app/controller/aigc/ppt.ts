@@ -66,9 +66,17 @@ export class AigcController {
   })
   @Validate()
   async generateLocalFile(ctx: Context, @Body(ALL) params: TimelineDTO) {
-    let body = this.aigcPptService.pptToFfmpeg(params);
-    const command = await this.ffmpegService.localFile(body, params.user);
-    ctx.helper.success({ sink: body.sink, command });
+    const ret = await this.aigcPptService.ffmpegProgress(params.user);
+    if (ret.occupied) {
+      ctx.helper.fail({ occupied: ret.occupied }, '被占用，请稍后', 409);
+      return;
+    }
+    const body = this.aigcPptService.pptToFfmpeg(params);
+    await this.ffmpegService.localFile(body, params.user);
+    body.sink.roomId = undefined;
+    body.sink.userId = undefined;
+    body.sink.path = undefined;
+    ctx.helper.success({ sink: body.sink });
   }
 
 
@@ -98,12 +106,8 @@ export class AigcController {
   @Validate()
   async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { user: { tenant: string, name: string, path: string } }) {
     // const ret = fs.existsSync(params.user.path)
-    const progress = parseFloat(await this.aigcPptService.ffmpegProgress(params.user)).toFixed(3);
-    let ret = parseFloat(progress)
-    if (ret > 0.98) {
-      ret = 1
-    }
-    ctx.helper.success({ progress: ret });
+    const ret = await this.aigcPptService.ffmpegProgress(params.user);
+    ctx.helper.success({ progres: ret.progress });
   }
 
 }

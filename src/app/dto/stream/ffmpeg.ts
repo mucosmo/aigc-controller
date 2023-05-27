@@ -44,6 +44,14 @@ class FileSinkDTO {
   @CreateApiPropertyDoc('文件名')
   @Rule(RuleType.string().required())
   path: string;
+
+  @CreateApiPropertyDoc('房间id')
+  @Rule(RuleType.string().optional())
+  roomId: string;
+
+  @CreateApiPropertyDoc('用户id')
+  @Rule(RuleType.string().optional())
+  userId: string;
 }
 
 export class LocalFileDTO {
