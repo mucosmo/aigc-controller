@@ -3,7 +3,7 @@ import { Provide, Inject, App } from '@midwayjs/decorator';
 
 import { Context, Application } from '@/interface';
 
-import { TimelineDTO } from '../../../dto/aigc/ppt';
+import { TimelineDataDTO, TimelineDTO } from '../../../dto/aigc/ppt';
 import { LocalFileDTO } from '@/app/dto/stream/ffmpeg';
 
 import fs from 'fs';
@@ -61,7 +61,7 @@ export class AigcPptService {
         if (progress > 0.98) {
             progress = 1;
         }
-        return {progress,occupied};
+        return { progress, occupied };
     }
 
     private __videosTracksToTemplateVideos(tracks) {
@@ -286,6 +286,50 @@ export class AigcPptService {
         return audios;
     }
 
+
+    /**
+     * 从 资源中 计算合成后视频时长
+     * @param asset 
+     */
+    calDuration(asset: TimelineDataDTO) {
+
+        let duration = 0;
+
+        const videoTracks = asset.VideoTracks as any[];
+        const audioTracks = asset.AudioTracks as any[];
+        // const subtitleTracks = asset.SubtitleTracks as any[];
+
+        videoTracks.forEach(element => {
+            const clips = element.VideoTrackClips;
+            clips.forEach(clip => {
+                const timelineOut = clip.TimelineOut;
+                if (timelineOut > duration) {
+                    duration = timelineOut;
+                }
+            })
+        });
+
+        audioTracks.forEach(element => {
+            const clips = element.AudioTrackClips;
+            clips.forEach(clip => {
+                const timelineOut = clip.TimelineOut;
+                if (timelineOut > duration) {
+                    duration = timelineOut;
+                }
+            })
+        });
+
+        // subtitleTracks.forEach(element => {
+        //     const clips = element.SubtitleTrackClips;
+        //     clips.forEach(clip => {
+        //         const timelineOut = clip.TimelineOut;
+        //         if (timelineOut > duration) {
+        //             duration = timelineOut;
+        //         }
+        //     })
+        // });
+        return duration;
+    }
 
     private __overlayEnable(element) {
         const ovin = element.TimelineIn ?? 0;

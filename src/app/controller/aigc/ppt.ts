@@ -72,6 +72,8 @@ export class AigcController {
       return;
     }
     const body = this.aigcPptService.pptToFfmpeg(params);
+    const duration = this.aigcPptService.calDuration(params.asset);
+    params.user.duration = duration;
     await this.ffmpegService.localFile(body, params.user);
     body.sink.roomId = undefined;
     body.sink.userId = undefined;

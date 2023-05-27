@@ -4,7 +4,7 @@ import { CreateApiPropertyDoc } from '@midwayjs/swagger';
 
 
 
- export class TimelineDataDTO {
+export class TimelineDataDTO {
   @CreateApiPropertyDoc('视频轨道')
   @Rule(RuleType.array().required())
   VideoTracks: object;
@@ -27,6 +27,12 @@ export class TimelineUserDTO {
   @CreateApiPropertyDoc('用户名')
   @Rule(RuleType.string().required())
   name: string;
+
+
+  @CreateApiPropertyDoc('时长')
+  @Rule(RuleType.number().optional())
+  duration: number;
+
 }
 
 

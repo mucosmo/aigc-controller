@@ -100,7 +100,7 @@ export class FfmpegService {
 
     const command = [...partialCommand, fileSink].join(' ');
 
-    const ret = await this.executeCommand({ command, peerId: user.name, roomId: user.tenant, duration: 20 });
+    const ret = await this.executeCommand({ command, peerId: user.name, roomId: user.tenant, duration: user.duration });
     return { mixer: ret, command }
   }
 

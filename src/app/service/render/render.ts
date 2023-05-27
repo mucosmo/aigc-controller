@@ -35,7 +35,6 @@ export class RenderService {
     for (let itemRegion of [...videos, ...audios]) {
 
       if(itemRegion.url){
-        console.log(itemRegion.url)
         itemRegion.src= {path: itemRegion.url}
       }else{
         const srcId = itemRegion.srcId;
