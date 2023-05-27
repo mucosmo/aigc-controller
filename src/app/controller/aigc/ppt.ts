@@ -68,7 +68,7 @@ export class AigcController {
   async generateLocalFile(ctx: Context, @Body(ALL) params: TimelineDTO) {
     const ret = await this.aigcPptService.ffmpegProgress(params.user);
     if (ret.occupied) {
-      ctx.helper.fail({ occupied: ret.occupied }, '被占用，请稍后', 409);
+      ctx.helper.fail({ status: ret }, '被占用，请稍后', 409);
       return;
     }
     const body = this.aigcPptService.pptToFfmpeg(params);
@@ -108,8 +108,8 @@ export class AigcController {
   @Validate()
   async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { user: { tenant: string, name: string, path: string } }) {
     // const ret = fs.existsSync(params.user.path)
-    const ret = await this.aigcPptService.ffmpegProgress(params.user);
-    ctx.helper.success({ progres: ret.progress });
+    const progress = await this.aigcPptService.ffmpegProgress(params.user);
+    ctx.helper.success({ status: progress });
   }
 
 }
