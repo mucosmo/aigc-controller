@@ -86,5 +86,9 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
     port: 60123
   };
 
+  config.bodyParser ={
+    jsonLimit: '50mb',
+  }
+
   return config;
 };

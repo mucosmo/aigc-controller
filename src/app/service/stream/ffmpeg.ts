@@ -116,7 +116,7 @@ export class FfmpegService {
       if (stored) {
         metadata = JSON.parse(stored);
       } else {
-        metadata = await asyncFfprobe(path);
+        metadata = await this.asyncFfprobe(path);
         this._app.redis.set(key, JSON.stringify(metadata), 'EX', OneDaySeconds);
       }
       filesMeta[path] = metadata;
@@ -134,7 +134,7 @@ export class FfmpegService {
       const md5 = crypto.createHash('md5').update(val.url).digest('hex').toUpperCase();
       const redisKey = `ffmpeg:srcs:${md5}`;
 
-      val.metadata = await asyncFfprobe(filePath);
+      val.metadata = await this.asyncFfprobe(filePath);
 
       await this._app.redis.set(redisKey, JSON.stringify(val));
 
@@ -222,19 +222,21 @@ export class FfmpegService {
     //FIXME: currentTime shoudl be true value instead of 0
     return { currentFrame: 0, currentTime: 0 && currentTime };
   }
+
+  async  asyncFfprobe(path) {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(path, (err, metadata) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(metadata);
+        }
+      });
+    });
+  };
 }
 
-async function asyncFfprobe(path) {
-  return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(path, (err, metadata) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(metadata);
-      }
-    });
-  });
-};
+
 
 // function parseFrame(data) {
 //   // frame=   10 fps=6.9 q=16.0 size=      45kB time=00:00:00.36 bitrate=1030.9kbits/s speed=0.249x
