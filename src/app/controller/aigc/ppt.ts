@@ -17,7 +17,7 @@ import { TimelineDTO } from '../../dto/aigc/ppt';
 import { AigcPptService } from '../../service/transformer/aigc/ppt';
 import { FfmpegService } from '../../service/stream/ffmpeg';
 
-// import fs from 'fs';
+import { AigcUploadService } from '@/app/service/upload/aigc';
 
 
 @Provide()
@@ -31,6 +31,9 @@ export class AigcController {
 
   @Inject('ffmpegService')
   ffmpegService: FfmpegService;
+
+  @Inject('aigcUploadService')
+  aigcUploadService: AigcUploadService;
 
   @Inject('mixerService')
   mixerService: MixerService;
@@ -110,6 +113,16 @@ export class AigcController {
     // const ret = fs.existsSync(params.user.path)
     const progress = await this.aigcPptService.ffmpegProgress(params.user);
     ctx.helper.success({ status: progress });
+  }
+
+  @Post('/upload', {
+    summary: '上传文件',
+    description: '',
+  })
+  @Validate()
+  async upload(ctx: Context, @Body(ALL) params: any) {
+    const ret = await this.aigcUploadService.save(params);
+    ctx.helper.success(ret);
   }
 
 }
