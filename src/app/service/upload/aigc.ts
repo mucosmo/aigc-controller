@@ -23,8 +23,8 @@ export class AigcUploadService {
     ffmpegService: FfmpegService;
 
     async save(params) {
-        const { user, file, bufferData } = params;
-        const fileData = Buffer.from(bufferData);
+        const { user, file } = params;
+        const fileData = Buffer.from(file.data);
 
         const staticPath = '/opt/application';
         const host = 'https://chaosyhy.com:60125';
