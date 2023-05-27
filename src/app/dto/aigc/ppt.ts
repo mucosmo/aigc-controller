@@ -33,7 +33,7 @@ export class TimelineUserDTO {
 export class TimelineDTO {
   @CreateApiPropertyDoc('ppt 数据结构')
   @Rule(RuleType.object().required())
-  data: TimelineDataDTO;
+  asset: TimelineDataDTO;
 
   @CreateApiPropertyDoc('音频轨道')
   @Rule(RuleType.object().required())

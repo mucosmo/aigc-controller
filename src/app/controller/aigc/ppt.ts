@@ -41,9 +41,9 @@ export class AigcController {
    * @apiName GenerateVideo
    * @apiGroup AIGC
    *
-   * @apiBody {Object} user  用户信息 <required>.
-   * @apiBody {String} user.tenant  所属租户
-   * @apiBody {String} user.name   用户名
+   * @apiBody {Object} data  用户信息
+   * @apiBody {String} data.user.tenant  所属租户
+   * @apiBody {String} data.user.name   用户名 
    *
    * @apiSuccess {String} path  视频路径
    * @apiSuccess {String} url  视频 url
@@ -98,11 +98,12 @@ export class AigcController {
   @Validate()
   async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { user: { tenant: string, name: string, path: string } }) {
     // const ret = fs.existsSync(params.user.path)
-    let progress = parseFloat(await this.aigcPptService.ffmpegProgress(params.user));
-    if (progress > 0.98) {
-      progress = 1
+    const progress = parseFloat(await this.aigcPptService.ffmpegProgress(params.user)).toFixed(3);
+    let ret = parseFloat(progress)
+    if (ret > 0.98) {
+      ret = 1
     }
-    ctx.helper.success({ progress });
+    ctx.helper.success({ progress: ret });
   }
 
 }

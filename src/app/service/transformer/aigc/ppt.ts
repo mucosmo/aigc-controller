@@ -36,10 +36,10 @@ export class AigcPptService {
         }
 
         // subtitles
-        const templateSubtitles = this.__subtitleTracksToTemplateSubtitles(params.data.SubtitleTracks, dir);
+        const templateSubtitles = this.__subtitleTracksToTemplateSubtitles(params.asset.SubtitleTracks, dir);
 
         // slides
-        const templateVideos = this.__videosTracksToTemplateVideos(params.data.VideoTracks);
+        const templateVideos = this.__videosTracksToTemplateVideos(params.asset.VideoTracks);
         template.render.template.videos = templateVideos[0];
 
         // console.log(templateVideos[1])
@@ -47,7 +47,7 @@ export class AigcPptService {
 
         template.render.template.videos.push(...templateSubtitles);
 
-        const templateAudios = this._audioTracksToTemplateAudios(params.data.AudioTracks);
+        const templateAudios = this._audioTracksToTemplateAudios(params.asset.AudioTracks);
         template.render.template.audios = templateAudios[0];
 
         return template as unknown as LocalFileDTO;
