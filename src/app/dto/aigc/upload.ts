@@ -16,7 +16,7 @@ export class UploadFileDTO {
     @Rule(RuleType.object(
         {
             name: RuleType.string().required(),
-            data: RuleType.binary().required(),
+            data: RuleType.any().required(),
         }
     ).required())
     file: object;
