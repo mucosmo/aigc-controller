@@ -30,6 +30,11 @@ export class AigcUploadService {
         const host = 'https://chaosyhy.com:60125';
         const fileName = path.basename(file.name);
         const uploadFolder = path.join(staticPath, '/data/aigc/', user.tenant, user.name);
+
+        if (!fs.existsSync(uploadFolder)) {
+            fs.mkdirSync(uploadFolder, { recursive: true });
+        }
+
         const uniqueSuffix = moment().format('YYMMDD_HHmmss') + '_' + crypto.createHash('md5').update(fileName + Math.round(Math.random() * 1E9)).digest('hex').slice(0, 10);
         const filePath = path.join(uploadFolder, uniqueSuffix + path.extname(file.name));
 
