@@ -71,7 +71,7 @@ export class AigcController {
   @Validate()
   async generateLocalFile(ctx: Context, @Body(ALL) params: TimelineDTO) {
     const ret = await this.aigcPptService.ffmpegProgress(params.user);
-    if (ret.occupied) {
+    if (ret && ret.occupied) {
       ctx.helper.fail({ status: ret }, '被占用，请稍后', 409);
       return;
     }
