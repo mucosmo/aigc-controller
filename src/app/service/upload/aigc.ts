@@ -42,11 +42,18 @@ export class AigcUploadService {
 
         const url = filePath.replace(staticPath, host);
 
-        const metadata = await this.ffmpegService.asyncFfprobe(filePath) as { format: { duration: number } };
-        let duration = metadata.format.duration;
-        if (!(duration > 0.1)) {
-            duration = undefined
+        let duration = 0;
+
+        try {
+            const metadata = await this.ffmpegService.asyncFfprobe(filePath) as { format: { duration: number } };
+            duration = metadata.format.duration;
+            if (!(duration > 0.1)) {
+                duration = undefined
+            }
+        } catch (err) {
+            console.error(err)
         }
+
         return { path: filePath, url, duration };
     }
 
