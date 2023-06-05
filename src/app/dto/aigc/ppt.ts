@@ -46,3 +46,22 @@ export class TimelineDTO {
   user: TimelineUserDTO;
 }
 
+class FileDTO {
+  @CreateApiPropertyDoc('ppt 数据结构')
+  @Rule(RuleType.string().required())
+  path: string;
+
+}
+
+
+export  class PptToImageDTO {
+
+  @CreateApiPropertyDoc('文件路径')
+  @Rule(RuleType.object().required())
+  file: FileDTO;
+
+  @CreateApiPropertyDoc('用户信息')
+  @Rule(RuleType.object().required())
+  user: TimelineUserDTO;
+}
+

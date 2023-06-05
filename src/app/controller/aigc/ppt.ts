@@ -12,7 +12,7 @@ import { Context } from '@/interface';
 
 
 import { MixerService } from '../../service/mixer/mixer';
-import { TimelineDTO } from '../../dto/aigc/ppt';
+import { TimelineDTO, PptToImageDTO } from '../../dto/aigc/ppt';
 
 import { AigcPptService } from '../../service/transformer/aigc/ppt';
 import { FfmpegService } from '../../service/stream/ffmpeg';
@@ -126,4 +126,26 @@ export class AigcController {
     ctx.helper.success(ret);
   }
 
+  @Post('/ppt2img', {
+    summary: 'ppt 转图片',
+    description: '',
+  })
+  @Validate()
+  async ppt2Image(ctx: Context, @Body(ALL) body: PptToImageDTO) {
+    const taskId = await this.aigcPptService.ppt2Image(body);
+    ctx.helper.success({ taskId });
+  }
+
+  @Post('/ppt2img/callback', {
+    summary: 'ppt 转图片',
+    description: '',
+  })
+  @Validate()
+  async ppt2ImageCallback(ctx: Context, @Body(ALL) body: any) {
+    const {taskId, output} = body;
+    const images = await this.aigcPptService.ppt2ImageCallback(output);
+
+    await this.aigcPptService.callbackRemote(taskId, images);
+    ctx.helper.success(images);
+  }
 }

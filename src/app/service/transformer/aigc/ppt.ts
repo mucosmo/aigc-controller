@@ -11,6 +11,11 @@ import path from 'path';
 import moment from 'moment';
 
 
+const AIGC_VIDEO_SERVER_HOST = process.env.AIGC_VIDEO_SERVER_HOST;
+const AICG_PPT_IMAGE_REMOTE_URL = process.env.AICG_PPT_IMAGE_REMOTE_URL;
+
+
+
 @Provide()
 export class AigcPptService {
     @Inject()
@@ -56,13 +61,74 @@ export class AigcPptService {
     async ffmpegProgress(user) {
         const key = `ppt2videoProgress:${user.tenant}_${user.name}`;
         let info = JSON.parse(await this._app.redis.get(key));
-        if(!info) return null;
+        if (!info) return null;
         let occupied = info.occupied;
         let progress = info.progress;
         if (progress > 0.98) {
             progress = 1;
         }
         return { progress, occupied };
+    }
+
+    async ppt2Image(body: any) {
+        const { user, file } = body;
+
+        const staticPath = '/opt/application';
+
+        const uploadFolder = path.join(staticPath, '/data/aigc/', user.tenant, user.name);
+
+        if (!fs.existsSync(uploadFolder)) {
+            fs.mkdirSync(uploadFolder, { recursive: true });
+        }
+
+        const outputFolder = `${uploadFolder}/output`;
+        if (!fs.existsSync(outputFolder)) {
+            fs.mkdirSync(outputFolder, { recursive: true });
+        }
+
+        const fileName = path.basename(file.path, path.extname(file.path))
+
+        const taskId = moment().format('YYMMDD_HHmmss') + '_' + Math.random().toString(36).slice(2);
+        const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${uploadFolder};convert -density 200 -quality 80 ${uploadFolder}/${fileName}.pdf ${outputFolder}/%03d.jpg &`
+
+        const data = { taskId, command, output: outputFolder };
+        const url = `${AIGC_VIDEO_SERVER_HOST}/api/ppt/image`;
+        await this._app.curl(url, {
+            method: 'POST',
+            data
+        });
+
+        return taskId;
+    }
+
+    async ppt2ImageCallback(output: any) {
+        const staticPath = '/opt/application';
+        const host = 'https://chaosyhy.com:60125';
+
+        const images = fs.readdirSync(output);
+        const results = images.map(image => {
+            const filePath = path.join(output, image);
+            return {
+                path: filePath,
+                url: filePath.replace(staticPath, host)
+            }
+        })
+
+        return results;
+    }
+
+    async callbackRemote(taskId: string, images: object[]) {
+        const url = AICG_PPT_IMAGE_REMOTE_URL;
+        const data = {
+            taskId,
+            images
+        }
+        const ret = await this._app.curl(url, {
+            method: 'POST',
+            data
+        });
+
+        return ret.data;
     }
 
     private __videosTracksToTemplateVideos(tracks) {

@@ -73,11 +73,11 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "npm run stop && npm run build && egg-scripts start --require=./src/config/preload.js --daemon --title=midway-server-my_midway_project --framework=midway --port=60123",
+    "start": "npm run stop & npm run build && NODE_ENV=production pm2 restart ./bootstrap.js --name aigc-controller",
     "online": "egg-scripts start --title=midway-server-my_midway_project --framework=midway",
-    "stop": "egg-scripts stop --title=midway-server-my_midway_project",
-    "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev --port=60123",
-    "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts --port=60123",
+    "stop": "pm2 stop aigc-controller",
+    "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev --port=60121",
+    "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts --port=60121",
     "debug": "cross-env NODE_ENV=local midway-bin dev --debug --ts",
     "test": "midway-bin test --ts --forceExit",
     "test:mocha": "cross-env MIDWAY_SERVER_ENV=unittest mocha --parallel=false",
