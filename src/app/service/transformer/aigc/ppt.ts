@@ -64,7 +64,7 @@ export class AigcPptService {
             data,
             dataType: 'json',
             headers: {
-              'content-type': 'application/json',
+                'content-type': 'application/json',
             },
         });
 
@@ -100,7 +100,7 @@ export class AigcPptService {
             data,
             dataType: 'json',
             headers: {
-              'content-type': 'application/json',
+                'content-type': 'application/json',
             },
         });
 
@@ -123,7 +123,7 @@ export class AigcPptService {
         return results;
     }
 
-    async callbackRemote(taskId: string, images: object[],callback:string) {
+    async callbackRemote(taskId: string, images: object[], callback: string) {
         const url = callback;
         const data = {
             taskId,
@@ -134,7 +134,7 @@ export class AigcPptService {
             data,
             dataType: 'json',
             headers: {
-              'content-type': 'application/json',
+                'content-type': 'application/json',
             },
         });
 
@@ -220,14 +220,19 @@ export class AigcPptService {
             } else { // digital human
                 const clips = track.VideoTrackClips;
                 clips.forEach((element, index) => {
+                    const extName = path.extname(element.Path ?? element.MediaURL);
+                    let decoder = []
+                    if (extName == '.webm') {
+                        decoder = decoder.concat('-c:v libvpx-vp9')
+                    }
                     const video = {
                         "id": `region_${trackIdx}_${index + 1}`,
                         "type": "video",
                         "srcId": "B5B3823C1EB318E9CF526F06EA8F93DB",
                         "url": element.Path ?? element.MediaURL,
                         "options": [
-                            `-t ${element.TimelineOut - element.TimelineIn}`
-                        ],
+                            `-t ${element.TimelineOut - element.TimelineIn}`,
+                        ].concat(...decoder),
                         "filters": [
                             {
                                 "seq": 0,
@@ -243,16 +248,17 @@ export class AigcPptService {
                                     "w": element.Width,
                                     "h": element.Height
                                 }
-                            },
-                            {
-                                "seq": 3,
-                                "name": "chromakey",
-                                "options": {
-                                    "color": "0x00ff00",
-                                    "similarity": 0.3,
-                                    "blend": 0.05
-                                }
                             }
+                            // ,
+                            // {
+                            //     "seq": 3,
+                            //     "name": "chromakey",
+                            //     "options": {
+                            //         "color": "0x00ff00",
+                            //         "similarity": 0.3,
+                            //         "blend": 0.05
+                            //     }
+                            // }
                             // ,
                             // {
                             //     "seq": 5,
