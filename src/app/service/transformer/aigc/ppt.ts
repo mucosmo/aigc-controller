@@ -12,8 +12,6 @@ import moment from 'moment';
 
 
 const AIGC_VIDEO_SERVER_HOST = process.env.AIGC_VIDEO_SERVER_HOST;
-const AICG_PPT_IMAGE_REMOTE_URL = process.env.AICG_PPT_IMAGE_REMOTE_URL;
-
 
 
 @Provide()
@@ -75,7 +73,7 @@ export class AigcPptService {
     }
 
     async ppt2Image(body: any) {
-        const { user, file } = body;
+        const { user, file, callback } = body;
 
         const staticPath = '/opt/application';
 
@@ -95,7 +93,7 @@ export class AigcPptService {
         const taskId = moment().format('YYMMDD_HHmmss') + '_' + Math.random().toString(36).slice(2);
         const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${uploadFolder};convert -density 200 -quality 80 ${uploadFolder}/${fileName}.pdf ${outputFolder}/%03d.jpg &`
 
-        const data = { taskId, command, output: outputFolder };
+        const data = { taskId, command, output: outputFolder, callback };
         const url = `${AIGC_VIDEO_SERVER_HOST}/api/ppt/image`;
         await this._app.curl(url, {
             method: 'POST',
@@ -125,8 +123,8 @@ export class AigcPptService {
         return results;
     }
 
-    async callbackRemote(taskId: string, images: object[]) {
-        const url = AICG_PPT_IMAGE_REMOTE_URL;
+    async callbackRemote(taskId: string, images: object[],callback:string) {
+        const url = callback;
         const data = {
             taskId,
             images

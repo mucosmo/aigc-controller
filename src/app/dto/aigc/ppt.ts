@@ -63,5 +63,9 @@ export  class PptToImageDTO {
   @CreateApiPropertyDoc('用户信息')
   @Rule(RuleType.object().required())
   user: TimelineUserDTO;
+
+  @CreateApiPropertyDoc('回调地址')
+  @Rule(RuleType.string().required())
+  callback: string;
 }
 

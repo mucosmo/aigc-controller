@@ -142,10 +142,10 @@ export class AigcController {
   })
   @Validate()
   async ppt2ImageCallback(ctx: Context, @Body(ALL) body: any) {
-    const { taskId, output } = body;
+    const { taskId, output, callback } = body;
     const images = await this.aigcPptService.ppt2ImageCallback(output);
 
-    await this.aigcPptService.callbackRemote(taskId, images);
+    await this.aigcPptService.callbackRemote(taskId, images, callback);
     ctx.helper.success(images);
   }
 }
