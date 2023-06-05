@@ -58,16 +58,20 @@ export class AigcPptService {
         return template as unknown as LocalFileDTO;
     }
 
-    async ffmpegProgress(user) {
-        const key = `ppt2videoProgress:${user.tenant}_${user.name}`;
-        let info = JSON.parse(await this._app.redis.get(key));
-        if (!info) return null;
-        let occupied = info.occupied;
-        let progress = info.progress;
-        if (progress > 0.98) {
-            progress = 1;
-        }
-        return { progress, occupied };
+    async ffmpegProgress(user: any) {
+        const data = { taskId: 'ffmpeg_progress' }
+        const url = `${AIGC_VIDEO_SERVER_HOST}/api/video/composite/progress`;
+        const ret = await this._app.curl(url, {
+            method: 'POST',
+            data,
+            dataType: 'json',
+            headers: {
+              'content-type': 'application/json',
+            },
+        });
+
+        console.log('------ret', ret.data)
+        return { progress: ret.data.progress, occupied: ret.data.occupied, success: ret.data.success };
     }
 
     async ppt2Image(body: any) {
@@ -95,7 +99,11 @@ export class AigcPptService {
         const url = `${AIGC_VIDEO_SERVER_HOST}/api/ppt/image`;
         await this._app.curl(url, {
             method: 'POST',
-            data
+            data,
+            dataType: 'json',
+            headers: {
+              'content-type': 'application/json',
+            },
         });
 
         return taskId;
@@ -125,7 +133,11 @@ export class AigcPptService {
         }
         const ret = await this._app.curl(url, {
             method: 'POST',
-            data
+            data,
+            dataType: 'json',
+            headers: {
+              'content-type': 'application/json',
+            },
         });
 
         return ret.data;

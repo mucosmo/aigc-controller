@@ -110,9 +110,9 @@ export class AigcController {
     description: '',
   })
   @Validate()
-  async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { user: { tenant: string, name: string, path: string } }) {
+  async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { taskId: string }) {
     // const ret = fs.existsSync(params.user.path)
-    const progress = await this.aigcPptService.ffmpegProgress(params.user);
+    const progress = await this.aigcPptService.ffmpegProgress(params.taskId);
     ctx.helper.success({ status: progress });
   }
 
@@ -142,7 +142,7 @@ export class AigcController {
   })
   @Validate()
   async ppt2ImageCallback(ctx: Context, @Body(ALL) body: any) {
-    const {taskId, output} = body;
+    const { taskId, output } = body;
     const images = await this.aigcPptService.ppt2ImageCallback(output);
 
     await this.aigcPptService.callbackRemote(taskId, images);

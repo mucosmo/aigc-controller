@@ -21,12 +21,15 @@ import { RtcAssetModel } from '../../model/rtc-asset';
 
 import { InjectEntityModel } from '@midwayjs/orm';
 
+// import moment from 'moment';
+
 
 
 /** 24小时的秒数，用于 redis 缓存 */
 const OneDaySeconds = 24 * 60 * 60;
 
 const MEDIASOUP_SERVER_HOST = process.env.MEDIASOUP_SERVER_HOST;
+const AIGC_VIDEO_SERVER_HOST = process.env.AIGC_VIDEO_SERVER_HOST;
 
 @Provide()
 export class FfmpegService {
@@ -69,7 +72,7 @@ export class FfmpegService {
 
     const command = [...partialCommand, videoSink, audioSink].join(' ');
 
-    const execRet = await this.executeCommand({ command, peerId, roomId: data.sink.roomId });
+    const execRet = await this.executeCommand({ taskId: 'specific at late', command, peerId, roomId: data.sink.roomId });
 
     return { command, execRet }
   }
@@ -99,9 +102,12 @@ export class FfmpegService {
     ].join(' ');
 
     const command = [...partialCommand, fileSink].join(' ');
+    const taskId = 'ffmpeg_progress';
 
-    const ret = await this.executeCommand({ command, peerId: user.name, roomId: user.tenant, duration: user.duration });
-    return { mixer: ret, command }
+    console.log('-------user')
+    console.log(user)
+    const ret = await this.executeCommand({ taskId, command, peerId: user.name, roomId: user.tenant, duration: user.duration });
+    return { mixer: ret, command, taskId }
   }
 
   /**get the metadata of files or streams */
@@ -185,8 +191,10 @@ export class FfmpegService {
   }
 
   /**send to server to execute ffmpeg command */
-  async executeCommand(data: { command: string, roomId?: string, peerId?: string, duration?: number }) {
-    const url = `${MEDIASOUP_SERVER_HOST}/rtc/room/command`;
+  async executeCommand(data: { taskId: string, command: string, roomId?: string, peerId?: string, duration?: number }) {
+    const url = `${AIGC_VIDEO_SERVER_HOST}/api/video/composite`;
+
+
     const result = await this._app.curl(url, {
       method: 'POST',
       data,
@@ -223,7 +231,7 @@ export class FfmpegService {
     return { currentFrame: 0, currentTime: 0 && currentTime };
   }
 
-  async  asyncFfprobe(path) {
+  async asyncFfprobe(path) {
     return new Promise((resolve, reject) => {
       ffmpeg.ffprobe(path, (err, metadata) => {
         if (err) {
