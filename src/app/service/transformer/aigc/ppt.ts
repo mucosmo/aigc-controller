@@ -83,14 +83,15 @@ export class AigcPptService {
             fs.mkdirSync(uploadFolder, { recursive: true });
         }
 
-        const outputFolder = `${uploadFolder}/output`;
+        const taskId = moment().format('YYMMDD_HHmmss') + '_' + Math.random().toString(36).slice(2);
+
+        const outputFolder = `${uploadFolder}/${taskId}`;
         if (!fs.existsSync(outputFolder)) {
             fs.mkdirSync(outputFolder, { recursive: true });
         }
 
         const fileName = path.basename(file.path, path.extname(file.path))
 
-        const taskId = moment().format('YYMMDD_HHmmss') + '_' + Math.random().toString(36).slice(2);
         const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${uploadFolder};convert -density 200 -quality 80 ${uploadFolder}/${fileName}.pdf ${outputFolder}/%03d.jpg &`
 
         const data = { taskId, command, output: outputFolder, callback };
