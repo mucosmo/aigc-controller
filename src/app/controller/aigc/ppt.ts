@@ -70,19 +70,24 @@ export class AigcController {
   })
   @Validate()
   async generateLocalFile(ctx: Context, @Body(ALL) params: TimelineDTO) {
-    const ret = await this.aigcPptService.ffmpegProgress(params.user);
-    if (ret && ret.occupied) {
-      ctx.helper.fail({ status: ret }, '被占用，请稍后', 409);
-      return;
+    try {
+      const ret = await this.aigcPptService.ffmpegProgress(params.user);
+      if (ret && ret.occupied) {
+        ctx.helper.fail({ status: ret }, '被占用，请稍后', 409);
+        return;
+      }
+      const body = this.aigcPptService.pptToFfmpeg(params);
+      const duration = this.aigcPptService.calDuration(params.asset);
+      params.user.duration = duration;
+      await this.ffmpegService.localFile(body, params.user);
+      body.sink.roomId = undefined;
+      body.sink.userId = undefined;
+      body.sink.path = undefined;
+      ctx.helper.success({ sink: body.sink });
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.helper.fail(error, error.name);
     }
-    const body = this.aigcPptService.pptToFfmpeg(params);
-    const duration = this.aigcPptService.calDuration(params.asset);
-    params.user.duration = duration;
-    await this.ffmpegService.localFile(body, params.user);
-    body.sink.roomId = undefined;
-    body.sink.userId = undefined;
-    body.sink.path = undefined;
-    ctx.helper.success({ sink: body.sink });
   }
 
 
@@ -111,9 +116,14 @@ export class AigcController {
   })
   @Validate()
   async ppt2VideoProgress(ctx: Context, @Body(ALL) params: { taskId: string }) {
-    // const ret = fs.existsSync(params.user.path)
-    const progress = await this.aigcPptService.ffmpegProgress(params.taskId);
-    ctx.helper.success({ status: progress });
+    try {
+      const progress = await this.aigcPptService.ffmpegProgress(params.taskId);
+      ctx.helper.success({ status: progress });
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.helper.fail(error, error.name);
+    }
+
   }
 
   @Post('/upload', {
@@ -122,8 +132,13 @@ export class AigcController {
   })
   @Validate()
   async upload(ctx: Context, @Body(ALL) params: UploadFileDTO) {
-    const ret = await this.aigcUploadService.save(params);
-    ctx.helper.success(ret);
+    try {
+      const ret = await this.aigcUploadService.save(params);
+      ctx.helper.success(ret);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.helper.fail(error, error.name);
+    }
   }
 
   @Post('/ppt2img', {
@@ -132,8 +147,14 @@ export class AigcController {
   })
   @Validate()
   async ppt2Image(ctx: Context, @Body(ALL) body: PptToImageDTO) {
-    const taskId = await this.aigcPptService.ppt2Image(body);
-    ctx.helper.success({ taskId });
+    try {
+      const taskId = await this.aigcPptService.ppt2Image(body);
+      ctx.helper.success({ taskId });
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.helper.fail(error, error.name);
+    }
+
   }
 
   @Post('/ppt2img/callback', {
@@ -142,10 +163,15 @@ export class AigcController {
   })
   @Validate()
   async ppt2ImageCallback(ctx: Context, @Body(ALL) body: any) {
-    const { taskId, output, callback } = body;
-    const images = await this.aigcPptService.ppt2ImageCallback(output);
+    try {
+      const { taskId, output, callback } = body;
+      const images = await this.aigcPptService.ppt2ImageCallback(output);
+      await this.aigcPptService.callbackRemote(taskId, images, callback);
+      ctx.helper.success(images);
+    } catch (error) {
+      ctx.logger.error(error);
+      ctx.helper.fail(error, error.name);
+    }
 
-    await this.aigcPptService.callbackRemote(taskId, images, callback);
-    ctx.helper.success(images);
   }
 }
