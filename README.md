@@ -1,33 +1,28 @@
-# mixer-ffmpeg
+# aigc-controller
 
 ## linux 软件需求
 
 1. redis 5.0+ (redis-cli -v)
-2. mysql 5.7+ (mysql --version)
 
-## 安装
+## 更新后重启
 
 ```bash
-git clone git@github.com:YiruAI/mixer-ffmpeg.git
-npm install
+# 如有必要，配置服务参数
+vi .env
+# 运行
+./run.sh
 ```
 
-## 参数配置
+## 初次运行
 
 ```bash
-# 生成 env 文件，然后根据服务器实际情况配置
+# 拉取代码安装依赖
+git pull
+cnpm install
+
+# 生成 env 文件，然后配置参数
 mv .env.example .env
-```
 
-## 运行
-
-```bash
-npm run start
-```
-
-## 文档
-
-```bash
-# 生成接口文档
-apidoc -i src/app/controller/ -o src/app/public/apidoc
+# 运行
+npm start
 ```
