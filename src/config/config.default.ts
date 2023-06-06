@@ -1,5 +1,5 @@
 import { EggAppInfo } from "egg";
-import { ConnectionOptions } from 'typeorm';
+// import { ConnectionOptions } from 'typeorm';
 
 import { DefaultConfig } from "./config.types";
 
@@ -28,18 +28,18 @@ export default (appInfo: EggAppInfo): DefaultConfig => {
     password: "admin"
   };
 
-  // 数据库配置
-  config.orm = {
-    type: 'mysql',
-    host: process.env.MYSQL_HOST || '127.0.0.1',
-    port: process.env.MYSQL_PORT || 3306,
-    username: process.env.MYSQL_USERNAME || '',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || undefined,
-    synchronize: false,
-    logging: true,
-    timezone: '+08:00',
-  } as ConnectionOptions;
+  // // 数据库配置
+  // config.orm = {
+  //   type: 'mysql',
+  //   host: process.env.MYSQL_HOST || '127.0.0.1',
+  //   port: process.env.MYSQL_PORT || 3306,
+  //   username: process.env.MYSQL_USERNAME || '',
+  //   password: process.env.MYSQL_PASSWORD || '',
+  //   database: process.env.MYSQL_DATABASE || undefined,
+  //   synchronize: false,
+  //   logging: true,
+  //   timezone: '+08:00',
+  // } as ConnectionOptions;
 
   // redis配置
   config.redis = {
