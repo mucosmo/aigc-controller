@@ -12,6 +12,8 @@ import moment from 'moment';
 
 
 const AIGC_VIDEO_SERVER_HOST = process.env.AIGC_VIDEO_SERVER_HOST;
+const FILE_SERVER_FOLDER = process.env.FILE_SERVER_FOLDER;
+const FILE_SERVER_URL=process.env.FILE_SERVER_URL;
 
 
 @Provide()
@@ -24,7 +26,7 @@ export class AigcPptService {
 
     pptToFfmpeg(params: TimelineDTO) {
         const template = JSON.parse(fs.readFileSync(path.join(__dirname, './ppt-template.json'), 'utf-8'));
-        const dir = `/opt/application/data/aigc/${params.user.tenant}/${params.user.name}`;
+        const dir = path.join(FILE_SERVER_FOLDER, params.user.tenant, params.user.name)
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -35,7 +37,7 @@ export class AigcPptService {
             roomId: params.user.tenant,
             userId: params.user.name,
             path: filePath,
-            url: filePath.replace('/opt/application', 'https://chaosyhy.com:60125')
+            url: filePath.replace(FILE_SERVER_FOLDER, FILE_SERVER_URL)
         }
 
         // subtitles
@@ -75,9 +77,7 @@ export class AigcPptService {
     async ppt2Image(body: any) {
         const { user, file, callback } = body;
 
-        const staticPath = '/opt/application';
-
-        const uploadFolder = path.join(staticPath, '/data/aigc/', user.tenant, user.name);
+        const uploadFolder = path.join(FILE_SERVER_FOLDER, user.tenant, user.name);
 
         if (!fs.existsSync(uploadFolder)) {
             fs.mkdirSync(uploadFolder, { recursive: true });
@@ -109,15 +109,12 @@ export class AigcPptService {
     }
 
     async ppt2ImageCallback(output: any) {
-        const staticPath = '/opt/application';
-        const host = 'https://chaosyhy.com:60125';
-
         const images = fs.readdirSync(output);
         const results = images.map(image => {
             const filePath = path.join(output, image);
             return {
                 path: filePath,
-                url: filePath.replace(staticPath, host)
+                url: filePath.replace(FILE_SERVER_FOLDER, FILE_SERVER_URL)
             }
         })
 

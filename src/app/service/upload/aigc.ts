@@ -13,6 +13,8 @@ import moment from 'moment';
 
 import crypto from 'crypto';
 
+const FILE_SERVER_FOLDER = process.env.FILE_SERVER_FOLDER;
+const FILE_SERVER_URL=process.env.FILE_SERVER_URL;
 
 @Provide()
 export class AigcUploadService {
@@ -26,10 +28,8 @@ export class AigcUploadService {
         const { user, file } = params;
         const fileData = Buffer.from(file.data);
 
-        const staticPath = '/opt/application';
-        const host = 'https://chaosyhy.com:60125';
         const fileName = path.basename(file.name);
-        const uploadFolder = path.join(staticPath, '/data/aigc/', user.tenant, user.name);
+        const uploadFolder = path.join(FILE_SERVER_FOLDER, user.tenant, user.name);
 
         if (!fs.existsSync(uploadFolder)) {
             fs.mkdirSync(uploadFolder, { recursive: true });
@@ -40,7 +40,7 @@ export class AigcUploadService {
 
         fs.writeFileSync(filePath, fileData);
 
-        const url = filePath.replace(staticPath, host);
+        const url = filePath.replace(FILE_SERVER_FOLDER, FILE_SERVER_URL);
 
         let duration = 0;
 
