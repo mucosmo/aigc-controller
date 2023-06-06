@@ -1,11 +1,11 @@
 {
-  "name": "tx_streamPipeline",
-  "version": "1.4.0",
-  "description": "甜新科技RTC流控制服务器",
+  "name": "aigc-controller",
+  "version": "1.0.0",
+  "description": "用于控制后台 AIGC 任务",
   "private": true,
   "dependencies": {
     "@midwayjs/bootstrap": "^2.12.0",
-    "@midwayjs/core": "^3.11.6",
+    "@midwayjs/core": "^2.14.6",
     "@midwayjs/cross-domain": "^3.7.3",
     "@midwayjs/decorator": "^2.13.2",
     "@midwayjs/logger": "^2.17.0",
