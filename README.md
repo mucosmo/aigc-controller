@@ -7,10 +7,12 @@
 ## 更新后重启
 
 ```bash
-# 如有必要，配置服务参数
+# 如有必要，更新服务参数
 vi .env
 # 运行
 ./run.sh
+# 用 pm2 可以看到 aigc-controller 在运行
+pm2 list
 ```
 
 ## 初次运行
@@ -25,4 +27,7 @@ mv .env.example .env
 
 # 运行
 npm start
+
+# 用 pm2 可以看到 aigc-controller 在运行
+pm2 list
 ```
