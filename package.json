@@ -75,7 +75,7 @@
   "scripts": {
     "start": "npm run stop & npm run build && NODE_ENV=production pm2 start ./bootstrap.js --name aigc-controller",
     "online": "egg-scripts start --title=midway-server-my_midway_project --framework=midway",
-    "stop": "pm2 stop aigc-controller",
+    "stop": "pm2 delete aigc-controller",
     "start_build": "npm run build && cross-env NODE_ENV=development midway-bin dev --port=60121",
     "dev": "cross-env ets && cross-env NODE_ENV=local midway-bin dev --ts --port=60121",
     "debug": "cross-env NODE_ENV=local midway-bin dev --debug --ts",
