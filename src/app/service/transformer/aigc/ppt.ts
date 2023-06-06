@@ -92,7 +92,7 @@ export class AigcPptService {
 
         const fileName = path.basename(file.path, path.extname(file.path))
 
-        const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${uploadFolder};convert -density 200 -quality 80 ${uploadFolder}/${fileName}.pdf ${outputFolder}/%03d.jpg &`
+        const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${outputFolder};convert -density 200 -quality 80 ${outputFolder}/${fileName}.pdf ${outputFolder}/%04d.jpg &`
 
         const data = { taskId, command, output: outputFolder, callback };
         const url = `${AIGC_VIDEO_SERVER_HOST}/api/ppt/image`;
