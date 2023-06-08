@@ -136,6 +136,8 @@ export class AigcPptService {
             },
         });
 
+        this.ctx.logger.info(JSON.stringify(ret.data))
+
         return ret.data;
     }
 
