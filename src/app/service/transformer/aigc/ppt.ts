@@ -85,16 +85,20 @@ export class AigcPptService {
 
         const taskId = moment().format('YYMMDD_HHmmss') + '_' + Math.random().toString(36).slice(2);
 
-        const outputFolder = `${uploadFolder}/${taskId}`;
-        if (!fs.existsSync(outputFolder)) {
-            fs.mkdirSync(outputFolder, { recursive: true });
+        const pdfOutputFolder = `${uploadFolder}/${taskId}`;
+        const imagesOutputFolder = `${uploadFolder}/${taskId}/images`;
+        if (!fs.existsSync(pdfOutputFolder)) {
+            fs.mkdirSync(pdfOutputFolder, { recursive: true });
+        }
+        if (!fs.existsSync(imagesOutputFolder)) {
+            fs.mkdirSync(imagesOutputFolder, { recursive: true });
         }
 
         const fileName = path.basename(file.path, path.extname(file.path))
 
-        const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${outputFolder};convert -density 200 -quality 80 ${outputFolder}/${fileName}.pdf ${outputFolder}/%04d.jpg &`
+        const command = `libreoffice --headless --convert-to pdf ${file.path} --outdir ${pdfOutputFolder};convert -density 200 -quality 80 ${pdfOutputFolder}/${fileName}.pdf ${imagesOutputFolder}/%04d.jpg &`
 
-        const data = { taskId, command, output: outputFolder, callback };
+        const data = { taskId, command, output: imagesOutputFolder, callback };
         const url = `${AIGC_VIDEO_SERVER_HOST}/api/ppt/image`;
         await this._app.curl(url, {
             method: 'POST',
